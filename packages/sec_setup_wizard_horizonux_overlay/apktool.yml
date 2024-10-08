@@ -1,5 +1,5 @@
-version: 0.1.0
-apkFileName: horizonux.system.settings.overlay.apk
+version: 1.0.0
+apkFileName: horizonux.android.setup.wizard.overlay.apk
 isFrameworkApk: false
 usesFramework:
   ids:
@@ -12,11 +12,11 @@ packageInfo:
   forcedPackageId: 127
   renameManifestPackage: null
 versionInfo:
-  versionCode: 010000000
-  versionName: 0.1.00-0
+  versionCode: 1
+  versionName: 1.0
 resourcesAreCompressed: false
 sharedLibrary: false
 sparseResources: false
 doNotCompress:
 - resources.arsc
-- png
+- webp

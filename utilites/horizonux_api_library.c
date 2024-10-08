@@ -76,15 +76,6 @@ void ___remove__system__property(const char *property) {
     snprintf(command, sizeof(command), "resetprop --delete %s", property);
 }
 
-void ___check__if_we_have_apex_file() {
-    struct stat file_stat;
-    if (stat("/system/lib/libhorizonuxapilibrary.so", &file_stat) != 0 &&
-        stat("/system/lib64/libhorizonuxapilibrary.so", &file_stat) != 0) {
-        printf(" - Critical system file is not avaliable, please re-flash the rom.");
-        exit(EXIT_FAILURE);
-    } 
-}
-
 // ___change__given__line__on__a__file "prop / flag without it's value" "flag / prop value" "system property file path"
 void ___edit__prop__in__a__file(const char* pat, const char* value, const char* filename) {
     FILE* file = fopen(filename, "r");

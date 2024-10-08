@@ -12,7 +12,7 @@ function initialize_macloader() {
 
     # Add the macloader lines to the file
     for line in "${macloader_array[@]}"; do
-        echo "$line" >> ./patched_resources/vendor/etc/init/wifi.rc
+        echo "$line" >> ./build/vendor/etc/init/wifi.rc
     done
 }
 
@@ -82,7 +82,7 @@ function nuke_stuffs() {
 		"${VENDOR_ETC_FOLDER}/init/vaultkeeper_common.rc"
 		"${VENDOR_ETC_FOLDER}/init/pa_daemon_teegris.rc"
 		"${VENDOR_ETC_FOLDER}/init/wsm-service.rc"
-		"${VENDOR_ETC_FOLDER}/init/vendor.samsung.hardware.tlc*.rc" # vendor.samsung.hardware.tlc.atn@1.0-service
+		"${VENDOR_ETC_FOLDER}/init/vendor.samsung.hardware.tlc*.rc"
 	)
 
     for service in "security.wsm" "security.proca" "tlc.ucm" "tlc.payment"; do
@@ -111,7 +111,7 @@ function nuke_stuffs() {
 }
 
 function main() {
-	mkdir -p ./patched_resources/vendor/etc/init/
+	mkdir -p ./build/vendor/etc/init/
     local i
     local VENDOR_ETC_FOLDER
     local start_added=false
@@ -139,7 +139,7 @@ function main() {
 
         # If we haven't added the "start" line yet, copy the lines before it
         if ! $start_added; then
-            echo "$i" >> ./patched_resources/vendor/etc/init/wifi.rc
+            echo "$i" >> ./build/vendor/etc/init/wifi.rc
         fi
     done < "${VENDOR_ETC_FOLDER}/init/wifi.rc"
 		

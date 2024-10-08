@@ -1,4 +1,4 @@
-version: 2.9.3
+version: 1.0.0
 apkFileName: luna_personal_build.android.overlay.apk
 isFrameworkApk: false
 usesFramework:
