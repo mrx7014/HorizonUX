@@ -58,7 +58,7 @@ make custom-horizonux-remove-none-security-type-and-add-animations-scale
 make custom-horizonux-setup-wizard-overlay
 ```
 
-- Modified version of <a href=" https://github.com/yanndroid/screenresolution">Yanndroid's Screen resolution changer app.</a>
+- Modified version of <a href="https://github.com/yanndroid/screenresolution">Yanndroid's Screen resolution changer app.</a>
 ```
 make custom-horizonux-resolution-app-builder
 ```
