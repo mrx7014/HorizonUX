@@ -12,3 +12,53 @@
 
 Thanks for dropping by! You’re a total legend! 💖✨
 
+# Building with this source, still not finished.
+- Bring Unlimited photos backup.
+```
+make unlimited-photo-backups
+```
+
+- Remove some useless stuffs from the vendor.
+```
+make remove-useless-vendor-things
+```
+
+- Disable USB Debugging Authorization: 
+> [!NOTE]  
+> - This will leave your data be stolen or anything could happen, the builder shouldn't publish their rom
+> - without changing these into the default value.
+```
+make disable-debugging-authorization
+```
+
+# Device Specific Things:
+- Fixes the system overlay.
+```
+make a30-cutout
+```
+
+- Bluetooth Patcher, use this if bluetooth is not working properly.
+```
+make bluetooth-library-patcher
+```
+
+# Custom HorizonUX things (still in development):
+- Enables rounded corners on pip window
+```
+make custom-horizonux-pip-rounded-corners-enabler-overlay
+```
+
+- Removes none security type and adds more animation scalling options.
+```
+make custom-horizonux-remove-none-security-type-and-add-animations-scale
+```
+
+- Custom HorizonUX welcome message after finishing setup:
+```
+make custom-horizonux-setup-wizard-overlay
+```
+
+- Modified version of <a href=" https://github.com/yanndroid/screenresolution">Yanndroid's Screen resolution changer app.</a>
+```
+make custom-horizonux-resolution-app-builder
+```

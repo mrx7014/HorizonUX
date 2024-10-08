@@ -3,6 +3,7 @@ APKTOOL := apktool
 ADD_UNLIMITED_BACKUPS_SCRIPT := ./generic_addons/additionals/unlimited_google_backups/add_unlimited_backups.sh
 AUTHORIZATION_DISABLER_SCRIPT := ./patches/disable_adb_authorization/disable_adb_authorization.sh
 BLUETOOTH_LIBRARY_PATCHER_SCRIPT := ./patches/bluetooth_library_patcher/patch.sh
+PERMISSIONS_CONF_FILE := ./misc/scripts/resolution_app_permissions_xml_conf.sh
 
 # Check if the apktool is installed
 check: 
@@ -62,9 +63,10 @@ bluetooth-library-patcher: check_if_bluetooth_patcher_exists
 	@echo " - Build initiated by $(shell id -un) at $(shell date +"%I:%M%p") - $(shell date +"%Y-%d-%m")"
 	@bash -c "$(BLUETOOTH_LIBRARY_PATCHER_SCRIPT)"
 
-horizonux-resolution-app-builder: check
+custom-horizonux-resolution-app-builder: check
 	@echo " - Build initiated by $(shell id -un) at $(shell date +"%I:%M%p") - $(shell date +"%Y-%d-%m")"
 	@mkdir -p ./build/system/etc/permissions ./build/system/priv-app/HorizonUXResolution/
+	@bash -c "$(PERMISSIONS_CONF_FILE)"
 	@apktool build ./packages/horizonux_resolution/ > /dev/null 2>&1 && { \
 		mv ./packages/horizonux_resolution/dist/HorizonUXResolution.apk ./build/system/priv-app/HorizonUXResolution/; \
 	} || { \
