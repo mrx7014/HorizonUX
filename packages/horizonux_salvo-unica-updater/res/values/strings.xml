@@ -74,9 +74,9 @@
     <string name="material_timepicker_pm">PM</string>
     <string name="material_timepicker_select_time">Select time</string>
     <string name="material_timepicker_text_input_mode_description">Switch to text input mode for the time input.</string>
-    <string name="mesa_aboutactivity_pref_title">About TukiRom Updater</string>
+    <string name="mesa_aboutactivity_pref_title">About HorizonUX Updater</string>
     <string name="mesa_app_info">App info</string>
-    <string name="mesa_app_settings">TukiRom Updater Settings</string>
+    <string name="mesa_app_settings">HorizonUX Updater Settings</string>
     <string name="mesa_bgservice_freq_12h_pref_sum">12 hours</string>
     <string name="mesa_bgservice_freq_24h_pref_sum">Daily</string>
     <string name="mesa_bgservice_freq_3h_pref_sum">3 hours</string>
@@ -170,7 +170,7 @@
     <string name="mesa_retry">Retry</string>
     <string name="mesa_settings">Settings</string>
     <string name="mesa_tab_tts">Tab %1$d of %2$d</string>
-    <string name="mesa_tenupdate">TukiRom Updater</string>
+    <string name="mesa_tenupdate">HorizonUX Updater</string>
     <string name="mesa_tenupdate_notichannel_bg_name">Background</string>
     <string name="mesa_tenupdate_notichannel_dwnl_name">Download</string>
     <string name="mesa_tenupdate_notichannel_main_name">General</string>

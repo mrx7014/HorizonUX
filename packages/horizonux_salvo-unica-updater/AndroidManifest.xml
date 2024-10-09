@@ -15,7 +15,7 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <application android:allowBackup="false" android:appComponentFactory="androidx.core.app.CoreComponentFactory" android:debuggable="true" android:extractNativeLibs="false" android:hardwareAccelerated="true" android:icon="@mipmap/ic_launcher" android:label="@string/mesa_tenupdate" android:name="com.mesalabs.ten.update.TenUpdateApp" android:networkSecurityConfig="@xml/network_security_config" android:persistent="true" android:supportsRtl="true" android:theme="@style/mesa_OTA_AppStyle.DayNight">
+    <application android:allowBackup="false" android:appComponentFactory="androidx.core.app.CoreComponentFactory" android:debuggable="true" android:extractNativeLibs="false" android:hardwareAccelerated="true" android:icon="@mipmap/ic_launcher" android:label="HorizonUX Updater" android:name="com.mesalabs.ten.update.TenUpdateApp" android:networkSecurityConfig="@xml/network_security_config" android:persistent="true" android:supportsRtl="true" android:theme="@style/mesa_OTA_AppStyle.DayNight">
         <meta-data android:name="SamsungBasicInteraction" android:value="SEP10"/>
         <meta-data android:name="com.samsung.android.icon_container.has_icon_container" android:value="true"/>
         <meta-data android:name="com.samsung.android.icon_container.feature_appicon" android:value="ADAPTIVEICON_SHADOW"/>
