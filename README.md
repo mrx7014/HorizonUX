@@ -12,13 +12,15 @@
 
 Thanks for dropping by! You’re a total legend! 💖✨
 
-# Building with this source, still not finished.
-- Bring Unlimited photos backup.
+# Stuffs to include in your rom, still not finished.
+> [!NOTE]  
+> - You must open-source your rom if you want to use any of my / other's content(s) from here.
+- Brings Unlimited photos backup.
 ```
 make unlimited-photo-backups
 ```
 
-- Remove some useless stuffs from the vendor.
+- Removes some useless stuffs from the vendor.
 ```
 make remove-useless-vendor-things
 ```
@@ -58,7 +60,7 @@ make custom-horizonux-remove-none-security-type-and-add-animations-scale
 make custom-horizonux-setup-wizard-overlay
 ```
 
-# Some かわいい stuffs from other developers
+# Some かわいい stuffs from other developers:
 - Modified version of <a href="https://github.com/yanndroid/screenresolution">Yanndroid's Screen resolution changer app.</a>
 ```
 make custom-horizonux-resolution-app-builder
