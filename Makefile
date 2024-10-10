@@ -4,6 +4,8 @@ ADD_UNLIMITED_BACKUPS_SCRIPT := ./generic_addons/additionals/unlimited_google_ba
 AUTHORIZATION_DISABLER_SCRIPT := ./patches/disable_adb_authorization/disable_adb_authorization.sh
 BLUETOOTH_LIBRARY_PATCHER_SCRIPT := ./patches/bluetooth_library_patcher/patch.sh
 PERMISSIONS_CONF_FILE := ./misc/scripts/resolution_app_permissions_xml_conf.sh
+UNICA_UPDATER_SMALI_TAR := ./packages/horizonux_salvo-unica-updater/smali.tar
+UNICA_UPDATER_META_INF_TAR := ./packages/horizonux_salvo-unica-updater/original/META-INF.tar
 
 # Check if the apktool is installed
 check: 
@@ -13,7 +15,7 @@ check:
 	}
 # Check if the apktool is installed
 
-# Check if scripts exist
+# Check if things are found
 check_if_add_unlimited_backups_script_exists:
 	@test -f $(ADD_UNLIMITED_BACKUPS_SCRIPT) || { \
 		echo " - Error: The script $(ADD_UNLIMITED_BACKUPS_SCRIPT) does not exist. Please check the path."; \
@@ -31,7 +33,19 @@ check_if_bluetooth_patcher_exists:
 		echo " - Error: The script $(BLUETOOTH_LIBRARY_PATCHER_SCRIPT) does not exist. Please check the path."; \
 		exit 1; \
 	}
-# Check if scripts exist
+	
+check_if_updater_smali_tar_exists:
+	@test -f $(UNICA_UPDATER_SMALI_TAR) || { \
+		echo " - Error: The tar file $(UNICA_UPDATER_SMALI_TAR) does not exist. Please check the path."; \
+		exit 1; \
+	}
+	
+check_if_updater_original_tar_exists:
+	@test -f $(UNICA_UPDATER_META_INF_TAR) || { \
+		echo " - Error: The tar file $(UNICA_UPDATER_META_INF_TAR) does not exist. Please check the path."; \
+		exit 1; \
+	}
+# Check if things are found
 
 # Build targets
 a30-cutout: check
@@ -91,6 +105,17 @@ custom-horizonux-remove-none-security-type-and-add-animations-scale: check
 		echo " - Failed to build the custom settings overlay, please try again.."; \
 	}
 
+custom-horizonux-unica-updater: check check_if_updater_original_tar_exists check_if_updater_smali_tar_exists
+	@echo " - Build initiated by $(shell id -un) at $(shell date +"%I:%M%p") - $(shell date +"%Y-%d-%m")"
+	@mkdir -p ./build/system/priv-app/
+	@tar -xf $(UNICA_UPDATER_SMALI_TAR) -C ./packages/horizonux_salvo-unica-updater/
+	@tar -xf $(UNICA_UPDATER_META_INF_TAR) -C ./packages/horizonux_salvo-unica-updater/original/
+	@apktool build ./packages/horizonux_salvo-unica-updater/ > /dev/null 2>&1 && { \
+		mv ./packages/settings/oneui3/nullthing/dist/luna.horizonux.system.settings.overlay_animations_null.apk ./build/product/overlay/; \
+	} || { \
+		echo " - Failed to build the custom settings overlay, please try again.."; \
+	}
+
 custom-horizonux-pip-rounded-corners-enabler-overlay: check
 	@echo " - Build initiated by $(shell id -un) at $(shell date +"%I:%M%p") - $(shell date +"%Y-%d-%m")"
 	@mkdir -p ./build/product/overlay
@@ -102,4 +127,4 @@ custom-horizonux-pip-rounded-corners-enabler-overlay: check
 # Build targets
 
 # Prevent make from considering files with the same name as targets
-.PHONY: check a30-cutout unlimited-photo-backups remove-useless-vendor-things disable-debugging-authorization bluetooth-library-patcher horizonux-resolution-app-builder custom-horizonux-setup-wizard-overlay custom-horizonux-remove-none-security-type-and-add-animations-scale custom-horizonux-pip-rounded-corners-enabler-overlay
+.PHONY: check a30-cutout unlimited-photo-backups remove-useless-vendor-things disable-debugging-authorization bluetooth-library-patcher horizonux-resolution-app-builder custom-horizonux-setup-wizard-overlay custom-horizonux-remove-none-security-type-and-add-animations-scale custom-horizonux-pip-rounded-corners-enabler-overlay custom-horizonux-unica-updater
