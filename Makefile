@@ -1,6 +1,6 @@
 # Required stuffs
 APKTOOL := apktool
-ADD_UNLIMITED_BACKUPS_SCRIPT := ./generic_addons/additionals/unlimited_google_backups/add_unlimited_backups.sh
+ADD_UNLIMITED_BACKUPS_SCRIPT := ./misc/scripts/add_unlimited_backups.sh
 AUTHORIZATION_DISABLER_SCRIPT := ./patches/disable_adb_authorization/disable_adb_authorization.sh
 BLUETOOTH_LIBRARY_PATCHER_SCRIPT := ./patches/bluetooth_library_patcher/patch.sh
 HORIZONUX_WALLPAPER_JSON_MAKER_SCRIPT := ./misc/scripts/github_at_luna__FLOSSPAPER.sh
