@@ -143,5 +143,34 @@ custom-horizonux-wallpaper-maker: check check_if_wallpaper_json_maker_script_exi
 	}
 # Build targets
 
+# license (placeholder)
+c:
+	@echo "
+					GNU GENERAL PUBLIC LICENSE
+                      Version 3, 29 June 2007
+
+Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
+Everyone is permitted to copy and distribute verbatim copies
+of this license document, but changing it is not allowed.
+ 
+    HorizonUX, Personalized version(s) of samsung's official oneui software.
+    Copyright (C) 2024 Luna
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. If not, see <https://www.gnu.org/licenses/>.
+"
+# license (placeholder)
+
 # Prevent make from considering files with the same name as targets
-.PHONY: check check_if_updater_original_tar_exists check_if_updater_smali_tar_exists check_if_add_unlimited_backups_script_exists check_if_bluetooth_patcher_exists check_if_authorization_disabler_exists check_if_wallpaper_json_maker_script_exists a30-cutout unlimited-photo-backups remove-useless-vendor-things disable-debugging-authorization bluetooth-library-patcher horizonux-resolution-app-builder custom-horizonux-setup-wizard-overlay custom-horizonux-remove-none-security-type-and-add-animations-scale custom-horizonux-pip-rounded-corners-enabler-overlay custom-horizonux-unica-updater custom-horizonux-wallpaper-maker
+.PHONY: check check_if_updater_original_tar_exists check_if_updater_smali_tar_exists check_if_add_unlimited_backups_script_exists check_if_bluetooth_patcher_exists check_if_authorization_disabler_exists check_if_wallpaper_json_maker_script_exists a30-cutout unlimited-photo-backups remove-useless-vendor-things disable-debugging-authorization bluetooth-library-patcher horizonux-resolution-app-builder custom-horizonux-setup-wizard-overlay custom-horizonux-remove-none-security-type-and-add-animations-scale custom-horizonux-pip-rounded-corners-enabler-overlay custom-horizonux-unica-updater custom-horizonux-wallpaper-maker c
+# Prevent make from considering files with the same name as targets
