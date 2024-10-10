@@ -58,7 +58,13 @@ make custom-horizonux-remove-none-security-type-and-add-animations-scale
 make custom-horizonux-setup-wizard-overlay
 ```
 
+# Some かわいい stuffs from other developers
 - Modified version of <a href="https://github.com/yanndroid/screenresolution">Yanndroid's Screen resolution changer app.</a>
 ```
 make custom-horizonux-resolution-app-builder
+```
+
+- Modified version of <a href="https://github.com/salvogiangri">Salvo sir's</a> UN1CA Updater app.
+```
+make custom-horizonux-unica-updater
 ```
