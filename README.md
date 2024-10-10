@@ -60,8 +60,13 @@ make custom-horizonux-remove-none-security-type-and-add-animations-scale
 make custom-horizonux-setup-wizard-overlay
 ```
 
+- Custom HorizonUX default wallpapers customizer tool:
+```
+make custom-horizonux-wallpaper-maker
+```
+
 # Some かわいい stuffs from other developers:
-- Modified version of <a href="https://github.com/yanndroid/screenresolution">Yanndroid's Screen resolution changer app.</a>
+- Modified version of <a href="https://github.com/yanndroid/screenresolution">Yanndroid's</a> Screen resolution changer app.
 ```
 make custom-horizonux-resolution-app-builder
 ```
@@ -70,3 +75,7 @@ make custom-horizonux-resolution-app-builder
 ```
 make custom-horizonux-unica-updater
 ```
+
+# Small disclaimer!
+- The <a href="https://github.com/yanndroid/screenresolution">Yanndroid's</a> Screen resolution changer app and the <a href="https://github.com/salvogiangri">Salvo sir's</a> UN1CA Updater app is not included in the license, though it doesn't
+mean that you can use it without open-source'ing your ROM

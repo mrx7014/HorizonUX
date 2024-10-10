@@ -3,6 +3,7 @@ APKTOOL := apktool
 ADD_UNLIMITED_BACKUPS_SCRIPT := ./generic_addons/additionals/unlimited_google_backups/add_unlimited_backups.sh
 AUTHORIZATION_DISABLER_SCRIPT := ./patches/disable_adb_authorization/disable_adb_authorization.sh
 BLUETOOTH_LIBRARY_PATCHER_SCRIPT := ./patches/bluetooth_library_patcher/patch.sh
+HORIZONUX_WALLPAPER_JSON_MAKER_SCRIPT := ./misc/scripts/github_at_luna__FLOSSPAPER.sh
 PERMISSIONS_CONF_FILE := ./misc/scripts/resolution_app_permissions_xml_conf.sh
 UNICA_UPDATER_SMALI_TAR := ./packages/horizonux_salvo-unica-updater/smali.tar
 UNICA_UPDATER_META_INF_TAR := ./packages/horizonux_salvo-unica-updater/original/META-INF.tar
@@ -43,6 +44,12 @@ check_if_updater_smali_tar_exists:
 check_if_updater_original_tar_exists:
 	@test -f $(UNICA_UPDATER_META_INF_TAR) || { \
 		echo " - Error: The tar file $(UNICA_UPDATER_META_INF_TAR) does not exist. Please check the path."; \
+		exit 1; \
+	}
+
+check_if_wallpaper_json_maker_script_exists:
+	@test -f $(HORIZONUX_WALLPAPER_JSON_MAKER_SCRIPT) || { \
+		echo " - Error: The script $(HORIZONUX_WALLPAPER_JSON_MAKER_SCRIPT) does not exist. Please check the path."; \
 		exit 1; \
 	}
 # Check if things are found
@@ -107,11 +114,11 @@ custom-horizonux-remove-none-security-type-and-add-animations-scale: check
 
 custom-horizonux-unica-updater: check check_if_updater_original_tar_exists check_if_updater_smali_tar_exists
 	@echo " - Build initiated by $(shell id -un) at $(shell date +"%I:%M%p") - $(shell date +"%Y-%d-%m")"
-	@mkdir -p ./build/system/priv-app/
+	@mkdir -p ./build/system/priv-app/HorizonUXUpdater
 	@tar -xf $(UNICA_UPDATER_SMALI_TAR) -C ./packages/horizonux_salvo-unica-updater/
 	@tar -xf $(UNICA_UPDATER_META_INF_TAR) -C ./packages/horizonux_salvo-unica-updater/original/
 	@apktool build ./packages/horizonux_salvo-unica-updater/ > /dev/null 2>&1 && { \
-		mv ./packages/settings/oneui3/nullthing/dist/luna.horizonux.system.settings.overlay_animations_null.apk ./build/product/overlay/; \
+		mv ./packages/horizonux_salvo-unica-updater/dist/HorizonUXUpdater.apk ./build/system/priv-app/HorizonUXUpdater; \
 	} || { \
 		echo " - Failed to build the custom settings overlay, please try again.."; \
 	}
@@ -124,7 +131,17 @@ custom-horizonux-pip-rounded-corners-enabler-overlay: check
 	} || { \
 		echo " - Failed to build the custom settings overlay, please try again.."; \
 	}
+	
+custom-horizonux-wallpaper-maker: check check_if_wallpaper_json_maker_script_exists
+	@echo " - Build initiated by $(shell id -un) at $(shell date +"%I:%M%p") - $(shell date +"%Y-%d-%m")"
+	@mkdir -p ./build/system/priv-app/HorizonUXWallpapers/
+	@bash -c "$(HORIZONUX_WALLPAPER_JSON_MAKER_SCRIPT)"
+	@apktool build ./packages/flosspaper_purezza/ > /dev/null 2>&1 && { \
+		mv ./packages/flosspaper_purezza/dist/horizonux-cust-wallpapers.apk ./build/system/priv-app/HorizonUXWallpapers/; \
+	} || { \
+		echo " - Failed to build the custom settings overlay, please try again.."; \
+	}
 # Build targets
 
 # Prevent make from considering files with the same name as targets
-.PHONY: check a30-cutout unlimited-photo-backups remove-useless-vendor-things disable-debugging-authorization bluetooth-library-patcher horizonux-resolution-app-builder custom-horizonux-setup-wizard-overlay custom-horizonux-remove-none-security-type-and-add-animations-scale custom-horizonux-pip-rounded-corners-enabler-overlay custom-horizonux-unica-updater
+.PHONY: check check_if_updater_original_tar_exists check_if_updater_smali_tar_exists check_if_add_unlimited_backups_script_exists check_if_bluetooth_patcher_exists check_if_authorization_disabler_exists check_if_wallpaper_json_maker_script_exists a30-cutout unlimited-photo-backups remove-useless-vendor-things disable-debugging-authorization bluetooth-library-patcher horizonux-resolution-app-builder custom-horizonux-setup-wizard-overlay custom-horizonux-remove-none-security-type-and-add-animations-scale custom-horizonux-pip-rounded-corners-enabler-overlay custom-horizonux-unica-updater custom-horizonux-wallpaper-maker
