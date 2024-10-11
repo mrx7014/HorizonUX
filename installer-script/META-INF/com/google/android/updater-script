@@ -1,0 +1,3 @@
+# fetch the upcoming values from the update-binary
+OUTFD="$2"
+ZIPFILE="$3"

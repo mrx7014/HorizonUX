@@ -39,13 +39,13 @@ void ___get__system__property(const char *property, bool asInt) {
 
 // cd /sys/devices/platform/battery/power_supply/battery
 // for i in *; do if [ "$(cat $i)" == $(acpi | cut -c 12-12) ]; then echo $i; fi; done
-void ___fetch__battery__percentage() {
+void ___fetch__battery__percentage__a30() { // [Luna] - changed the function name from ___fetch__battery__percentage to ___fetch__battery__percentage__a30 @3:10AM-10/11/2024
 	// setup some local variables.
     int battery_capacity = 0;
     char percentage_size[4];
     // Galaxy A30 blob path.
     FILE *battery_blob = fopen("/sys/devices/platform/battery/power_supply/battery/capacity", "r");
-    // If actual a30 path fails, it'll try the generic wsl path.
+    // If actual a30 path fails, it'll try the generic path.
     if (battery_blob == NULL) {
         battery_blob = fopen("/sys/class/power_supply/battery/capacity", "r");
         if (battery_blob == NULL) {
@@ -58,14 +58,14 @@ void ___fetch__battery__percentage() {
             printf("%d\n", battery_capacity);
         }
     }
-    fclose(battery_blob); // close the file after opening it..
+    fclose(battery_blob);
 }
 
 void ___set__system__property(const char *prop, const void *value, bool isInt) {
     char command[BUFFER_SIZE];
     if(isInt) {
         snprintf(command, sizeof(command), "resetprop -n %s %d", prop, *(int *)value); // let's set the numerical value.
-    } 
+    }
 	else {
         snprintf(command, sizeof(command), "resetprop -n %s %s", prop, (const char *)value); // let's set the alphabet value (ig plox)
     }
@@ -127,11 +127,9 @@ void ___make__OpenRecoveryScript() {
         perror(" - Failed to create recovery script");
         return;
     }
-
-	// let's write that in oneline and pray jesus.
-	fprintf(file, "#!/sbin/sh\nif [ -e \"/sbin/recovery\" ]; then\n\ttwrp install /data/pulseux/snapshots/snapshot.zip\nelse\n\techo \" - Device is not in the recovery mode, exiting...\"\nfi\n");
-    fclose(file); // imma close the file
-    system("chmod 755 /cache/recovery/command"); // Optionally, imma make the script executable to fix feature errors;
+	fprintf(file, "--data_resizing\n--delete_apn_changes\n--wipe_cache\n--update_package=/data/pulseux/snapshots/snapshot.zip"); // [Luna] - nothing to say @3:04AM 10/11/2024
+    fclose(file);
+    system("chmod 755 /cache/recovery/command"); // Optionally, make the script executable to fix feature errors;
 }
 
 void ___reboot__device(const char *state) {
@@ -151,14 +149,14 @@ void ___mount__device__partitions__a30(const char *filesystem_type, const char *
 	
 	// stop the function from doing it's job if it detects overflow.
     if (!___validate__input__length(filesystem_type, 5) || !___validate__input__length(options, 136) || !___validate__input__length(block_name, 9) || !___validate__input__length(mount_point, 17)) {
-        fprintf(stderr, "Input parameters are too long.\n");
+        fprintf(stderr, " - can't mount, the input length is bigger than the one in the program.\n"); // [Luna] - nothing to say @3:14AM 10/11/2024
         return;
     }
 	
-	// merge the arguments together lmao.
+	// merge the arguments together.
     int len = snprintf(mount_flags, sizeof(mount_flags), "mount -t %s -o %s /dev/block/platform/13500000.dwmmc0/by-name/%s %s", filesystem_type, options, block_name, mount_point);					   
     if (len < 0 || len >= sizeof(mount_flags)) {
-        fprintf(stderr, "Error creating mount command: command too long.\n");
+        fprintf(stderr, " - not able to create stuffs to mount %s\n", block_name); // [Luna] - nothing to say @3:14AM 10/11/2024
         return;
     }
 		
@@ -193,7 +191,7 @@ void ___disable__magisk__module() {
         int fd = open(disable_path, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
         if (fd == -1) {
             perror("open");
-            continue; // Continue to the next module if there's an error
+            continue;
         }
 
         // Close the file descriptor

@@ -19,18 +19,16 @@ int main() {
     char IS_DEVICE_SETUP_IS_FINISHED[7];
     strcpy(IS_DEVICE_SETUP_IS_FINISHED, ___get__system__property("persist.sys.setupwizard", "false"));
 
-	// nothing.
-    const char *SystemShellCommandsToCompressTheLogs[] = {
-		"mkdir -p /cache/HorizonUX_last_logs/",
-        "logcat -d >> /cache/HorizonUX_last_logs/HorizonUX/last_boot_attempt_logs.log",
-        "cat /dev/kmsg >> /cache/HorizonUX_last_logs/HorizonUX/last_booted_system_kmsg_logs.log",
-        "tar -cf /cache/HorizonUX_last_logs/HorizonUX/dropbox.tar '/data/system/dropbox'",
-        "tar -cf /cache/HorizonUX_last_logs/HorizonUX/tombstones.tar '/data/tombstones'",
-        "tar -cf /cache/HorizonUX_last_logs/HorizonUX/data_log.tar '/data/log'",
-        "mkdir -p /cache/HorizonUX_last_logs/HorizonUX/.last_bootloop_logs",
-        "tar -cf '/cache/HorizonUX_last_logs/HorizonUX/.last_bootloop_logs/$(date +\"%Y-%m-%d\")/@$(date +\"%I:%M%p\")_bootloop_logger.tar' '/cache/HorizonUX_last_logs/HorizonUX/dropbox.tar /cache/HorizonUX_last_logs/HorizonUX/tombstones.tar /cache/HorizonUX_last_logs/HorizonUX/data_log.tar /cache/HorizonUX_last_logs/HorizonUX/last_booted_system_kmsg_logs.log /cache/HorizonUX_last_logs/HorizonUX/last_boot_attempt_logs.log'"
-    };
-	
+	// [Luna] - nothing to say @3:15AM 10/11/2024
+	const char *SystemShellCommandsToCompressTheLogs[] = {
+		"mkdir -p /cache/horizonux_last_taken_logs/ /cache/horizonux_last_taken_logs/.last_bootloop_logs",
+		"cat /dev/kmsg >> /cache/horizonux_last_taken_logs/last_booted_system_kmsg_logs.log",
+		"tar -cf /cache/horizonux_last_taken_logs/dropbox.tar /data/system dropbox",
+		"tar -cf /cache/horizonux_last_taken_logs/tombstones.tar /data/tombstones",
+		"tar -cf /cache/horizonux_last_taken_logs/data_log.tar /data/log",
+		"tar -cf '/cache/horizonux_last_taken_logs/.last_bootloop_logs/$(date +\"%Y-%m-%d\")/@$(date +\"%I:%M%p\")_bootloop_logger.tar' /cache/horizonux_last_taken_logs/dropbox.tar /cache/horizonux_last_taken_logs/tombstones.tar /cache/horizonux_last_taken_logs/data_log.tar /cache/horizonux_last_taken_logs/last_booted_system_kmsg_logs.log"
+	};
+
     if (strcmp(IS_DEVICE_SETUP_IS_FINISHED, "FINISH") == 0) {
 		if (___get__system__property("sys.system_server.start_count", "true") > 2 || ___get__system__property("sys.rescue_boot_count", "true") > 2) {
 			for (int i = 0; i < sizeof(SystemShellCommandsToCompressTheLogs) / sizeof(SystemShellCommandsToCompressTheLogs[0]); i++) {
@@ -43,7 +41,8 @@ int main() {
 		}
 	}
 	else { 
-		// if the device is not provisioned.
+		// [Luna] - nothing to say @3:16AM 10/11/2024
+		// ignore disabling modules if the device is not provisioned.
 		___make__OpenRecoveryScript();
 		___reboot__device("recovery");
 	}
