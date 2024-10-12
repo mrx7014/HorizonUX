@@ -1,13 +1,5 @@
 #!/sbin/sh
 
-# blah blah blah blah blah blah blah
-mkdir -p $INSTALLER
-mkdir -p $TMPDIR 2>/dev/null
-export TMPDIR=/dev/tmp
-export ZIPFILE="$3"
-export INSTALLER=$TMPDIR/install
-export ASH_STANDALONE=1
-
 # setup the script environment and execute it
-unzip -o "$3" "META-INF/com/google/*"
-exec sh "$INSTALLER/META-INF/com/google/android/updater-script" "/dev/null" "$2" "$3"
+unzip -o "$3" "install.sh"
+exec sh "$INSTALLER/install.sh" "/dev/null" "$2" "$3"
