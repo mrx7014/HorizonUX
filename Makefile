@@ -1,149 +1,138 @@
-# Required stuffs
+# Required tools and scripts
 APKTOOL := apktool
-ADD_UNLIMITED_BACKUPS_SCRIPT := ./misc/scripts/add_unlimited_backups.sh
-AUTHORIZATION_DISABLER_SCRIPT := ./patches/disable_adb_authorization/disable_adb_authorization.sh
-BLUETOOTH_LIBRARY_PATCHER_SCRIPT := ./patches/bluetooth_library_patcher/patch.sh
-HORIZONUX_WALLPAPER_JSON_MAKER_SCRIPT := ./misc/scripts/github_at_luna__FLOSSPAPER.sh
-PERMISSIONS_CONF_FILE := ./misc/scripts/resolution_app_permissions_xml_conf.sh
-UNICA_UPDATER_SMALI_TAR := ./packages/horizonux_salvo-unica-updater/smali.tar
-UNICA_UPDATER_META_INF_TAR := ./packages/horizonux_salvo-unica-updater/original/META-INF.tar
 
-# Check if the apktool is installed
-check: 
+# Scripts and tar files
+SCRIPTS := \
+    ./misc/scripts/add_unlimited_backups.sh \
+    ./patches/disable_adb_authorization/disable_adb_authorization.sh \
+    ./patches/bluetooth_library_patcher/patch.sh \
+    ./misc/scripts/github_at_luna__FLOSSPAPER.sh
+
+TARS := \
+    ./packages/horizonux_salvo-unica-updater/smali.tar \
+    ./packages/horizonux_salvo-unica-updater/original/META-INF.tar
+
+# Output directories
+BUILD_DIR := ./build/system
+OVERLAY_DIR := $(BUILD_DIR)/product/overlay
+ETC_DIR := $(BUILD_DIR)/etc/sysconfig
+PRIV_APP_DIR := $(BUILD_DIR)/priv-app
+
+# Check if required tools and files exist
+check: check_apktool check_files
+
+check_apktool:
 	@command -v $(APKTOOL) >/dev/null 2>&1 || { \
 		echo " - Error: $(APKTOOL) is not installed. Please install it to proceed."; \
 		exit 1; \
 	}
-# Check if the apktool is installed
 
-# Check if things are found
-check_if_add_unlimited_backups_script_exists:
-	@test -f $(ADD_UNLIMITED_BACKUPS_SCRIPT) || { \
-		echo " - Error: The script $(ADD_UNLIMITED_BACKUPS_SCRIPT) does not exist. Please check the path."; \
-		exit 1; \
-	}
+check_files:
+	@for script in $(SCRIPTS); do \
+		[ -f $$script ] || { \
+			echo " - Error: Script $$script does not exist. Please check the path."; \
+			exit 1; \
+		}; \
+	done
+	@for tar in $(TARS); do \
+		[ -f $$tar ] || { \
+			echo " - Error: Tar file $$tar does not exist. Please check the path."; \
+			exit 1; \
+		}; \
+	done
 
-check_if_authorization_disabler_exists:
-	@test -f $(AUTHORIZATION_DISABLER_SCRIPT) || { \
-		echo " - Error: The script $(AUTHORIZATION_DISABLER_SCRIPT) does not exist. Please check the path."; \
-		exit 1; \
-	}
-
-check_if_bluetooth_patcher_exists:
-	@test -f $(BLUETOOTH_LIBRARY_PATCHER_SCRIPT) || { \
-		echo " - Error: The script $(BLUETOOTH_LIBRARY_PATCHER_SCRIPT) does not exist. Please check the path."; \
-		exit 1; \
-	}
-	
-check_if_updater_smali_tar_exists:
-	@test -f $(UNICA_UPDATER_SMALI_TAR) || { \
-		echo " - Error: The tar file $(UNICA_UPDATER_SMALI_TAR) does not exist. Please check the path."; \
-		exit 1; \
-	}
-	
-check_if_updater_original_tar_exists:
-	@test -f $(UNICA_UPDATER_META_INF_TAR) || { \
-		echo " - Error: The tar file $(UNICA_UPDATER_META_INF_TAR) does not exist. Please check the path."; \
-		exit 1; \
-	}
-
-check_if_wallpaper_json_maker_script_exists:
-	@test -f $(HORIZONUX_WALLPAPER_JSON_MAKER_SCRIPT) || { \
-		echo " - Error: The script $(HORIZONUX_WALLPAPER_JSON_MAKER_SCRIPT) does not exist. Please check the path."; \
-		exit 1; \
-	}
-# Check if things are found
+# Log build completion
+finished:
+	@echo " - Build finished by $(shell id -un) at $(shell date +\"%I:%M%p\") on $(shell date +\"%Y-%m-%d\")"
+	@echo "   Check the /build folder for the items you have built."
+	@echo "   Please sign the built overlay or application packages manually with your own private keys; do not use any public keys."
 
 # Build targets
-a30-cutout: check
-	@echo " - Build initiated by $(shell id -un) at $(shell date +"%I:%M%p") - $(shell date +"%Y-%d-%m")"
-	@echo " - Compiling the framework overlay..."
-	@mkdir -p ./build/system/product/overlay/
-	@apktool build ./specific_device_patches/a30/device_cutout/ > /dev/null 2>&1 && { \
-		mv ./specific_device_patches/a30/device_cutout/dist/luna_personal_build.android.overlay.apk ./build/system/product/overlay/; \
+define build_target
+	@echo " - Building $1..."
+	@mkdir -p $2
+	@apktool build $3 > /dev/null 2>&1 && { \
+		mv $4 $2; \
 	} || { \
-		echo " - Failed to build the device cutout fix, please try again.."; \
+		echo " - Failed to build $1, please try again."; \
 	}
+	finished
+endef
 
-unlimited-photo-backups: check_if_add_unlimited_backups_script_exists
-	@echo " - Build initiated by $(shell id -un) at $(shell date +"%I:%M%p") - $(shell date +"%Y-%d-%m")"
-	@echo " - Creating XML file configurations for enabling unlimited photo backups."
-	@mkdir -p ./build/system/product/etc/sysconfig/
-	@bash -c "$(ADD_UNLIMITED_BACKUPS_SCRIPT)"
+a30-cutout: check
+	$(call build_target, A30 Cutout, $(OVERLAY_DIR), ./specific_device_patches/a30/overlay/framework-res/, $(OVERLAY_DIR)/luna_personal_build.a30.frameworkres.overlay.apk)
 
-remove-useless-vendor-things:
-	@echo " - Build initiated by $(shell id -un) at $(shell date +"%I:%M%p") - $(shell date +"%Y-%d-%m")"
-	@mkdir -p ./build/vendor/etc/init ./build/vendor/etc/vintf
-	@bash -c "$(ADD_UNLIMITED_BACKUPS_SCRIPT)"
+s20-cutout: check
+	$(call build_target, S20 Framework Overlay, $(OVERLAY_DIR), ./specific_device_patches/s20/overlay/framework-res/, $(OVERLAY_DIR)/luna_personal_build.s20.frameworkres.overlay.apk)
+	$(call build_target, S20 System UI Overlay, $(OVERLAY_DIR), ./specific_device_patches/s20/overlay/systemui/, $(OVERLAY_DIR)/samsung-S20fe-systemui.apk)
 
-disable-debugging-authorization: check_if_authorization_disabler_exists
-	@echo " - Build initiated by $(shell id -un) at $(shell date +"%I:%M%p") - $(shell date +"%Y-%d-%m")"
-	@bash -c "$(AUTHORIZATION_DISABLER_SCRIPT)"
+unlimited-photo-backups: check
+	@echo " - Creating XML configuration for unlimited photo backups..."
+	@mkdir -p $(ETC_DIR)
+	@bash -c "$(SCRIPTS[0])"
+	finished
 
-bluetooth-library-patcher: check_if_bluetooth_patcher_exists
-	@echo " - Build initiated by $(shell id -un) at $(shell date +"%I:%M%p") - $(shell date +"%Y-%d-%m")"
-	@bash -c "$(BLUETOOTH_LIBRARY_PATCHER_SCRIPT)"
+remove-useless-vendor-things: check
+	@echo " - Removing useless vendor items..."
+	@mkdir -p $(BUILD_DIR)/vendor/etc/init $(BUILD_DIR)/vendor/etc/vintf
+	@bash -c "$(SCRIPTS[0])"
+	finished
+
+disable-debugging-authorization: check
+	@echo " - Disabling debugging authorization..."
+	@bash -c "$(SCRIPTS[1])"
+	finished
+
+bluetooth-library-patcher: check
+	@echo " - Patching Bluetooth library..."
+	@bash -c "$(SCRIPTS[2])"
+	finished
 
 custom-horizonux-resolution-app-builder: check
-	@echo " - Build initiated by $(shell id -un) at $(shell date +"%I:%M%p") - $(shell date +"%Y-%d-%m")"
-	@mkdir -p ./build/system/etc/permissions ./build/system/priv-app/HorizonUXResolution/
-	@bash -c "$(PERMISSIONS_CONF_FILE)"
+	@echo " - Building HorizonUX Resolution app..."
+	@mkdir -p $(PRIV_APP_DIR)/HorizonUXResolution
+	@bash -c "$(SCRIPTS[3])"
 	@apktool build ./packages/horizonux_resolution/ > /dev/null 2>&1 && { \
-		mv ./packages/horizonux_resolution/dist/HorizonUXResolution.apk ./build/system/priv-app/HorizonUXResolution/; \
+		mv ./packages/horizonux_resolution/dist/HorizonUXResolution.apk $(PRIV_APP_DIR)/HorizonUXResolution/; \
 	} || { \
-		echo " - Failed to build the resolution app, please try again.."; \
+		echo " - Failed to build the resolution app, please try again."; \
 	}
+	finished
 
 custom-horizonux-setup-wizard-overlay: check
-	@echo " - Build initiated by $(shell id -un) at $(shell date +"%I:%M%p") - $(shell date +"%Y-%d-%m")"
-	@mkdir -p ./build/product/overlay/
+	@echo " - Building HorizonUX Setup Wizard overlay..."
+	@mkdir -p $(OVERLAY_DIR)
 	@apktool build ./packages/sec_setup_wizard_horizonux_overlay/ > /dev/null 2>&1 && { \
-		mv ./packages/sec_setup_wizard_horizonux_overlay/dist/horizonux.android.setup.wizard.overlay.apk ./build/product/overlay/; \
+		mv ./packages/sec_setup_wizard_horizonux_overlay/dist/horizonux.android.setup.wizard.overlay.apk $(OVERLAY_DIR)/; \
 	} || { \
-		echo " - Failed to build the custom setup wizard overlay, please try again.."; \
+		echo " - Failed to build the custom setup wizard overlay, please try again."; \
 	}
+	finished
 
-custom-horizonux-remove-none-security-type-and-add-animations-scale: check
-	@echo " - Build initiated by $(shell id -un) at $(shell date +"%I:%M%p") - $(shell date +"%Y-%d-%m")"
-	@mkdir -p ./build/product/overlay
-	@apktool build ./packages/settings/oneui3/nullthing/ > /dev/null 2>&1 && { \
-		mv ./packages/settings/oneui3/nullthing/dist/luna.horizonux.system.settings.overlay_animations_null.apk ./build/product/overlay/; \
-	} || { \
-		echo " - Failed to build the custom settings overlay, please try again.."; \
-	}
-
-custom-horizonux-unica-updater: check check_if_updater_original_tar_exists check_if_updater_smali_tar_exists
-	@echo " - Build initiated by $(shell id -un) at $(shell date +"%I:%M%p") - $(shell date +"%Y-%d-%m")"
-	@mkdir -p ./build/system/priv-app/HorizonUXUpdater
-	@tar -xf $(UNICA_UPDATER_SMALI_TAR) -C ./packages/horizonux_salvo-unica-updater/
-	@tar -xf $(UNICA_UPDATER_META_INF_TAR) -C ./packages/horizonux_salvo-unica-updater/original/
+custom-horizonux-unica-updater: check
+	@echo " - Building HorizonUX Unica Updater..."
+	@mkdir -p $(PRIV_APP_DIR)/HorizonUXUpdater
+	@tar -xf $(TARS[0]) -C ./packages/horizonux_salvo-unica-updater/
+	@tar -xf $(TARS[1]) -C ./packages/horizonux_salvo-unica-updater/original/
 	@apktool build ./packages/horizonux_salvo-unica-updater/ > /dev/null 2>&1 && { \
-		mv ./packages/horizonux_salvo-unica-updater/dist/HorizonUXUpdater.apk ./build/system/priv-app/HorizonUXUpdater; \
+		mv ./packages/horizonux_salvo-unica-updater/dist/HorizonUXUpdater.apk $(PRIV_APP_DIR)/HorizonUXUpdater; \
 	} || { \
-		echo " - Failed to build the custom settings overlay, please try again.."; \
+		echo " - Failed to build the Unica Updater, please try again."; \
 	}
+	finished
 
-custom-horizonux-pip-rounded-corners-enabler-overlay: check
-	@echo " - Build initiated by $(shell id -un) at $(shell date +"%I:%M%p") - $(shell date +"%Y-%d-%m")"
-	@mkdir -p ./build/product/overlay
-	@apktool build ./packages/systemui/oneui3/rounded_corners_on_pip/ > /dev/null 2>&1 && { \
-		mv ./packages/systemui/oneui3/rounded_corners_on_pip/dist/luna.horizonux.pip_enabler.systemui.overlay.apk ./build/product/overlay/; \
-	} || { \
-		echo " - Failed to build the custom settings overlay, please try again.."; \
-	}
-	
-custom-horizonux-wallpaper-maker: check check_if_wallpaper_json_maker_script_exists
-	@echo " - Build initiated by $(shell id -un) at $(shell date +"%I:%M%p") - $(shell date +"%Y-%d-%m")"
-	@mkdir -p ./build/system/priv-app/HorizonUXWallpapers/
-	@bash -c "$(HORIZONUX_WALLPAPER_JSON_MAKER_SCRIPT)"
+custom-horizonux-wallpaper-maker: check
+	@echo " - Building HorizonUX Wallpaper Maker..."
+	@mkdir -p $(PRIV_APP_DIR)/HorizonUXWallpapers
+	@bash -c "$(SCRIPTS[3])"
 	@apktool build ./packages/flosspaper_purezza/ > /dev/null 2>&1 && { \
-		mv ./packages/flosspaper_purezza/dist/horizonux-cust-wallpapers.apk ./build/system/priv-app/HorizonUXWallpapers/; \
+		mv ./packages/flosspaper_purezza/dist/horizonux-cust-wallpapers.apk $(PRIV_APP_DIR)/HorizonUXWallpapers/; \
 	} || { \
-		echo " - Failed to build the custom settings overlay, please try again.."; \
+		echo " - Failed to build the Wallpaper Maker, please try again."; \
 	}
-# Build targets
+	finished
 
-# license (placeholder)
+# License placeholder
 c:
 	@echo "
 					GNU GENERAL PUBLIC LICENSE
@@ -153,7 +142,7 @@ Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
 Everyone is permitted to copy and distribute verbatim copies
 of this license document, but changing it is not allowed.
  
-    HorizonUX, Personalized version(s) of samsung's official oneui software.
+    HorizonUX, Personalized version(s) of Samsung's official OneUI software.
     Copyright (C) 2024 Luna
 
     This program is free software: you can redistribute it and/or modify
@@ -169,8 +158,6 @@ of this license document, but changing it is not allowed.
     You should have received a copy of the GNU General Public License
     along with this program. If not, see <https://www.gnu.org/licenses/>.
 "
-# license (placeholder)
 
 # Prevent make from considering files with the same name as targets
-.PHONY: check check_if_updater_original_tar_exists check_if_updater_smali_tar_exists check_if_add_unlimited_backups_script_exists check_if_bluetooth_patcher_exists check_if_authorization_disabler_exists check_if_wallpaper_json_maker_script_exists a30-cutout unlimited-photo-backups remove-useless-vendor-things disable-debugging-authorization bluetooth-library-patcher horizonux-resolution-app-builder custom-horizonux-setup-wizard-overlay custom-horizonux-remove-none-security-type-and-add-animations-scale custom-horizonux-pip-rounded-corners-enabler-overlay custom-horizonux-unica-updater custom-horizonux-wallpaper-maker c
-# Prevent make from considering files with the same name as targets
+.PHONY: check finished a30-cutout s20-cutout unlimited-photo-backups remove-useless-vendor-things disable-debugging-authorization bluetooth-library-patcher custom-horizonux-resolution-app-builder custom-horizonux-setup-wizard-overlay custom-horizonux-unica-updater custom-horizonux-wallpaper-maker c

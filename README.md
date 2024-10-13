@@ -34,7 +34,12 @@ make disable-debugging-authorization
 ```
 
 # Device Specific Things:
-- Fixes the system overlay.
+- Fixes the system overlay for the Samsung Galaxy A30
+```
+make a30-cutout
+```
+
+- Fixes the system overlay for the Samsung Galaxy S20
 ```
 make a30-cutout
 ```
