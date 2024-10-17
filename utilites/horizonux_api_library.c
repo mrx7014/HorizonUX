@@ -28,7 +28,7 @@ void ___get__system__property(const char *property, bool asInt) {
                 printf("%d\n", num); // let's get the numerical value.
             }
         }
-    }
+    } 
 	else {
         while (fgets(buffer, sizeof(buffer), fp) != NULL) {
             printf("%s", buffer); // let's set the alphabet value. (ig plox)
@@ -37,10 +37,8 @@ void ___get__system__property(const char *property, bool asInt) {
     pclose(fp);
 }
 
-// cd /sys/devices/platform/battery/power_supply/battery
-// for i in *; do if [ "$(cat $i)" == $(acpi | cut -c 12-12) ]; then echo $i; fi; done
 void ___fetch__battery__percentage__a30() { // [Luna] - changed the function name from ___fetch__battery__percentage to ___fetch__battery__percentage__a30 @3:10AM-10/11/2024
-	// setup some local variables.
+    // setup some local variables.
     int battery_capacity = 0;
     char percentage_size[4];
     // Galaxy A30 blob path.
@@ -63,17 +61,19 @@ void ___fetch__battery__percentage__a30() { // [Luna] - changed the function nam
 
 void ___set__system__property(const char *prop, const void *value, bool isInt) {
     char command[BUFFER_SIZE];
-    if(isInt) {
+    if (isInt) {
         snprintf(command, sizeof(command), "resetprop -n %s %d", prop, *(int *)value); // let's set the numerical value.
-    }
+    } 
 	else {
         snprintf(command, sizeof(command), "resetprop -n %s %s", prop, (const char *)value); // let's set the alphabet value (ig plox)
     }
+    system(command);
 }
 
 void ___remove__system__property(const char *property) {
     char command[BUFFER_SIZE];
     snprintf(command, sizeof(command), "resetprop --delete %s", property);
+    system(command);
 }
 
 // ___change__given__line__on__a__file "prop / flag without it's value" "flag / prop value" "system property file path"
@@ -93,8 +93,7 @@ void ___edit__prop__in__a__file(const char* pat, const char* value, const char* 
     while (fgets(line, sizeof(line), file)) {
         if (strncmp(line, pat, strlen(pat)) == 0) {
             fprintf(tempFile, "%s=%s\n", pat, value);
-        } 
-		else {
+        } else {
             fputs(line, tempFile);
         }
     }
@@ -110,24 +109,24 @@ void ___edit__prop__in__a__file(const char* pat, const char* value, const char* 
 
 void ___execute__command(const char *command, bool *ignore_child_processes) {
     pid_t pid = fork();
-	if(!ignore_child_processes) {
-		printf(" - waiting for pid (process-id) %d to finish.", getpid());
-		waitpid(pid, NULL, 0); // let's wait for the child process to get finished
-	}
     if (pid == 0) {
         execlp("sh", "sh", "-c", command, (char *)NULL);
-		exit(EXIT_FAILURE); // omagod, we have to close if the dawn execlp fails
+        exit(EXIT_FAILURE); // Close if execlp fails
+    } 
+	else if (!ignore_child_processes) {
+        printf(" - waiting for pid (process-id) %d to finish.", pid);
+        waitpid(pid, NULL, 0); // Wait for the child process to finish
     }
 }
 
 void ___make__OpenRecoveryScript() {
-	system("touch /cache/recovery/command"); // make a dummy file lol
+    system("touch /cache/recovery/command"); // make a dummy file lol
     FILE *file = fopen("/cache/recovery/command", "w"); // let's open that dummy file to write the script.
     if (file == NULL) {
         perror(" - Failed to create recovery script");
         return;
     }
-	fprintf(file, "--data_resizing\n--delete_apn_changes\n--wipe_cache\n--update_package=/data/pulseux/snapshots/snapshot.zip"); // [Luna] - nothing to say @3:04AM 10/11/2024
+    fprintf(file, "--data_resizing\n--delete_apn_changes\n--wipe_cache\n--update_package=/data/pulseux/snapshots/snapshot.zip"); // [Luna] - nothing to say @3:04AM 10/11/2024
     fclose(file);
     system("chmod 755 /cache/recovery/command"); // Optionally, make the script executable to fix feature errors;
 }
@@ -135,42 +134,40 @@ void ___make__OpenRecoveryScript() {
 void ___reboot__device(const char *state) {
     if (strcmp(state, "recovery") == 0) {
         system("reboot recovery");
-    }
+    } 
 	else if (strcmp(state, "bootloader") == 0) {
         system("reboot bootloader");
-    }
-	else {
+    } else {
         system("reboot");
     }
 }
 
 void ___mount__device__partitions__a30(const char *filesystem_type, const char *options, const char *block_name, const char *mount_point) {
     char mount_flags[BUFFER_SIZE];
-	
-	// stop the function from doing it's job if it detects overflow.
+
+    // stop the function from doing its job if it detects overflow.
     if (!___validate__input__length(filesystem_type, 5) || !___validate__input__length(options, 136) || !___validate__input__length(block_name, 9) || !___validate__input__length(mount_point, 17)) {
         fprintf(stderr, " - can't mount, the input length is bigger than the one in the program.\n"); // [Luna] - nothing to say @3:14AM 10/11/2024
         return;
     }
-	
-	// merge the arguments together.
-    int len = snprintf(mount_flags, sizeof(mount_flags), "mount -t %s -o %s /dev/block/platform/13500000.dwmmc0/by-name/%s %s", filesystem_type, options, block_name, mount_point);					   
+
+    // merge the arguments together.
+    int len = snprintf(mount_flags, sizeof(mount_flags), "mount -t %s -o %s /dev/block/platform/13500000.dwmmc0/by-name/%s %s", filesystem_type, options, block_name, mount_point);
     if (len < 0 || len >= sizeof(mount_flags)) {
         fprintf(stderr, " - not able to create stuffs to mount %s\n", block_name); // [Luna] - nothing to say @3:14AM 10/11/2024
         return;
     }
-		
-	// mount the devices.
+
+    // mount the devices.
     execlp("sh", "sh", "-c", mount_flags, (char *)NULL);
 }
 
-// won't be possible without the help of chatgpt.
 void ___disable__magisk__module() {
     struct dirent *entry;
     DIR *dp = opendir("/data/adb/modules/");
-    
+
     if (dp == NULL) {
-        return EXIT_FAILURE;
+        return;
     }
 
     while ((entry = readdir(dp)) != NULL) {
@@ -197,7 +194,6 @@ void ___disable__magisk__module() {
         // Close the file descriptor
         close(fd);
     }
-	// close the thing yk.
     closedir(dp);
 }
 
