@@ -13,6 +13,15 @@ int ___validate__input__length(const char *input, size_t max_length) {
     return (input && strlen(input) < max_length);
 }
 
+int ___real__battery__blob(char *dev_battery_blob) {
+	if(dev_battery_blob == NULL) {
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
+
 void ___get__system__property(const char *property, bool asInt) {
     char buffer[BUFFER_SIZE];
     char command[BUFFER_SIZE];
@@ -37,26 +46,42 @@ void ___get__system__property(const char *property, bool asInt) {
     pclose(fp);
 }
 
-void ___fetch__battery__percentage__a30() { // [Luna] - changed the function name from ___fetch__battery__percentage to ___fetch__battery__percentage__a30 @3:10AM-10/11/2024
+// [Luna] - changed the function name from ___fetch__battery__percentage to ___fetch__battery__percentage__a30 @3:10AM-10/11/2024
+// [Luna] - reverted to the default name, just for getting the blob.
+void ___fetch__battery__percentage(char *dev_battery_blob) {
     // setup some local variables.
-    int battery_capacity = 0;
+    int battery_capacity;
     char percentage_size[4];
-    // Galaxy A30 blob path.
-    FILE *battery_blob = fopen("/sys/devices/platform/battery/power_supply/battery/capacity", "r");
-    // If actual a30 path fails, it'll try the generic path.
-    if (battery_blob == NULL) {
-        battery_blob = fopen("/sys/class/power_supply/battery/capacity", "r");
-        if (battery_blob == NULL) {
-            return;
-        }
-    }
+	
+	// ignore this shit and open up the avaliable blobs.
+	if(___real__battery__blob) {
+		FILE *battery_blob = fopen(dev_battery_blob, "r");
+		if (battery_blob == NULL) {
+			return;
+		}
+	}
+	else {
+		// Galaxy A30 blob path.
+		FILE *battery_blob = fopen("/sys/devices/platform/battery/power_supply/battery/capacity", "r");
+		// If actual a30 path fails.
+		if (battery_blob == NULL) {
+			printf("-100\n");
+		}
+	}
+	
     // Read the battery capacity
     if (fgets(percentage_size, sizeof(percentage_size), battery_blob) != NULL) {
         if (sscanf(percentage_size, "%d", &battery_capacity) == 1) {
-            printf("%d\n", battery_capacity);
+			if(battery_capacity == NULL) {
+				printf("-100\n");
+			}
+			else {
+				printf("%d\n", battery_capacity);
+			}
         }
     }
-    fclose(battery_blob);
+	// closes the opened file.
+	fclose(battery_blob);
 }
 
 void ___set__system__property(const char *prop, const void *value, bool isInt) {
@@ -121,6 +146,7 @@ void ___execute__command(const char *command, bool *ignore_child_processes) {
 
 void ___make__OpenRecoveryScript() {
     system("touch /cache/recovery/command"); // make a dummy file lol
+    system("touch /data/horizonux_rcm"); // make a dummy file for the installer script.
     FILE *file = fopen("/cache/recovery/command", "w"); // let's open that dummy file to write the script.
     if (file == NULL) {
         perror(" - Failed to create recovery script");
@@ -137,7 +163,8 @@ void ___reboot__device(const char *state) {
     } 
 	else if (strcmp(state, "bootloader") == 0) {
         system("reboot bootloader");
-    } else {
+    } 
+	else {
         system("reboot");
     }
 }

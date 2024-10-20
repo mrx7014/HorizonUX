@@ -1,4 +1,17 @@
-PRODUCT_IS_SERVED_AS_ROOT="true"
-author="Luna"
-version="1.0"
-codename="me you love me, me you love me, me you love me, me you love me"
+# rom informations
+version=1.0
+author=Luna
+codename=Katarenai
+
+# true = enables the thing, false = disables the thing, each one has their own things to do.
+PRODUCT_IS_SERVED_AS_ROOT=true
+THE_DEVICE_HAS_DYNAMIC_PARTITIONS=false
+
+# 										misc
+# arguments can be : tar , sparse & raw for now.
+# the format specifier should added to the FORMAT_SPECIFIER variable lol
+# for example FORMAT_SPECIFIER=.img.xz; this extracts super.img.xz if found.
+SHIPPED_AS_WHAT=tar
+FORMAT_SPECIFIER=.img.xz
+stuffs_to_wipe=data
+# 										misc

@@ -1,3 +1,0 @@
-awk '{print}' banner
-echo -e "\t\tDeveloper : Luna"
-echo "###############################################"
