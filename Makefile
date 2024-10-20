@@ -1,5 +1,6 @@
 # Required tools and scripts
 APKTOOL := apktool
+ZIP := zip
 
 # Scripts and tar files
 SCRIPTS := \
@@ -24,6 +25,12 @@ check: check_apktool check_files
 check_apktool:
 	@command -v $(APKTOOL) >/dev/null 2>&1 || { \
 		echo " - Error: $(APKTOOL) is not installed. Please install it to proceed."; \
+		exit 1; \
+	}
+
+check_zip:
+	@command -v $(ZIP) >/dev/null 2>&1 || { \
+		echo " - Error: $(ZIP) is not installed. Please install it to proceed."; \
 		exit 1; \
 	}
 
@@ -132,6 +139,18 @@ custom-horizonux-wallpaper-maker: check
 	}
 	finished
 
+flops-module:
+	@echo " - Building flops module..."
+	mkdir -p ./build/magisk_modules
+	[ -f "./magisk/modules/flops" ] || {
+		echo " - Error: module files are not found." \
+		exit 1; \
+	}
+	@cd ./magisk/modules/flops
+	@zip -r flops-module.zip .
+	@mv flops-module.zip ./build/magisk_modules/
+	finished
+	
 # License placeholder
 c:
 	@echo "
@@ -160,4 +179,4 @@ of this license document, but changing it is not allowed.
 "
 
 # Prevent make from considering files with the same name as targets
-.PHONY: check finished a30-cutout s20-cutout unlimited-photo-backups remove-useless-vendor-things disable-debugging-authorization bluetooth-library-patcher custom-horizonux-resolution-app-builder custom-horizonux-setup-wizard-overlay custom-horizonux-unica-updater custom-horizonux-wallpaper-maker c
+.PHONY: check finished a30-cutout s20-cutout unlimited-photo-backups remove-useless-vendor-things disable-debugging-authorization bluetooth-library-patcher custom-horizonux-resolution-app-builder custom-horizonux-setup-wizard-overlay custom-horizonux-unica-updater custom-horizonux-wallpaper-maker c flops-module check_zip

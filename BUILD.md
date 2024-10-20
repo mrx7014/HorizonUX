@@ -70,3 +70,9 @@ make custom-horizonux-resolution-app-builder
 ```
 make custom-horizonux-unica-updater
 ```
+
+# Some stuffs:
+- A Magisk module that switches the I/O scheduler to 'fio' to enhance performance, as discussed in various threads.
+```
+make flops-module
+```
