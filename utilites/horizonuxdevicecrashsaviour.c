@@ -4,7 +4,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 
 // import these from the lib file
 void ___get__system__property(const char *property, bool asInt);
