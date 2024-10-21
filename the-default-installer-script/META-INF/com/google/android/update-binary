@@ -60,9 +60,10 @@
 
 # setup the script environment and execute it
 export INSTALLER="$TMPDIR/install"
-for file in "install.sh" "figures" "rom.prop"; do
+for file in "install.sh" "rom.prop"; do
     unzip -o "$3" "$file" -d "${INSTALLER}/" || {
         exit 1
     }
 done
+
 exec sh "$INSTALLER/install.sh" "/dev/null" "$2" "$3"

@@ -149,7 +149,7 @@ void ___make__OpenRecoveryScript() {
         perror(" - Failed to create recovery script");
         return;
     }
-    fprintf(file, "--data_resizing\n--delete_apn_changes\n--wipe_cache\n--update_package=/data/pulseux/snapshots/snapshot.zip"); // [Luna] - nothing to say @3:04AM 10/11/2024
+    fprintf(file, "--data_resizing\n--delete_apn_changes\n--wipe_cache\n--update_package=/data/horizonux/snapshots/snapshot.zip"); // [Luna] - nothing to say @3:04AM 10/11/2024
     fclose(file);
     system("chmod 755 /cache/recovery/command"); // Optionally, make the script executable to fix feature errors;
 }

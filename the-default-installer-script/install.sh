@@ -1,11 +1,3 @@
-# blah blah blah blah blah blah blah
-export TMPDIR=/dev/tmp
-export OUTFD="$2"
-export ZIPFILE="$3"
-export INSTALLER="$TMPDIR/install"
-export IMAGES="${INSTALLER}/"
-mkdir -p "$INSTALLER" "$TMPDIR" 2>/dev/null
-
 function ___check__if__dependencies__exist() {
     local file="$1"
     unzip -l "${ZIPFILE}" | grep -q "${file}"
@@ -48,6 +40,7 @@ function ___abort() {
 }
 
 function ___find__real__block() {
+	local i
     local arguments="$1"
     local block_name="$2"
     local linked_block real_block
@@ -57,12 +50,12 @@ function ___find__real__block() {
     fi
 	
     case "$arguments" in 
-        device)
-            for i in /dev/block/platform/*/by-name; do
+        --device)
+            for i in /dev/block/platform/*/by-name /dev/block/*/by-name; do
                 ls "$i" | grep -q "$block_name" && linked_block="$i/$block_name"
             done
             ;;
-        kernel)
+        --kernel)
             for i in /sys/*; do
                 ls "$i" | grep -q "$block_name" && linked_block="$i/$block_name"
             done
@@ -80,10 +73,13 @@ function ___find__real__block() {
 }
 
 function ___install__the__disk__image() {
+	local i
+	local ok
+    local real_block
     local image_name="$1"
     local block_name="$2"
-    local real_block
-	local ok
+	local image_name_blah=${image_name%%.*}
+	local krai_block_name="$(for i in /dev/block/platform/*/by-name /dev/block/*/by-name; do ls $i | grep -q $block_name && echo "$i"; done)"
 	
 	# no.
     if [[ -z "$image_name" || -z "$block_name" ]]; then
@@ -92,8 +88,8 @@ function ___install__the__disk__image() {
     fi
 	
 	# no.
-    ___unpack__the__dependencies "$image_name" || ___abort " - The file wasn't properly extracted, please re-install or reboot into recovery and try again."
-    real_block=$(___find__real__block "--device" "$block_name")
+	___unpack__the__dependencies "$image_name" || ___abort " - The file wasn't properly extracted, please re-install or reboot into recovery and try again."
+    real_block=$(___find__real__block --device "$block_name")
     if [[ -z "$real_block" ]]; then
         ___print "- Failed to get enough information, an unknown error has happened."
         ___abort "  Error code: 0x7265616c5f626c6f636b206e6f7420736574"
@@ -111,11 +107,11 @@ function ___install__the__disk__image() {
 	fi
 	
 	# ok.
-	for i in "${IMAGES}"/*.img; do
-		if [[ -f "$real_block" ]]; then
-			${ok} "${IMAGES}/${i}" "$real_block"
+	if [ "$(___get__rom__prop THE_DEVICE_HAS_DYNAMIC_PARTITIONS)" == "false" ]; then
+		if [ -f "${krai_block_name}/${image_name_blah}" ]; then
+			${ok} "${image_name_blah}.img" "$real_block"
 		fi
-	done
+	fi
 }
 
 function ___get__rom__prop() {
@@ -147,53 +143,55 @@ function ___get__rom__prop() {
     esac
 }
 
-# uhrm...
-function main() {
-	if [ -f "${INSTALLER}/figures/banner" ]; then awk '{print}' "${INSTALLER}/figures/banner"; fi
-	___print "Developer : $(___get__rom__prop author) "
-	___print "Version : v$(___get__rom__prop version) "
-	___print "Codename : $(___get__rom__prop codename) "
-	___print "###############################################"
-	___print " - Installing packages..."
+###########################################
+# blah blah blah blah blah blah blah
+export TMPDIR=/dev/tmp
+export OUTFD="$2"
+export ZIPFILE="$3"
+export INSTALLER="$TMPDIR/install"
+export IMAGES="${INSTALLER}/"
+mkdir -p "$INSTALLER" "$TMPDIR" 2>/dev/null
+exec sh "$INSTALLER/install.sh" "/dev/null" "$2" "$3"
+###########################################
 
-	# installs the stuffs.
-	if ___get__rom__prop "THE_DEVICE_HAS_DYNAMIC_PARTITIONS"; then
-		___install__the__disk__image "super${FORMAT_SPECIFIER}" "super"
-	else
-		for i in system${FORMAT_SPECIFIER} vendor${FORMAT_SPECIFIER}; do
-			___install__the__disk__image "$i" "$(echo "$i" | cut -d. -f1)"
-		done
-		___get__rom__prop "PRODUCT_IS_SERVED_AS_ROOT" && ___install__the__disk__image "product${FORMAT_SPECIFIER}" "$(echo "$i" | cut -d. -f1)"
-	fi
-	if [ -f "${INSTALLER}/figures/outro_banner" ]; then awk '{print}' "${INSTALLER}/figures/outro_banner"; fi
-}
-
-function main_recovery() {
-	if [ -f "${INSTALLER}/figures/banner_rcm" ]; then awk '{print}' "${INSTALLER}/banner_rcm"; fi
-	___print " - Installing the recovery package..."
-
-	# installs the stuffs.
-	if ___get__rom__prop "THE_DEVICE_HAS_DYNAMIC_PARTITIONS"; then
-		___unpack__the__dependencies "super${FORMAT_SPECIFIER}"
-		___install__the__disk__image "super${FORMAT_SPECIFIER}" "super"
-	else
-		for i in system${FORMAT_SPECIFIER} vendor${FORMAT_SPECIFIER}; do
-			___unpack__the__dependencies "$i"
-			___install__the__disk__image "$i" "$(echo "$i" | cut -d. -f1)"
-		done
-		___get__rom__prop "PRODUCT_IS_SERVED_AS_ROOT" && ___unpack__the__dependencies "product${FORMAT_SPECIFIER}"
-		___install__the__disk__image "product${FORMAT_SPECIFIER}" "$(echo "$i" | cut -d. -f1)"
-	fi
-	
-	# warn the users.
-	___print " - make sure to wipe : $(___get__rom__prop stuffs_to_wipe) "
-	___print " - anyways, have a great day."
-}
-
-# initialization :
+###############################################################################################
 FORMAT_SPECIFIER=$(___get__rom__prop "FORMAT_SPECIFIER")
-if [ -f "/data/horizonux_rcm" ]; then
-	main_recovery
-else 
-	main
+___print "#########################################################"
+___print "   _  _     _   _            _                _   ___  __"
+___print " _| || |_  | | | | ___  _ __(_)_______  _ __ | | | \\ \\/ /"
+___print "|_  ..  _| | |_| |/ _ \\| '__| |_  / _ \\| '_ \\| | | |\\  / "
+___print "|_      _| |  _  | (_) | |  | |/ / (_) | | | | |_| |/  \\ "
+___print "  |_||_|   |_| |_|\\___/|_|  |_/___\\___/|_| |_|\\___//_/\\_\\"
+___print "                                                         "
+___print "#########################################################"
+___print "Developer : $(___get__rom__prop author) "
+___print "Version : v$(___get__rom__prop version) "
+___print "Codename : $(___get__rom__prop codename) "
+___print "###############################################"
+___print " - Installing packages..."
+___print "   please wait, it might take longer..."
+###############################################################################################
+
+###############################################################################################
+# installs the stuffs.
+if ___get__rom__prop "THE_DEVICE_HAS_DYNAMIC_PARTITIONS"; then
+	___install__the__disk__image "super${FORMAT_SPECIFIER}" "super"
+else
+for i in system${FORMAT_SPECIFIER} vendor${FORMAT_SPECIFIER}; do
+	___install__the__disk__image "$i" "$(echo "$i" | cut -d. -f1)"
+done
+___get__rom__prop "PRODUCT_IS_SERVED_AS_ROOT" && ___install__the__disk__image "product${FORMAT_SPECIFIER}" "$(echo "$i" | cut -d. -f1)"
 fi
+###############################################################################################
+
+###############################################################################################
+# recovery shit.
+___setup_openrecoveryscript
+___print " "
+__print " - don't get jumpscared, the device needs to reboot into recovery again for some stuffs"
+___print "   after booting into the recovery, just reboot the device...\n"
+___print " - rebooting in 5"
+for ((i = 4; i >= 1; i--)); do 
+	___print "\t\t${i}"
+done
+reboot recovery
