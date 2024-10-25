@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <item type="dimen" name="config_screenBrightnessSettingMaximumFloat">1.0</item>
-    <item type="dimen" name="config_screenBrightnessSettingMinimumFloat">0.0</item>
-    <item type="dimen" name="quick_qs_offset_height">@dimen/status_bar_height_portrait</item>
-    <dimen name="status_bar_height_landscape">4.139984mm</dimen>
-    <dimen name="status_bar_height_portrait">4.6799927mm</dimen>
-</resources>
