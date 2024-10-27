@@ -6,6 +6,7 @@
 #include <sys/types.h>
 
 // import these from the lib file
+int ___is__setup__is__over();
 void ___get__system__property(const char *property, bool asInt);
 void ___execute__command(const char *command, bool *ignore_child_processes);
 void ___check__root__privileges();
@@ -15,6 +16,7 @@ void ___disable__magisk__module();
 // import these from the lib file
 
 int main() {
+	int the_setup_is_over_right = ___is__setup__is__over();
     ___check__root__privileges();
     char IS_DEVICE_SETUP_IS_FINISHED[7];
     strcpy(IS_DEVICE_SETUP_IS_FINISHED, ___get__system__property("persist.sys.setupwizard", "false"));
@@ -29,7 +31,7 @@ int main() {
         "tar -cf '/cache/horizonux_last_taken_logs/.last_bootloop_logs/$(date +\"%Y-%m-%d\")/@$(date +\"%I:%M%p\")_bootloop_logger.tar' /cache/horizonux_last_taken_logs/dropbox.tar /cache/horizonux_last_taken_logs/tombstones.tar /cache/horizonux_last_taken_logs/data_log.tar /cache/horizonux_last_taken_logs/last_booted_system_kmsg_logs.log"
     };
 
-    if (strcmp(IS_DEVICE_SETUP_IS_FINISHED, "FINISH") == 0) {
+    if (the_setup_is_over_right == 0) {
         if (___get__system__property("sys.system_server.start_count", "true") > 2 || ___get__system__property("sys.rescue_boot_count", "true") > 2) {
             for (int i = 0; i < sizeof(SystemShellCommandsToCompressTheLogs) / sizeof(SystemShellCommandsToCompressTheLogs[0]); i++) {
                 ___execute__command(SystemShellCommandsToCompressTheLogs[i], "false");
