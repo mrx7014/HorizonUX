@@ -5,8 +5,8 @@ ZIP := zip
 # Scripts and tar files
 SCRIPTS := \
     ./misc/scripts/add_unlimited_backups.sh \
-    ./patches/disable_adb_authorization/disable_adb_authorization.sh \
-    ./patches/bluetooth_library_patcher/patch.sh \
+    ./horizon/patches/disable_adb_authorization/disable_adb_authorization.sh \
+    ./horizon/patches/bluetooth_library_patcher/patch.sh \
     ./misc/scripts/github_at_luna__FLOSSPAPER.sh
 
 TARS := \
@@ -67,11 +67,7 @@ define build_target
 endef
 
 a30-cutout: check
-	$(call build_target, A30 Cutout, $(OVERLAY_DIR), ./specific_device_patches/a30/overlay/framework-res/, $(OVERLAY_DIR)/luna_personal_build.a30.frameworkres.overlay.apk)
-
-s20-cutout: check
-	$(call build_target, S20 Framework Overlay, $(OVERLAY_DIR), ./specific_device_patches/s20/overlay/framework-res/, $(OVERLAY_DIR)/luna_personal_build.s20.frameworkres.overlay.apk)
-	$(call build_target, S20 System UI Overlay, $(OVERLAY_DIR), ./specific_device_patches/s20/overlay/systemui/, $(OVERLAY_DIR)/samsung-S20fe-systemui.apk)
+	$(call build_target, A30 Cutout, $(OVERLAY_DIR), ./horizon/specific_device_patches/a30/overlay/framework-res/, $(OVERLAY_DIR)/luna_personal_build.a30.frameworkres.overlay.apk)
 
 unlimited-photo-backups: check
 	@echo " - Creating XML configuration for unlimited photo backups..."
@@ -150,33 +146,6 @@ flops-module:
 	@zip -r flops-module.zip .
 	@mv flops-module.zip ./build/magisk_modules/
 	finished
-	
-# License placeholder
-c:
-	@echo "
-					GNU GENERAL PUBLIC LICENSE
-                      Version 3, 29 June 2007
-
-Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
-Everyone is permitted to copy and distribute verbatim copies
-of this license document, but changing it is not allowed.
- 
-    HorizonUX, Personalized version(s) of Samsung's official OneUI software.
-    Copyright (C) 2024 Luna
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <https://www.gnu.org/licenses/>.
-"
 
 # Prevent make from considering files with the same name as targets
-.PHONY: check finished a30-cutout s20-cutout unlimited-photo-backups remove-useless-vendor-things disable-debugging-authorization bluetooth-library-patcher custom-horizonux-resolution-app-builder custom-horizonux-setup-wizard-overlay custom-horizonux-unica-updater custom-horizonux-wallpaper-maker c flops-module check_zip
+.PHONY: check finished a30-cutout s20-cutout unlimited-photo-backups remove-useless-vendor-things disable-debugging-authorization bluetooth-library-patcher custom-horizonux-resolution-app-builder custom-horizonux-setup-wizard-overlay custom-horizonux-unica-updater custom-horizonux-wallpaper-maker flops-module check_zip
