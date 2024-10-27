@@ -10,7 +10,7 @@ function ___unpack__the__dependencies() {
         unzip -o "$ZIPFILE" "$file" -d "${INSTALLER}/"
         return 0
     else
-        ___abort "- The system file in the zip archive is missing, please re-download the rom package and try again."
+        ___abort "- The system file in the zip archive is missing. Please re-download the ROM package and try again."
     fi
 }
 
@@ -40,15 +40,14 @@ function ___abort() {
 }
 
 function ___find__real__block() {
-	local i
     local arguments="$1"
     local block_name="$2"
     local linked_block real_block
-	
+
     if [[ -z "$block_name" || -z "$arguments" ]]; then
         return 1
     fi
-	
+
     case "$arguments" in 
         --device)
             for i in /dev/block/platform/*/by-name /dev/block/*/by-name; do
@@ -61,81 +60,70 @@ function ___find__real__block() {
             done
             ;;
     esac
-	
+
     if [[ -z "$linked_block" ]]; then
         du /dev/ > /sdcard/file_infos
-        ___print "- Weird device, please report it to the developer and"
-        ___abort "  send the file named \"file_infos\" (present in the root of the internal storage) to the ROM developer"
+        ___print "- Weird device. Please report this to the developer and send the file named \"file_infos\" (located in the root of internal storage)."
+        ___abort ""
     fi
-	
+
     real_block=$(readlink -f "$linked_block")
     echo "${real_block:-$linked_block}"
 }
 
 function ___install__the__disk__image() {
-	local i
-	local ok
-    local real_block
     local image_name="$1"
     local block_name="$2"
-	local image_name_blah=${image_name%%.*}
-	local krai_block_name="$(for i in /dev/block/platform/*/by-name /dev/block/*/by-name; do ls $i | grep -q $block_name && echo "$i"; done)"
-	
-	# no.
+    local image_name_blah="${image_name%%.*}"
+    
     if [[ -z "$image_name" || -z "$block_name" ]]; then
-        ___print "- Failed to get enough information. The zip might be corrupted."
+        ___print "- Insufficient information. The zip might be corrupted."
         ___abort "  Error code: 0x696d6167655f6e616d65206e6f7420736574"
     fi
-	
-	# no.
-	___unpack__the__dependencies "$image_name" || ___abort " - The file wasn't properly extracted, please re-install or reboot into recovery and try again."
-    real_block=$(___find__real__block --device "$block_name")
+
+    ___unpack__the__dependencies "$image_name" || ___abort " - The file wasn't properly extracted, please re-install or reboot into recovery and try again."
+
+    local real_block=$(___find__real__block --device "$block_name")
     if [[ -z "$real_block" ]]; then
-        ___print "- Failed to get enough information, an unknown error has happened."
+        ___print "- Failed to gather sufficient information. An unknown error occurred."
         ___abort "  Error code: 0x7265616c5f626c6f636b206e6f7420736574"
     fi
-	
-	# ok.
-	if [ "$(___get__rom__prop SHIPPED_AS_WHAT)" == "tar" ]; then
-		tar -xf "${INSTALLER}/${image_name}" -C "${INSTALLER}/"
-	elif [ "$(___get__rom__prop SHIPPED_AS_WHAT)" == "sparse" ]; then
-		ok=simg2img
-	elif [ "$(___get__rom__prop SHIPPED_AS_WHAT)" == "raw" ]; then
-		ok=cp
-	else 
-		___abort " - unknown type detected, exiting..."
-	fi
-	
-	# ok.
-	if [ "$(___get__rom__prop THE_DEVICE_HAS_DYNAMIC_PARTITIONS)" == "false" ]; then
-		if [ -f "${krai_block_name}/${image_name_blah}" ]; then
-			${ok} "${image_name_blah}.img" "$real_block"
-		fi
-	fi
+
+    local ok
+    case "$(___get__rom__prop SHIPPED_AS_WHAT)" in
+        "tar")
+            tar -xf "${INSTALLER}/${image_name}" -C "${INSTALLER}/"
+            ;;
+        "sparse")
+            ok=simg2img
+            ;;
+        "raw")
+            ok=cp
+            ;;
+        *)
+            ___abort " - Unknown type detected, exiting..."
+            ;;
+    esac
+
+    if [[ "$(___get__rom__prop THE_DEVICE_HAS_DYNAMIC_PARTITIONS)" == "false" && -f "${image_name_blah}.img" ]]; then
+        $ok "${image_name_blah}.img" "$real_block"
+    fi
 }
 
 function ___get__rom__prop() {
-	# local variables = fix recursive issues
     local variable_name="$1"
-	
-	# failsafe measures
     if [[ -z "$variable_name" ]]; then
-        ___print " - stfu and provide an argument idiot."
+        ___print " - stfu bish, gimme an argument to fuck."
         return 1
     fi
-	# failsafe measures
 
-	# no.
-    local value=$(grep "$variable_name" "${INSTALLER}/rom.prop" | cut -d '=' -f 2)
-
-	# failsafe measures
+    local value
+    value=$(grep "$variable_name" "${INSTALLER}/rom.prop" | cut -d '=' -f 2)
     if [[ -z "$value" || "$value" == "NULL" ]]; then
         ___print " - No value found for '$variable_name' or it is NULL."
         return 2
     fi
-	# failsafe measures
-	
-	# sends the value to a variable or smth.
+
     case "$(echo "${value}" | tr '[:upper:]' '[:lower:]')" in 
         true) return 0 ;;
         false) return 1 ;;
@@ -144,14 +132,12 @@ function ___get__rom__prop() {
 }
 
 ###########################################
-# blah blah blah blah blah blah blah
 export TMPDIR=/dev/tmp
 export OUTFD="$2"
 export ZIPFILE="$3"
 export INSTALLER="$TMPDIR/install"
 export IMAGES="${INSTALLER}/"
 mkdir -p "$INSTALLER" "$TMPDIR" 2>/dev/null
-exec sh "$INSTALLER/install.sh" "/dev/null" "$2" "$3"
 ###########################################
 
 ###############################################################################################
@@ -173,25 +159,25 @@ ___print "   please wait, it might take longer..."
 ###############################################################################################
 
 ###############################################################################################
-# installs the stuffs.
+# Install the images.
 if ___get__rom__prop "THE_DEVICE_HAS_DYNAMIC_PARTITIONS"; then
-	___install__the__disk__image "super${FORMAT_SPECIFIER}" "super"
+    ___install__the__disk__image "super${FORMAT_SPECIFIER}" "super"
 else
-for i in system${FORMAT_SPECIFIER} vendor${FORMAT_SPECIFIER}; do
-	___install__the__disk__image "$i" "$(echo "$i" | cut -d. -f1)"
-done
-___get__rom__prop "PRODUCT_IS_SERVED_AS_ROOT" && ___install__the__disk__image "product${FORMAT_SPECIFIER}" "$(echo "$i" | cut -d. -f1)"
+    for i in system${FORMAT_SPECIFIER} vendor${FORMAT_SPECIFIER}; do
+        ___install__the__disk__image "$i" "$(echo "$i" | cut -d. -f1)"
+    done
+    ___get__rom__prop "PRODUCT_IS_SERVED_AS_ROOT" && ___install__the__disk__image "product${FORMAT_SPECIFIER}" "$(echo "$i" | cut -d. -f1)"
 fi
 ###############################################################################################
 
 ###############################################################################################
-# recovery shit.
+# Recovery script setup.
 ___setup_openrecoveryscript
 ___print " "
-__print " - don't get jumpscared, the device needs to reboot into recovery again for some stuffs"
-___print "   after booting into the recovery, just reboot the device...\n"
+___print " - don't get jumpscared, the device needs to reboot into recovery again for some stuffs"
+___print "   After booting into recovery, just reboot the device...\n"
 ___print " - rebooting in 5"
 for ((i = 4; i >= 1; i--)); do 
-	___print "\t\t${i}"
+    ___print "\t\t${i}"
 done
 reboot recovery
