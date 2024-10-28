@@ -8,11 +8,6 @@ mean that you can use it without open-source'ing your ROM
 make a30-cutout
 ```
 
-- Fixes the system overlay for the Samsung Galaxy S20
-```
-make s20-cutout
-```
-
 - Bluetooth Patcher, use this if bluetooth is not working properly.
 ```
 make bluetooth-library-patcher
