@@ -14,7 +14,7 @@ TARS := \
     ./packages/horizonux_salvo-unica-updater/original/META-INF.tar
 
 # Output directories
-BUILD_DIR := ./build/system
+BUILD_DIR := ./build/system/product
 OVERLAY_DIR := $(BUILD_DIR)/product/overlay
 ETC_DIR := $(BUILD_DIR)/etc/sysconfig
 PRIV_APP_DIR := $(BUILD_DIR)/priv-app
