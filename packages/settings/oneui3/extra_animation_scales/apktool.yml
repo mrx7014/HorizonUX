@@ -1,5 +1,5 @@
 version: 0.1.0
-apkFileName: luna.horizonux.system.settings.overlay_animations_null.apk
+apkFileName: luna.horizonux.system.settings.extranimation.apk
 isFrameworkApk: false
 usesFramework:
   ids:

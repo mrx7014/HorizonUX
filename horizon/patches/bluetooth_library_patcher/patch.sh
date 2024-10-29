@@ -20,7 +20,6 @@ HEX_PATCH() {
     echo " - Patched successfully, the file was moved to \"patched_resources/system/lib64/libbluetooth_jni.so\" folder.."
 }
 
-
 if [ -z "$1" ]; then
   printf " - Please enter the path of the system/lib64 folder - "
   read SYSTEM_LIB_FOLDER
