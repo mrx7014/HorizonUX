@@ -12,7 +12,6 @@
 ##              N O T E
 #########################
 
-
 # setup retard environments=.
 mkdir -p ./build/system/product/priv-app ./build/system/product/etc ./build/system/product/sysconfig ./build/system/product/overlay/ ./build/system/etc/permissions/ ./build/system/product/etc/permissions/ ./build/custom_recovery_with_fastbootd/
 
