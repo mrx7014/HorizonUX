@@ -14,20 +14,22 @@
 
 
 # setup retard environments=.
-mkdir -p ./build/system/product/priv-app ./build/system/product/etc ./build/system/product/sysconfig ./build/system/etc/permissions/ ./build/system/product/etc/permissions/
+mkdir -p ./build/system/product/priv-app ./build/system/product/etc ./build/system/product/sysconfig ./build/system/etc/permissions/ ./build/system/product/etc/permissions/ ./build/custom_recovery_with_fastbootd/
 
 # Horizon codename and etc..
-CODENAME=Horizon
-CODENAME_VERSION_REFERENCE_ID=1.0
+CODENAME="Mango mango mango mango mango" # Those who know! :shitty-troll-face:
+CODENAME_VERSION_REFERENCE_ID=0.0
 
 # Build Target properties..
-BUILD_TARGET_REFERENCE_ID=11
+BUILD_TARGET_REFERENCE_ID=xx
 BUILD_TARGET_HAS_PRISM=false
 BUILD_TARGET_MODEL=xxx
 
 # Target properties.
 TARGET_BUILD_IS_FOR_DEBUGGING=false
 if [ "${TARGET_BUILD_IS_FOR_DEBUGGING}" == "true" ]; then TARGET_BUILD_REMOVE_ADB_AUTHORIZATION=true; else TARGET_BUILD_REMOVE_ADB_AUTHORIZATION=false; fi
+TARGET_REQUIRES_BLUETOOTH_LIBRARY_PATCHES=false
+TARGET_INCLUDE_FASTBOOTD_PATCH_BY_RATCODED=false
 TARGET_INCLUDE_UNLIMITED_BACKUP=false
 TARGET_INCLUDE_CUSTOM_SETUP_WELCOME_MESSAGES=false
 TARGET_SCREEN_WIDTH=xxxx
@@ -35,6 +37,7 @@ TARGET_SCREEN_HEIGHT=xxxx
 CUSTOM_SETUP_WELCOME_MESSAGE="xxx"
 
 # misc properties..
+RECOVERY_IMAGE_PATH=xx/recovery.img
 PRODUCT_CSC_NAME=BTE
 SWITCH_DEFAULT_LANGUAGE_ON_PRODUCT_BUILD=true
 NEW_DEFAULT_LANGUAGE_ON_PRODUCT=xxx
@@ -53,6 +56,7 @@ SCRIPTS=(
   "./horizon/patches/disable_adb_authorization/disable_adb_authorization.sh"
   "./horizon/patches/bluetooth_library_patcher/patch.sh"
   "./misc/scripts/github_at_luna__FLOSSPAPER.sh"
+  "./patches/bring_fastbootd_into_recovery/patches.sh"
 )
 
 TARS=(
@@ -65,37 +69,19 @@ OVERLAY_DIR=./build/system/product/overlay
 ETC_DIR=./build/system/etc/sysconfig
 PRIV_APP_DIR=./build/system/priv-app
 
-for script in ${SCRIPTS[@]}; do
-  [ -f $script ] || { 
-    echo " - Error: Script $$script does not exist. Please check the path."; 
-	exit 1;
-  };
-done
-for tar in ${TARS[@]}; do
-  [ -f $tar ] || { 
-    echo " - Error: Tar file $$tar does not exist. Please check the path.";
-	exit 1; 
-  }; 
-done
-
-command -v apktool >/dev/null 2>&1 || { \
-  echo " - Error: apktool is not installed. Please install it to proceed."; \
-  exit 1; \
-}
-
-command -v zip >/dev/null 2>&1 || { \
-  echo " - Error: zip is not installed. Please install it to proceed."; \
-  exit 1; \
-}
-
 function setprop() {
   awk -v pat="^$1=" -v value="$1=$2" '{ if ($0 ~ pat) print value; else print $0; }' $3 > $3.tmp
   mv $3.tmp $3
 }
 
 function abort() {
-  echo "$1"
+  echo -e "[\e[0;35m$(date +%d-%m-%Y) \e[0;37m- \e[0;32m$(date +%H:%M%p)] [:\e[0;36mABORT\e[0;37m:] -\e[0;31m $1\e[0;37m"
   exit 1;
+}
+
+function warns() {
+  echo -e "[\e[0;35m$(date +%d-%m-%Y) \e[0;37m- \e[0;32m$(date +%H:%M%p)] / [:\e[0;36mWARN\e[0;37m:] / [:\e[0;32m$2\e[0;37m:] -\e[0;33m $1\e[0;37m"
+  return 1;
 }
 
 function default_language_configuration() {
@@ -118,26 +104,38 @@ function custom_setup_finished_messsage() {
   sed -i 's|<string name="outro_title">.*</string>|<string name="outro_title">&quot;${CUSTOM_SETUP_WELCOME_MESSAGE}&quot;</string>|' ./packages/sec_setup_wizard_horizonux_overlay/res/values/strings.xml
 }
 
-if [ "${BUILD_TARGET_REFERENCE_ID}" -ge "14" ]; then
-  cd ${SYSTEM_DIR}
-  rm -rf etc/permissions/privapp-permissions-com.samsung.android.kgclient.xml \
-  etc/public.libraries-wsm.samsung.txt \
-  lib/libhal.wsm.samsung.so \
-  lib/vendor.samsung.hardware.security.wsm.service-V1-ndk.so \
-  lib64/libhal.wsm.samsung.so \
-  lib64/vendor.samsung.hardware.security.wsm.service-V1-ndk.so priv-app/KnoxGuard
-fi
+for script in ${SCRIPTS[@]}; do
+  [ -f $script ] || { 
+    abort "Script files are missing, exiting..."; 
+  };
+done
+for tar in ${TARS[@]}; do
+  [ -f $tar ] || { 
+    abort "Tar files are missing, exiting...";
+  }; 
+done
+
+command -v apktool >/dev/null 2>&1 || { \
+  abort "apktool is not installed. Please install it to proceed."; \
+}
+
+command -v zip >/dev/null 2>&1 || { \
+  abort "zip is not installed. Please install it to proceed."; \
+}
+
+# ok, fbans dropped!
+awk '{print}' ./banner
 
 ################ boom
-if [ ${SYSTEM_DIR} == "xxx" ]; then
+if [ ${SYSTEM_DIR} == "xxx" ] || [ -z "${SYSTEM_DIR}" ]; then
   abort " - system directory environment path is not set, exiting..."
-elif [ ${SYSTEM_EXT_DIR} == "xxx" ]; then
+elif [ ${SYSTEM_EXT_DIR} == "xxx" ] || [ -z "${SYSTEM_EXT_DIR}" ]; then
   abort " - system_ext directory environment path is not set, exiting..."
-elif [ ${VENDOR_DIR} == "xxx" ]; then
+elif [ ${VENDOR_DIR} == "xxx" ] || [ -z "${VENDOR_DIR}" ]; then
   abort " - vendor directory environment path is not set, exiting..."
-elif [ ${PRODUCT_DIR} == "xxx" ]; then
+elif [ ${PRODUCT_DIR} == "xxx" ] || [ -z "${PRODUCT_DIR}" ]; then
   abort " - product directory environment path is not set, exiting..."
-elif [ ${PRISM_DIR} == "xxx" ] && [ ${BUILD_TARGET_HAS_PRISM} == "false" ] ; then # l3gacy device momento.
+elif [ ${PRISM_DIR} == "xxx" ] && [ ${BUILD_TARGET_HAS_PRISM} == "false" ] ; then
   abort " - prism directory environment path is not set, exiting..."
 fi
 ################ boom
@@ -164,7 +162,7 @@ if [ ${TARGET_BUILD_IS_FOR_DEBUGGING} == "true" ]; then
 	debug.enable=true
 	sys.wifitracing.started=1
 	security.edmaudit=false
-	ro.horizonux.sys.dropdump.on=ENABLED
+	ro.sys.dropdump.on=On
 	persist.systemserver.sa_bindertracker=false
 	############ WARNING, EXPERIMENTAL FLAGS AHEAD!"
 	} >> ${SYSTEM_DIR}/build.prop
@@ -183,6 +181,17 @@ if [ ${TARGET_BUILD_IS_FOR_DEBUGGING} == "true" ]; then
 	setprop log.tag.snap_service@1.2 VERBOSE
 	############ WARNING, EXPERIMENTAL FLAGS AHEAD!"
 	} >> ./build/system/etc/init/init.debug_castleprops.rc
+	warns "Debugging stuffs are enabled in this build, please proceed with caution and do remember that your device will heat more due to debugging process running in the background.." "DEBUGGING_ENABLER"
+fi
+
+if [ "${BUILD_TARGET_REFERENCE_ID}" -ge "14" ]; then
+  cd ${SYSTEM_DIR}
+  rm -rf etc/permissions/privapp-permissions-com.samsung.android.kgclient.xml \
+  etc/public.libraries-wsm.samsung.txt \
+  lib/libhal.wsm.samsung.so \
+  lib/vendor.samsung.hardware.security.wsm.service-V1-ndk.so \
+  lib64/libhal.wsm.samsung.so \
+  lib64/vendor.samsung.hardware.security.wsm.service-V1-ndk.so priv-app/KnoxGuard
 fi
 
 if [ "${TARGET_BUILD_REMOVE_ADB_AUTHORIZATION}" == "true" ]; then
@@ -207,6 +216,24 @@ if [ "${TARGET_SCREEN_WIDTH}" == "1080" ] && [ "${TARGET_SCREEN_HEIGHT}" == "234
   . ${SCRIPTS[3]}
   apktool build ./packages/horizonux_resolution/
   mv ./build/system/etc/permissions/privapp-permissions-horizonux.screen.resolution.xml ./build/system/product/etc/permissions
+fi
+
+if [ "${TARGET_REQUIRES_BLUETOOTH_LIBRARY_PATCHES}" == "true" ]; then
+  . ${SCRIPTS[2]} "${SYSTEM_DIR}/lib64/libbluetooth_jni.so"
+fi
+
+if [ "${TARGET_INCLUDE_FASTBOOTD_PATCH_BY_RATCODED}" == "true" ]; then
+  . ${SCRIPTS[4]}
+fi
+
+# nuke shits from the system.
+rm -rf "${SYSTEM_DIR}"/hidden "${SYSTEM_DIR}"/preload "${SYSTEM_DIR}"/recovery-from-boot.p "${SYSTEM_DIR}"/bin/install-recovery.sh
+
+if grep -q "flash_recovery_sec" "${SYSTEM_DIR}/etc/uncrypt.rc"; then
+  mkdir -p ./tmp/
+  grep -v "flash_recovery_sec" "${SYSTEM_DIR}/etc/uncrypt.rc" > ./tmp/uncrypt.rc
+  mv ./tmp/uncrypt.rc "${SYSTEM_DIR}/etc/uncrypt.rc"
+  rm -rf ./tmp/
 fi
 
 echo " - Build finished by $(id -un) at $(date +%I:%M%p) on $(date +%Y-%m-%d)"

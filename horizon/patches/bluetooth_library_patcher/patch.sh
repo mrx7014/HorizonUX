@@ -20,16 +20,20 @@ HEX_PATCH() {
     echo " - Patched successfully, the file was moved to \"patched_resources/system/lib64/libbluetooth_jni.so\" folder.."
 }
 
-if [ ! -f "utilites/switchprop" ]; then
-	gcc utilites/switchprop.c -o utilites/compiled_bins/switchprop
-	chmod 755 utilites/compiled_bins/switchprop
-	export PATH="${PATH}:utilites/compiled_bins/"
+
+if [ -z "$1" ]; then
+  printf " - Please enter the path of the system/lib64 folder - "
+  read SYSTEM_LIB_FOLDER
 fi
-printf " - Please enter the path of the system/lib64 folder - "
-read SYSTEM_LIB_FOLDER
-if [ ! -f "${SYSTEM_LIB_FOLDER}/libbluetooth_jni.so" ]; then
-	echo " - the \"libbluetooth_jni.so\" file from the system/lib64 wasn't found, copy and put them in a random directory"
-	echo "   and try again.."
-	exit 1
+
+if [ ! -f "${SYSTEM_LIB_FOLDER}/libbluetooth_jni.so" ] || [ ! -f "$1" ]; then
+  echo " - the \"libbluetooth_jni.so\" file from the system/lib64 wasn't found, copy and put them in a random directory"
+  echo "   and try again.."
+  exit 1
 fi
-HEX_PATCH "$1" "6804003528008052" "2b00001428008052"
+
+if "$(echo "$1" | grep -q .so)"; then
+  HEX_PATCH "$1" "6804003528008052" "2b00001428008052"
+else
+  HEX_PATCH "${SYSTEM_LIB_FOLDER}/libbluetooth_jni.so" "6804003528008052" "2b00001428008052"
+fi

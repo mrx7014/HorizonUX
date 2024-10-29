@@ -148,4 +148,4 @@ flops-module:
 	finished
 
 # Prevent make from considering files with the same name as targets
-.PHONY: check finished a30-cutout s20-cutout unlimited-photo-backups remove-useless-vendor-things disable-debugging-authorization bluetooth-library-patcher custom-horizonux-resolution-app-builder custom-horizonux-setup-wizard-overlay custom-horizonux-unica-updater custom-horizonux-wallpaper-maker flops-module check_zip
+.PHONY: check finished a30-cutout unlimited-photo-backups remove-useless-vendor-things disable-debugging-authorization bluetooth-library-patcher custom-horizonux-resolution-app-builder custom-horizonux-setup-wizard-overlay custom-horizonux-unica-updater custom-horizonux-wallpaper-maker flops-module check_zip
