@@ -33,4 +33,4 @@ You all are legends! 💖
   3. Make your changes
   4. Submit a pull request!
 
-- **License**: This project is licensed under the [insert license info here], so you can vibe freely!
+- **License**: This project is licensed under the GNU GENERAL PUBLIC LICENSE (v3), so you can vibe freely!
