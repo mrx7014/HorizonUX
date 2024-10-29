@@ -13,3 +13,4 @@
 Thanks for dropping by, You’re a true legend! 💖✨
 
 If you want to build or add any assert from this repo, refer this README:- <a href="https://github.com/forsaken-heart24/HorizonUX/blob/main/BUILD.md">Click here :D</a>
+Here's our contributors list, please check these guys out! - <a href="https://github.com/forsaken-heart24/HorizonUX/blob/main/CONTRIBUTORS.md">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</a>

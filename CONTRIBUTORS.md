@@ -1,10 +1,36 @@
 <p align="center">
-  <img src="https://github.com/selimdoyranli/selimdoyranli/blob/master/preview.gif" width="400" />
+  <img src="https://github.com/selimdoyranli/selimdoyranli/blob/master/preview.gif" width="400" alt="Project HorizonUX" />
 </p>
 
-# Project Contributors
+# HorizonUX 🚀✨
 
-- <a href="https://github.com/salvogiangri">Salvo</a>
-- <a href="https://github.com/Royna2544">Royna</a>
-- <a href="https://github.com/Yanndroid">Yanndroid</a>
-- <a href="https://github.com/ratcoded">Ratcoded</a>
+## Contributors Squad 🥰
+
+Shoutout to the real MVPs who made this project pop! Without you, it would just be a vibe with no substance. Thanks for making this happen:
+
+- [Salvo](https://github.com/salvogiangri) - The GOATTTTTTTTTTTTTTTTTTT!!!!!!!!
+- [Royna](https://github.com/Royna2544) - The code wizard :)
+- [Yanndroid](https://github.com/Yanndroid) - The creative genius :)
+- [Ratcoded](https://github.com/ratcoded) - THe weird username guy :D
+
+You all are legends! 💖
+
+---
+
+### Let’s Make This Project Lit 🔥
+
+- **Description**: This project is all about personallizing oneui. It’s designed to improve the ux.
+  
+- **Installation**: Get in on the action with these easy steps to set it up:
+  
+  1. Clone the repo: `git clone [https://github.com/forsaken-heart24/HorizonXOneUI-HorizonUX]`
+  2. Execute the build script: `./build.sh`
+  
+- **Contributing**: Want to join the fun? Hit me up! Here’s how you can contribute to this project:
+  
+  1. Fork the repo
+  2. Create a new branch
+  3. Make your changes
+  4. Submit a pull request!
+
+- **License**: This project is licensed under the [insert license info here], so you can vibe freely!
