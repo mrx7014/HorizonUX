@@ -11,7 +11,7 @@ Shoutout to the real MVPs who made this project pop! Without you, it would just 
 - [Salvo](https://github.com/salvogiangri) - The GOATTTTTTTTTTTTTTTTTTT!!!!!!!!
 - [Royna](https://github.com/Royna2544) - The code wizard :)
 - [Yanndroid](https://github.com/Yanndroid) - The creative genius :)
-- [Ratcoded](https://github.com/ratcoded) - THe weird username guy :D
+- [Ratcoded](https://github.com/ratcoded) - The weird username guy :D
 
 You all are legends! 💖
 
