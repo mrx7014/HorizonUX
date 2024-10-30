@@ -85,7 +85,7 @@ function build_and_sign() {
   local apkFileName=$(if [ -f "$extracted_dir_path/apktool.yml" ]; then grep apkFileName $extracted_dir_path/apktool.yml | cut -c 14-1000; else echo "/dev/null"; fi)
   mkdir -p ./build/sign_applications/
   rm -rf ./build/sign_applications/*
-  apktool build --api-level "${BUILD_TARGET_SDK_VERSION}" "${extracted_dir_path}"
+  apktool build --api-level "${BUILD_TARGET_SDK_VERSION}" "${extracted_dir_path}" &>/dev/null
   mv ${extracted_dir_path}/dist/${apkFileName} ./build/sign_applications/
   java -jar ./dependencies/signer.jar --apks ./build/sign_applications/${apkFileName}
   case "$(echo $type | tr '[:upper:]' '[:lower:]')" in 
@@ -97,6 +97,9 @@ function build_and_sign() {
 	  if [ ${conventional_path} == "--privilaged" ]; then
 	    mkdir -p ./build/system/product/priv-app/${conventional_system_name}
 		mv ./build/sign_applications/$(ls | grep aligned-debugSigned.apk | head -n 1) ./build/system/product/priv-app/${conventional_system_name}/
+	  elif [ ${conventional_path} == "--non-privilaged" ]; then
+	    mkdir -p ./build/system/product/${conventional_system_name}
+		mv ./build/sign_applications/$(ls | grep aligned-debugSigned.apk | head -n 1) ./build/system/product/${conventional_system_name}/
 	  fi
     ;;
   esac
@@ -225,8 +228,7 @@ if [ "${TARGET_SCREEN_WIDTH}" == "1080" ] && [ "${TARGET_SCREEN_HEIGHT}" == "234
   console_print "Building HorizonUXScreenResolution app for your device...."
   mkdir -p ./build/system/product/priv-app/HorizonUXResolution
   . ${SCRIPTS[3]}
-  apktool build ./packages/horizonux_resolution/ &>/dev/null
-  mv ./packages/horizonux_resolution/dist/HorizonUXResolution.apk ./build/system/product/priv-app/HorizonUXResolution/
+  build_and_sign --conventional ./packages/horizonux_resolution/ --privilaged "HorizonUXResolution"
   mv ./build/system/etc/permissions/privapp-permissions-horizonux.screen.resolution.xml ./build/system/product/etc/permissions/
 fi
 
@@ -238,8 +240,7 @@ fi
 if [ "${TARGET_INCLUDE_CUSTOM_SETUP_WELCOME_MESSAGES}" == "true" ]; then
   console_print "adding custom setup wizard text...."
   custom_setup_finished_messsage
-  apktool build ./packages/sec_setup_wizard_horizonux_overlay/ &>/dev/null
-  mv ./packages/sec_setup_wizard_horizonux_overlay/dist/horizonux.android.setup.wizard.overlay.apk ./build/system/product/overlay/
+  build_and_sign --overlay ./packages/sec_setup_wizard_horizonux_overlay/
 fi
 
 # nuke shits from the system.
@@ -273,21 +274,18 @@ fi
 
 if [ "${TARGET_REMOVE_SWIPE_SECURITY_OPTION}" == "true" ]; then
   if [ "${BUILD_TARGET_ANDROID_VERSION}" -ge "12" ]; then warns "this TARGET_REMOVE_SWIPE_SECURITY_OPTION feature is found on android 11, report if it doesn't work. thanks!" "TARGET_OUT_OF_BOUNDS"; fi
-  apktool build ./packages/settings/oneui3/remove_none_option_on_security_tab/ &>/dev/null
-  mv ./packages/settings/oneui3/remove_none_option_on_security_tab/dist/luna.horizonux.system.settings.nullster.apk ./build/system/product/overlay/
+  build_and_sign --overlay ./packages/settings/oneui3/remove_none_option_on_security_tab/
 fi
 
 if [ "${TARGET_ADD_EXTRA_ANIMATION_SCALES}" == "true" ]; then
   console_print "cooking extra animation scales.."
-  apktool build ./packages/settings/oneui3/extra_animation_scales/ &>/dev/null
-  mv ./packages/settings/oneui3/extra_animation_scales/dist/luna.horizonux.system.settings.extranimation.apk ./build/system/product/overlay/
+  build_and_sign --overlay ./packages/settings/oneui3/extra_animation_scales/
 fi
 
 if [ "${TARGET_ADD_ROUNDED_CORNERS_TO_THE_PIP_WINDOWS}" == "true" ]; then
   console_print "cooking rounded corners on pip window...."
   if [ "${BUILD_TARGET_ANDROID_VERSION}" -ge "12" ]; then warns "this TARGET_ADD_ROUNDED_CORNERS_TO_THE_PIP_WINDOWS feature is found on android 11, report if it doesn't work. thanks!" "TARGET_OUT_OF_BOUNDS"; fi
-  apktool build ./packages/systemui/oneui3/rounded_corners_on_pip/ &>/dev/null
-  mv ./packages/systemui/oneui3/rounded_corners_on_pip/dist/luna.horizonux.pip_enabler.systemui.overlay.apk ./build/system/product/overlay/
+  build_and_sign --overlay ./packages/systemui/oneui3/rounded_corners_on_pip/
 fi
 
 # send off message.
