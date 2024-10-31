@@ -12,8 +12,8 @@
 ##              N O T E
 #########################
 
-# 12:35AM - 30-10-2024 @Luna : fuck no, i dont want to mod this fuckery for my own shit so yeah fuck you windows!
-testEnv=true
+# 12:35AM - 30-10-2024 @Luna : fuck no, i dont want to have an another version for testing purposes lmao.
+testEnv=false
 
 # Horizon codename and etc..
 CODENAME="mango mango mango mango mango" # Those who know! :shitty-troll-face:
@@ -24,6 +24,9 @@ BUILD_TARGET_ANDROID_VERSION="$(grep "ro.build.version.release" "${SYSTEM_DIR}/b
 BUILD_TARGET_SDK_VERSION="$(grep "ro.build.version.sdk" "${SYSTEM_DIR}/build.prop" | cut -c 22-23)"
 BUILD_TARGET_MODEL=$(grep "ro.product.system.model" "${SYSTEM_DIR}/build.prop" | cut -c 25-33)
 BUILD_TARGET_HAS_PRISM=false
+BUILD_TARGET_DEFAULT_SCREEN_REFRESH_RATE=60 #60 or 90 or 120 maybe 144 if it exists (lmao it doesnt ik it)
+BUILD_TARGET_HAS_HIGH_REFRESH_RATE_MODES=false
+BUILD_TARGET_HIGH_REFRESH_RATE_MODES=60 #60,90,120
 
 # Target properties.
 TARGET_BUILD_IS_FOR_DEBUGGING=false
@@ -53,3 +56,10 @@ SYSTEM_EXT_DIR="/mnt/c/Users/Paimon/Desktop/Katerenai/crb_shit/Projects/suka_bly
 VENDOR_DIR="/mnt/c/Users/Paimon/Desktop/Katerenai/crb_shit/Projects/suka_blyat_s20/ROM/vendor"
 PRODUCT_DIR="/mnt/c/Users/Paimon/Desktop/Katerenai/crb_shit/Projects/suka_blyat_s20/ROM/product"
 PRISM_DIR="xxx"
+
+# feature configs. THANKS Furiousdroid!
+TARGET_FEATURE_INCLUDE_GAMELAUNCHER_IN_THE_HOMESCREEN=false
+TARGET_FEATURE_INCLUDE_SPOTIFY_AS_ALARM=false
+TARGET_FEATURE_INCLUDE_EASY_MODE=false
+TARGET_FEATURE_INCLUDE_CLOCK_LIVE_ICON=false
+TARGET_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE=HighEnd # this can be : LowEnd , LowestEnd , LowEndFast , Mass (mid-rangers, not available after 3.1) , HighEnd , CHNHighEND & HighEnd_Tablet

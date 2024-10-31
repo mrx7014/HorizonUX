@@ -12,6 +12,7 @@ Shoutout to the real MVPs who made this project pop! Without you, it would just 
 - [Royna](https://github.com/Royna2544) - The code wizard :)
 - [Yanndroid](https://github.com/Yanndroid) - The creative genius :)
 - [Ratcoded](https://github.com/ratcoded) - The weird username guy :D
+- [Furiousdroid](https://github.com/furiousdroid) - self-proclaimed " profeshional adrod developar "
 
 You all are legends! 💖
 
