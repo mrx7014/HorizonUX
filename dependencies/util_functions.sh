@@ -24,12 +24,13 @@ function setprop() {
 function abort() {
   echo -e "[\e[0;35m$(date +%d-%m-%Y) \e[0;37m- \e[0;32m$(date +%H:%M%p)] [:\e[0;36mABORT\e[0;37m:] -\e[0;31m $1\e[0;37m"
   sleep 0.5
-  exit 1;
+  exit 1
 }
 
 function warns() {
   echo -e "[\e[0;35m$(date +%d-%m-%Y) \e[0;37m- \e[0;32m$(date +%H:%M%p)] / [:\e[0;36mWARN\e[0;37m:] / [:\e[0;32m$2\e[0;37m:] -\e[0;33m $1\e[0;37m"
   sleep 0.5
+  return 1
 }
 
 function console_print() {
@@ -98,4 +99,76 @@ function build_and_sign() {
     ;;
   esac
   rm -rf ${extracted_dir_path}/build ${extracted_dir_path}/dist ./build/sign_applications
+}
+
+function custom_setup_finished_messsage() {
+  [ -z "${CUSTOM_SETUP_WELCOME_MESSAGE}" ] && CUSTOM_SETUP_WELCOME_MESSAGE="Welcome to HorizonUX"
+  [ "${CUSTOM_SETUP_WELCOME_MESSAGE}" == "xxx" ] && CUSTOM_SETUP_WELCOME_MESSAGE="Welcome to HorizonUX"
+  sed -i 's|<string name="outro_title">.*</string>|<string name="outro_title">&quot;${CUSTOM_SETUP_WELCOME_MESSAGE}&quot;</string>|' ./packages/sec_setup_wizard_horizonux_overlay/res/values/strings.xml
+}
+
+function catch_duplicates_in_xml() {
+  local feature_code="$1"
+  local file="$2" 
+  # Check if feature_code and file are provided
+  [ -z "${feature_code}" ] && warns "Feature code is missing in the given argument...";
+  [ -z "$file" ] && warns "XML file is missing in the given argument...";
+  # Convert feature_code to uppercase
+  feature_code="$(echo "${feature_code}" | tr '[:lower:]' '[:upper:]')"
+  # Initialize count
+  count=0
+  # Count occurrences of the feature_code in the file
+  while IFS= read -r line; do
+    if echo "$line" | grep -q "${feature_code}"; then
+      count=$((count + 1))
+    fi
+  done < "${file}"
+  # this mf prints this out for the variable shit.
+  echo "${count}"
+}
+
+function add_float_xml_values() {
+  local feature_code="$1"
+  local feature_code_value="$2"
+  # Check if feature_code, feature_code_value, and file are provided
+  [ -z "${feature_code_value}" ] && warns "Feature value is missing in the given argument.";
+  [ -z "${feature_code}" ] && warns "Feature code is missing in the given argument.";
+  # Convert feature_code to uppercase
+  feature_code="$(echo "${feature_code}" | tr '[:lower:]' '[:upper:]')"
+  # check if we have duplicates or not, uf we have anything extra, call the catch_duplicates_in_xml to do the job lol.
+  if [ "$(catch_duplicates_in_xml "${feature_code}" "${TARGET_BUILD_FLOATING_FEATURE_PATH}")" == "0" ]; then
+	# Create a temporary file to hold the modified content
+    local tmp_file="./tmp_feature"
+    # Read the original file and write to the temporary file
+    {
+      while IFS= read -r line; do
+        echo "${line}"
+        if [[ "${line}" == "<SecFloatingFeatureSet>" ]]; then
+          echo "    <${feature_code}>${feature_code_value}</${feature_code}>"
+        fi
+      done
+    } < "${TARGET_BUILD_FLOATING_FEATURE_PATH}" > "${tmp_file}"
+    # write the ending thing cuz this mf is not writing that for some reason.
+    echo "</SecFloatingFeatureSet>" >> "${tmp_file}"
+    # Replace the original file with the modified one
+    mv "${tmp_file}" "${TARGET_BUILD_FLOATING_FEATURE_PATH}"
+  else
+    change_xml_values "${feature_code}" "${feature_code_value}" "${TARGET_BUILD_FLOATING_FEATURE_PATH}"
+  fi
+}
+
+function change_xml_values() {
+  local feature_code="$1"
+  local feature_code_value="$2"
+  # Check for missing arguments
+  [ -z "${feature_code_value}" ] && warns "Feature value is missing in the given argument...";
+  [ -z "${feature_code}" ] && warns "Feature code is missing in the given argument...";
+  # Convert feature_code to uppercase
+  feature_code="$(echo "${feature_code}" | tr '[:lower:]' '[:upper:]')"
+  # catch the duplicate values and warn the user lol.
+  if [ "$(catch_duplicates_xml "${feature_code}" "${TARGET_BUILD_FLOATING_FEATURE_PATH}")" -ge "2" ]; then
+    warns "${feature_code} named feature has duplicate values, please remove them to prevent conflicts."
+  fi
+  # Use sed to update the XML value
+  sed -i "s|<${feature_code}>.*</${feature_code}>|<${feature_code}>${feature_code_value}</${feature_code}>|" "${TARGET_BUILD_FLOATING_FEATURE_PATH}"
 }

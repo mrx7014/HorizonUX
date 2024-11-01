@@ -180,6 +180,66 @@ if [ "${TARGET_ADD_ROUNDED_CORNERS_TO_THE_PIP_WINDOWS}" == "true" ]; then
   build_and_sign --overlay ./packages/systemui/oneui3/rounded_corners_on_pip/
 fi
 
+if [ "${TARGET_FLOATING_FEATURE_INCLUDE_GAMELAUNCHER_IN_THE_HOMESCREEN}" == "true" ]; then
+  console_print "Enabling Game Launcher..."
+  change_xml_values "SEC_FLOATING_FEATURE_GRAPHICS_SUPPORT_DEFAULT_GAMELAUNCHER_ENABLE" "TRUE"
+elif [ "${TARGET_FLOATING_FEATURE_INCLUDE_GAMELAUNCHER_IN_THE_HOMESCREEN}" == "false" ]; then
+  warns "Disabling Game Launcher..."
+  change_xml_values "SEC_FLOATING_FEATURE_GRAPHICS_SUPPORT_DEFAULT_GAMELAUNCHER_ENABLE" "FALSE"
+fi
+
+if [ "${BUILD_TARGET_HAS_HIGH_REFRESH_RATE_MODES}" == "true" ]; then
+  console_print "Switching the default refresh rate to ${BUILD_TARGET_DEFAULT_SCREEN_REFRESH_RATE}Hz..."
+  change_xml_values "SEC_FLOATING_FEATURE_LCD_CONFIG_HFR_DEFAULT_REFRESH_RATE" "${BUILD_TARGET_DEFAULT_SCREEN_REFRESH_RATE}"
+elif [ "${BUILD_TARGET_HAS_HIGH_REFRESH_RATE_MODES}" == "false" ]; then
+  warns "Switching the default refresh rate to 60Hz (due to the BUILD_TARGET_HAS_HIGH_REFRESH_RATE_MODES variable being set to false)."
+  change_xml_values "SEC_FLOATING_FEATURE_LCD_CONFIG_HFR_DEFAULT_REFRESH_RATE" "60"
+else 
+  warns "BUILD_TARGET_HAS_HIGH_REFRESH_RATE_MODES variable has a different set of value, please change it to either "
+  warns "                                                true or false."
+fi
+
+if [ "${TARGET_FLOATING_FEATURE_INCLUDE_SPOTIFY_AS_ALARM}" == "true" ]; then
+  console_print "Adding spotify as an option in the clock app.."
+  add_float_xml_values "SEC_FLOATING_FEATURE_CLOCK_CONFIG_ALARM_SOUND" "spotify"
+fi
+
+if [ "${TARGET_FLOATING_FEATURE_BATTERY_SUPPORT_BSOH_SETTINGS}" == "true" ]; then
+  console_print "This feature needs some patches to work on some roms, if you dont"
+  console_print "see anything in the battery settings, please remove this on the next build."
+  add_float_xml_values "SEC_FLOATING_FEATURE_BATTERY_SUPPORT_BSOH_SETTINGS" "TRUE"
+fi
+
+# change the animation type.
+change_xml_values "SEC_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE" "${TARGET_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE}"
+
+# the live clock icon in the OneUI launcher.
+if [ "${TARGET_FLOATING_FEATURE_INCLUDE_CLOCK_LIVE_ICON}" == "true" ]; then
+  console_print "Disabling the live clock icon from the launcher, great move!"
+  change_xml_values "SEC_FLOATING_FEATURE_LAUNCHER_SUPPORT_CLOCK_LIVE_ICON" "TRUE"
+elif [ "${TARGET_FLOATING_FEATURE_INCLUDE_CLOCK_LIVE_ICON}" == "false" ]; then
+  console_print "Enabling the live clock icon from the launcher, bad move!"
+  change_xml_values "SEC_FLOATING_FEATURE_LAUNCHER_SUPPORT_CLOCK_LIVE_ICON" "FALSE"
+else 
+  warns "TARGET_FLOATING_FEATURE_INCLUDE_CLOCK_LIVE_ICON variable has a different set of value, please change it to either "
+  warns "                                                true or false."
+fi
+
+if [ "${TARGET_FLOATING_FEATURE_INCLUDE_EASY_MODE}" == "true" ]; then
+  console_print "Enabling Easy Mode..."
+  change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_SUPPORT_EASY_MODE" "TRUE"
+elif [ "${TARGET_FLOATING_FEATURE_INCLUDE_EASY_MODE}" == "false" ]; then
+  console_print "Disabling Easy Mode..."
+  change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_SUPPORT_EASY_MODE" "FALSE"
+else 
+  warns "TARGET_FLOATING_FEATURE_INCLUDE_EASY_MODE variable has a different set of value, please change it to either "
+  warns "                                                true or false."
+fi
+
+if [ "${TARGET_INCLUDE_CUSTOM_BRAND_NAME}" == "true" ]; then
+  change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_BRAND_NAME" "${BUILD_TARGET_CUSTOM_BRAND_NAME}"
+fi
+
 # send off message.
 console_print " Check the /build folder for the items you have built."
 console_print " Please sign the built overlay or application packages manually with your own private keys;"
