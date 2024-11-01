@@ -112,6 +112,3 @@ bool TARGET_FLOATING_FEATURE_DISABLE_SMART_SWITCH false
 
 # bring dolby sound effects on games. (if supported + if the hw is capable of doing this)
 bool TARGET_FLOATING_FEATURE_SUPPORTS_DOLBY_IN_GAMES false
-
-# misc, later!
-bool TARGET_DEVICE_HAS_

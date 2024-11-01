@@ -14,4 +14,5 @@ if [[ ! -f "./dependencies/makeconfigs.prop" ]]; then
 else 
   source ./dependencies/makeconfigs.prop
 fi
+
 . ./dependencies/setup.sh 2>./error_ring.log

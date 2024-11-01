@@ -157,6 +157,36 @@ function add_float_xml_values() {
   fi
 }
 
+function add_csc_xml_values() {
+  local feature_code="$1"
+  local feature_code_value="$2"
+  # Check if feature_code, feature_code_value, and file are provided
+  [ -z "${feature_code_value}" ] && warns "Feature value is missing in the given argument.";
+  [ -z "${feature_code}" ] && warns "Feature code is missing in the given argument.";
+  # Convert feature_code to uppercase
+  feature_code="$(echo "${feature_code}" | tr '[:lower:]' '[:upper:]')"
+  # check if we have duplicates or not, uf we have anything extra, call the catch_duplicates_in_xml to do the job lol.
+  if [ "$(catch_duplicates_in_xml "${feature_code}" "${TARGET_BUILD_FLOATING_FEATURE_PATH}")" == "0" ]; then
+	# Create a temporary file to hold the modified content
+    local tmp_file="./tmp_feature"
+    # Read the original file and write to the temporary file
+    {
+      while IFS= read -r line; do
+        echo "${line}"
+        if [[ "${line}" == "<SecFloatingFeatureSet>" ]]; then
+          echo "    <${feature_code}>${feature_code_value}</${feature_code}>"
+        fi
+      done
+    } < "${TARGET_BUILD_FLOATING_FEATURE_PATH}" > "${tmp_file}"
+    # write the ending thing cuz this mf is not writing that for some reason.
+    echo "</SecFloatingFeatureSet>" >> "${tmp_file}"
+    # Replace the original file with the modified one
+    mv "${tmp_file}" "${TARGET_BUILD_FLOATING_FEATURE_PATH}"
+  else
+    change_xml_values "${feature_code}" "${feature_code_value}" "${TARGET_BUILD_FLOATING_FEATURE_PATH}"
+  fi
+}
+
 function change_xml_values() {
   local feature_code="$1"
   local feature_code_value="$2"
@@ -194,20 +224,27 @@ function bool() {
         abort "Error: '$value' is not a boolean."
     fi
 }
-
-function isInt() {
-  local the_value="$1"
-  if echo "${the_value}" | grep -qE '^-?[0-9]+$'; then
-    return 0
-  else 
-    return 1
-  fi
-}
 # these things are intended for those " pro " programmers 
 
 function warns_api_limitations() {
   local adrod_version=$1
   if [ "${BUILD_TARGET_ANDROID_VERSION}" -ge "12" ]; then 
     warns "this feature is found on android $adrod_version, report if it doesn't work. thanks!" "TARGET_OUT_OF_BOUNDS"; 
+  fi
+}
+
+function omc() {
+  local arg="$1"
+  local xml_filename="$2"
+  
+  # boom boom
+  [ -z "${arg}" ] && warns "No arguments has been provided for the function to run :("
+  [ -z "${xml_filename}" ] && warns "No file has been provided for the function to run :("
+  
+  # bomboclatttttttt 😭😭😭😭😭
+  if [ "${arg}" == "--decode" ]; then
+    java -jar ./dependencies/omc-decoder.jar -i ${xml_filename}.xml -o ${xml_filename}_decoded.xml
+  elif [ "${arg}" == "--encode" ]; then
+    java -jar omc-decoder.jar -e -i ${xml_filename}_decoded.xml -o ${xml_filename}.xml
   fi
 }
