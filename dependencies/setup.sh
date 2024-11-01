@@ -231,6 +231,51 @@ if "${TARGET_INCLUDE_CUSTOM_BRAND_NAME}"; then
   change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_BRAND_NAME" "${BUILD_TARGET_CUSTOM_BRAND_NAME}"
 fi
 
+if "${TARGET_FLOATING_FEATURE_DISABLE_BLUR_EFFECTS}"; then
+  console_print "Disabling blur effects..."
+  for blur_effects in SEC_FLOATING_FEATURE_GRAPHICS_SUPPORT_PARTIAL_BLUR SEC_FLOATING_FEATURE_GRAPHICS_SUPPORT_CAPTURED_BLUR SEC_FLOATING_FEATURE_GRAPHICS_SUPPORT_3D_SURFACE_TRANSITION_FLAG; do
+    change_xml_values "$blur_effects" "FALSE" 
+  done
+fi
+
+if "${TARGET_FLOATING_FEATURE_ENABLE_ENHANCED_PROCESSING}"; then
+  for enhanced_gaming in SEC_FLOATING_FEATURE_SYSTEM_SUPPORT_LOW_HEAT_MODE SEC_FLOATING_FEATURE_COMMON_SUPPORT_HIGH_PERFORMANCE_MODE SEC_FLOATING_FEATURE_SYSTEM_SUPPORT_ENHANCED_CPU_RESPONSIVENESS; do
+    change_xml_values "$enhanced_gaming" "FALSE"
+  done
+fi
+
+if "${TARGET_FLOATING_FEATURE_ENABLE_EXTRA_SCREEN_MODES}"; then
+  console_print "Adding support for extra screen modes...."
+  for led_modes in SEC_FLOATING_FEATURE_LCD_SUPPORT_MDNIE_HW SEC_FLOATING_FEATURE_LCD_SUPPORT_WIDE_COLOR_GAMUT; do
+    change_xml_values "${led_modes}" "FALSE"
+  done
+fi
+
+if "${TARGET_FLOATING_FEATURE_SUPPORTS_WIRELESS_POWER_SHARING}"; then
+  console_print "Enabling Wireless powershare...."
+  for wireless_power_sharing_lore in SEC_FLOATING_FEATURE_BATTERY_SUPPORT_HV SEC_FLOATING_FEATURE_BATTERY_SUPPORT_WIRELESS_HV SEC_FLOATING_FEATURE_BATTERY_SUPPORT_WIRELESS_NIGHT_MODE \
+    SEC_FLOATING_FEATURE_BATTERY_SUPPORT_WIRELESS_TX; do
+	  add_float_xml_values "${i}" "TRUE"
+	done
+fi
+
+if "${TARGET_FLOATING_FEATURE_ENABLE_ULTRA_POWER_SAVING}"; then
+  console_print "Enabling Ultra Power Saver mode...."
+  add_float_xml_values "SEC_FLOATING_FEATURE_COMMON_SUPPORT_ULTRA_POWER_SAVING" "TRUE"
+fi
+
+if "${TARGET_FLOATING_FEATURE_DISABLE_SMART_SWITCH}"; then
+  console_print "Disabling Smart Switch feature in setup...."
+  change_xml_values "SEC_FLOATING_FEATURE_COMMON_SUPPORT_SMART_SWITCH" "FALSE"
+fi
+
+if "${TARGET_FLOATING_FEATURE_SUPPORTS_DOLBY_IN_GAMES}"; then
+  console_print "Enabling dolby encoding in games...."
+  for dolby_in_games in SEC_FLOATING_FEATURE_AUDIO_SUPPORT_DEFAULT_ON_DOLBY_IN_GAME SEC_FLOATING_FEATURE_AUDIO_SUPPORT_DOLBY_GAME_PROFILE; do
+    add_float_xml_values "${dolby_in_games}" "TRUE"
+  done
+fi
+
 # send off message.
 console_print " Check the /build folder for the items you have built."
 console_print " Please sign the built overlay or application packages manually with your own private keys;"
