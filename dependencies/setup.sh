@@ -10,7 +10,7 @@ console_print "Available RAM Memory : $(free -h | grep Mem | xargs | cut -c 6-9)
 console_print "The Computer is turned on since : $(uptime --pretty | cut -c 4-100)"
 
 ################ boom
-if [ "${testEnv}" == "false" ] || [ -z "${testEnv}" ]; then
+if ! $testEnv; then
   if [[ ! -f "${SCRIPTS[1]}" ]]; then
     abort "Script files are missing, exiting..."
   elif [[ ! -f "${TARS[1]}" ]]; then
@@ -41,8 +41,7 @@ if [ "${testEnv}" == "false" ] || [ -z "${testEnv}" ]; then
   fi
 fi
 ################ boom
-
-if [ ${TARGET_BUILD_IS_FOR_DEBUGGING} == "true" ]; then
+if $TARGET_BUILD_IS_FOR_DEBUGGING; then
   {
     echo "############ WARNING, EXPERIMENTAL FLAGS AHEAD!
 logcat.live=enable
@@ -85,7 +84,7 @@ setprop log.tag.snap_service@1.2 VERBOSE
   warns "Debugging stuffs are enabled in this build, please proceed with caution and do remember that your device will heat more due to debugging process running in the background.." "DEBUGGING_ENABLER"
 fi
 
-if [ "${BUILD_TARGET_ANDROID_VERSION}" -eq "14" ]; then
+if [ "$BUILD_TARGET_ANDROID_VERSION" == "14" ]; then
   console_print "removing some bloats, thnx Salvo!"
   cd ${SYSTEM_DIR}
   rm -rf etc/permissions/privapp-permissions-com.samsung.android.kgclient.xml \
@@ -99,22 +98,23 @@ fi
 console_print "changing default language..."
 default_language_configuration ${NEW_DEFAULT_LANGUAGE_ON_PRODUCT} ${NEW_DEFAULT_LANGUAGE_COUNTRY_ON_PRODUCT}
 
-if [ ${TARGET_INCLUDE_UNLIMITED_BACKUP} == "true" ]; then
+if $TARGET_INCLUDE_UNLIMITED_BACKUP; then
   console_print "adding unlimited backup feature...."
   mkdir -p ./build/system/product/etc/sysconfig/
   . ${SCRIPTS[0]}
   mv ./build/system/product/etc/sysconfig/* ${SYSTEM_DIR}/etc/sysconfig/
 fi
 
-if [ "${TARGET_BUILD_REMOVE_ADB_AUTHORIZATION}" == "true" ]; then
+if $TARGET_BUILD_REMOVE_ADB_AUTHORIZATION; then
   console_print "sheeeeshhhhhh, removing adb authorization!"
   . ${SCRIPTS[1]} "${SYSTEM_DIR}" "${PRODUCT_DIR}"
 fi
 
-if [ "${TARGET_REQUIRES_BLUETOOTH_LIBRARY_PATCHES}" == "true" ]; then
+if $TARGET_REQUIRES_BLUETOOTH_LIBRARY_PATCHES; then
   console_print "Patching bluetooth...."
   . ${SCRIPTS[2]} "${SYSTEM_DIR}/lib64/libbluetooth_jni.so"
 fi
+
 
 if [ "${TARGET_SCREEN_WIDTH}" == "1080" ] && [ "${TARGET_SCREEN_HEIGHT}" == "2340" ]; then
   console_print "Building HorizonUXScreenResolution app for your device...."
@@ -124,12 +124,12 @@ if [ "${TARGET_SCREEN_WIDTH}" == "1080" ] && [ "${TARGET_SCREEN_HEIGHT}" == "234
   mv ./build/system/etc/permissions/privapp-permissions-horizonux.screen.resolution.xml ./build/system/product/etc/permissions/
 fi
 
-if [ "${TARGET_INCLUDE_FASTBOOTD_PATCH_BY_RATCODED}" == "true" ]; then
+if "${TARGET_INCLUDE_FASTBOOTD_PATCH_BY_RATCODED}"; then
   console_print "Patching recovery image..."
   . ${SCRIPTS[4]}
 fi
 
-if [ "${TARGET_INCLUDE_CUSTOM_SETUP_WELCOME_MESSAGES}" == "true" ]; then
+if "${TARGET_INCLUDE_CUSTOM_SETUP_WELCOME_MESSAGES}"; then
   console_print "adding custom setup wizard text...."
   custom_setup_finished_messsage
   build_and_sign --overlay ./packages/sec_setup_wizard_horizonux_overlay/
@@ -145,9 +145,9 @@ if grep -q "flash_recovery_sec" "${SYSTEM_DIR}/etc/init/uncrypt.rc"; then
   rm -rf ./tmp/
 fi
 
-if [ "$TARGET_REMOVE_NONE_SECURITY_OPTION" == "true" ]; then
+if "$TARGET_REMOVE_NONE_SECURITY_OPTION"; then
+  warns_api_limitations "11"
   console_print "removing none security option from lockscreen settings..."
-  if [ "${BUILD_TARGET_ANDROID_VERSION}" -ge "12" ]; then warns "this TARGET_REMOVE_NONE_SECURITY_OPTION feature is found on android 11, report if it doesn't work. thanks!" "TARGET_OUT_OF_BOUNDS"; fi
   cat >> "./packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml" << EOF
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
@@ -155,56 +155,53 @@ if [ "$TARGET_REMOVE_NONE_SECURITY_OPTION" == "true" ]; then
 EOF
 fi
 
-if [ "${TARGET_REMOVE_SWIPE_SECURITY_OPTION}" == "true" ]; then
+if "${TARGET_REMOVE_SWIPE_SECURITY_OPTION}"; then
   console_print "removing swipe security option from lockscreen settings..."
-  if [ "${BUILD_TARGET_ANDROID_VERSION}" -ge "12" ]; then warns "this TARGET_REMOVE_SWIPE_SECURITY_OPTION feature is found on android 11, report if it doesn't work. thanks!" "TARGET_OUT_OF_BOUNDS"; fi
+  warns_api_limitations "11"
   echo "    <bool name="config_hide_swipe_security_option">true</bool>" >> ./packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml
   echo "</resources>" >> ./packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml
 else
   echo "</resources>" >> ./packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml
 fi
 
-if [ "${TARGET_REMOVE_SWIPE_SECURITY_OPTION}" == "true" ]; then
-  if [ "${BUILD_TARGET_ANDROID_VERSION}" -ge "12" ]; then warns "this TARGET_REMOVE_SWIPE_SECURITY_OPTION feature is found on android 11, report if it doesn't work. thanks!" "TARGET_OUT_OF_BOUNDS"; fi
+if "${TARGET_REMOVE_SWIPE_SECURITY_OPTION}"; then
+  warns_api_limitations "11"
   build_and_sign --overlay ./packages/settings/oneui3/remove_none_option_on_security_tab/
 fi
 
-if [ "${TARGET_ADD_EXTRA_ANIMATION_SCALES}" == "true" ]; then
+if "${TARGET_ADD_EXTRA_ANIMATION_SCALES}"; then
   console_print "cooking extra animation scales.."
   build_and_sign --overlay ./packages/settings/oneui3/extra_animation_scales/
 fi
 
-if [ "${TARGET_ADD_ROUNDED_CORNERS_TO_THE_PIP_WINDOWS}" == "true" ]; then
+if "${TARGET_ADD_ROUNDED_CORNERS_TO_THE_PIP_WINDOWS}"; then
   console_print "cooking rounded corners on pip window...."
-  if [ "${BUILD_TARGET_ANDROID_VERSION}" -ge "12" ]; then warns "this TARGET_ADD_ROUNDED_CORNERS_TO_THE_PIP_WINDOWS feature is found on android 11, report if it doesn't work. thanks!" "TARGET_OUT_OF_BOUNDS"; fi
+  warns_api_limitations "11"
   build_and_sign --overlay ./packages/systemui/oneui3/rounded_corners_on_pip/
 fi
 
-if [ "${TARGET_FLOATING_FEATURE_INCLUDE_GAMELAUNCHER_IN_THE_HOMESCREEN}" == "true" ]; then
+if "${TARGET_FLOATING_FEATURE_INCLUDE_GAMELAUNCHER_IN_THE_HOMESCREEN}"; then
   console_print "Enabling Game Launcher..."
   change_xml_values "SEC_FLOATING_FEATURE_GRAPHICS_SUPPORT_DEFAULT_GAMELAUNCHER_ENABLE" "TRUE"
-elif [ "${TARGET_FLOATING_FEATURE_INCLUDE_GAMELAUNCHER_IN_THE_HOMESCREEN}" == "false" ]; then
+elif "${TARGET_FLOATING_FEATURE_INCLUDE_GAMELAUNCHER_IN_THE_HOMESCREEN}"; then
   warns "Disabling Game Launcher..."
   change_xml_values "SEC_FLOATING_FEATURE_GRAPHICS_SUPPORT_DEFAULT_GAMELAUNCHER_ENABLE" "FALSE"
 fi
 
-if [ "${BUILD_TARGET_HAS_HIGH_REFRESH_RATE_MODES}" == "true" ]; then
+if "${BUILD_TARGET_HAS_HIGH_REFRESH_RATE_MODES}"; then
   console_print "Switching the default refresh rate to ${BUILD_TARGET_DEFAULT_SCREEN_REFRESH_RATE}Hz..."
   change_xml_values "SEC_FLOATING_FEATURE_LCD_CONFIG_HFR_DEFAULT_REFRESH_RATE" "${BUILD_TARGET_DEFAULT_SCREEN_REFRESH_RATE}"
-elif [ "${BUILD_TARGET_HAS_HIGH_REFRESH_RATE_MODES}" == "false" ]; then
+elif "${BUILD_TARGET_HAS_HIGH_REFRESH_RATE_MODES}"; then
   warns "Switching the default refresh rate to 60Hz (due to the BUILD_TARGET_HAS_HIGH_REFRESH_RATE_MODES variable being set to false)."
   change_xml_values "SEC_FLOATING_FEATURE_LCD_CONFIG_HFR_DEFAULT_REFRESH_RATE" "60"
-else 
-  warns "BUILD_TARGET_HAS_HIGH_REFRESH_RATE_MODES variable has a different set of value, please change it to either "
-  warns "                                                true or false."
 fi
 
-if [ "${TARGET_FLOATING_FEATURE_INCLUDE_SPOTIFY_AS_ALARM}" == "true" ]; then
+if "${TARGET_FLOATING_FEATURE_INCLUDE_SPOTIFY_AS_ALARM}"; then
   console_print "Adding spotify as an option in the clock app.."
   add_float_xml_values "SEC_FLOATING_FEATURE_CLOCK_CONFIG_ALARM_SOUND" "spotify"
 fi
 
-if [ "${TARGET_FLOATING_FEATURE_BATTERY_SUPPORT_BSOH_SETTINGS}" == "true" ]; then
+if "${TARGET_FLOATING_FEATURE_BATTERY_SUPPORT_BSOH_SETTINGS}"; then
   console_print "This feature needs some patches to work on some roms, if you dont"
   console_print "see anything in the battery settings, please remove this on the next build."
   add_float_xml_values "SEC_FLOATING_FEATURE_BATTERY_SUPPORT_BSOH_SETTINGS" "TRUE"
@@ -214,29 +211,23 @@ fi
 change_xml_values "SEC_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE" "${TARGET_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE}"
 
 # the live clock icon in the OneUI launcher.
-if [ "${TARGET_FLOATING_FEATURE_INCLUDE_CLOCK_LIVE_ICON}" == "true" ]; then
+if "${TARGET_FLOATING_FEATURE_INCLUDE_CLOCK_LIVE_ICON}"; then
   console_print "Disabling the live clock icon from the launcher, great move!"
   change_xml_values "SEC_FLOATING_FEATURE_LAUNCHER_SUPPORT_CLOCK_LIVE_ICON" "TRUE"
-elif [ "${TARGET_FLOATING_FEATURE_INCLUDE_CLOCK_LIVE_ICON}" == "false" ]; then
+elif "${TARGET_FLOATING_FEATURE_INCLUDE_CLOCK_LIVE_ICON}"; then
   console_print "Enabling the live clock icon from the launcher, bad move!"
   change_xml_values "SEC_FLOATING_FEATURE_LAUNCHER_SUPPORT_CLOCK_LIVE_ICON" "FALSE"
-else 
-  warns "TARGET_FLOATING_FEATURE_INCLUDE_CLOCK_LIVE_ICON variable has a different set of value, please change it to either "
-  warns "                                                true or false."
 fi
 
-if [ "${TARGET_FLOATING_FEATURE_INCLUDE_EASY_MODE}" == "true" ]; then
+if "${TARGET_FLOATING_FEATURE_INCLUDE_EASY_MODE}"; then
   console_print "Enabling Easy Mode..."
   change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_SUPPORT_EASY_MODE" "TRUE"
-elif [ "${TARGET_FLOATING_FEATURE_INCLUDE_EASY_MODE}" == "false" ]; then
+elif "${TARGET_FLOATING_FEATURE_INCLUDE_EASY_MODE}"; then
   console_print "Disabling Easy Mode..."
   change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_SUPPORT_EASY_MODE" "FALSE"
-else 
-  warns "TARGET_FLOATING_FEATURE_INCLUDE_EASY_MODE variable has a different set of value, please change it to either "
-  warns "                                                true or false."
 fi
 
-if [ "${TARGET_INCLUDE_CUSTOM_BRAND_NAME}" == "true" ]; then
+if "${TARGET_INCLUDE_CUSTOM_BRAND_NAME}"; then
   change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_BRAND_NAME" "${BUILD_TARGET_CUSTOM_BRAND_NAME}"
 fi
 

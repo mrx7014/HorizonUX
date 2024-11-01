@@ -172,3 +172,42 @@ function change_xml_values() {
   # Use sed to update the XML value
   sed -i "s|<${feature_code}>.*</${feature_code}>|<${feature_code}>${feature_code_value}</${feature_code}>|" "${TARGET_BUILD_FLOATING_FEATURE_PATH}"
 }
+
+# these things are intended for those " pro " programmers 
+function int() {
+    local variable_name="$1"
+    local value="$2"
+    if [[ "$value" =~ ^-?[0-9]+$ ]]; then
+        eval "$variable_name=$value"
+    else
+        abort "Error: '$value' is not an integer."
+    fi
+}
+
+function bool() {
+    local variable_name="$1"
+    local value="$2"
+    # Check if the value is either "true" or "false"
+    if [[ "$value" == "true" || "$value" == "false" || "$value" == "1" || "$value" == "0" ]]; then
+        eval "$variable_name=$value"
+    else
+        abort "Error: '$value' is not a boolean."
+    fi
+}
+
+function isInt() {
+  local the_value="$1"
+  if echo "${the_value}" | grep -qE '^-?[0-9]+$'; then
+    return 0
+  else 
+    return 1
+  fi
+}
+# these things are intended for those " pro " programmers 
+
+function warns_api_limitations() {
+  local adrod_version=$1
+  if [ "${BUILD_TARGET_ANDROID_VERSION}" -ge "12" ]; then 
+    warns "this feature is found on android $adrod_version, report if it doesn't work. thanks!" "TARGET_OUT_OF_BOUNDS"; 
+  fi
+}
