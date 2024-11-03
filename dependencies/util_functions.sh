@@ -216,7 +216,7 @@ function int() {
 
 function bool() {
     local variable_name="$1"
-    local value="$2"
+    local value="$(echo "$2" | tr '[:upper:]' '[:lower:]')"
     # Check if the value is either "true" or "false"
     if [[ "$value" == "true" || "$value" == "false" || "$value" == "1" || "$value" == "0" ]]; then
         eval "$variable_name=$value"
@@ -246,5 +246,20 @@ function omc() {
     java -jar ./dependencies/omc-decoder.jar -i ${xml_filename}.xml -o ${xml_filename}_decoded.xml
   elif [ "${arg}" == "--encode" ]; then
     java -jar omc-decoder.jar -e -i ${xml_filename}_decoded.xml -o ${xml_filename}.xml
+  fi
+}
+
+function ask() {
+  local question="$1"
+  local answer=""
+  printf "[\e[0;35m$(date +%d-%m-%Y) \e[0;37m- \e[0;32m$(date +%H:%M%p)\e[0;37m] / [:\e[0;36mMESSAGE\e[0;37m:] / [:\e[0;32mJOB\e[0;37m:] -\e[0;33m $1\e[0;37m (y/n) : "
+  read answer
+  answer="$(echo "${answer}" | tr '[:upper:]' '[:lower:]')"
+  if [[ "${answer}" == "y" ]]; then
+    return 0
+  elif [[ "${answer}" == "n" ]]; then
+    return 1
+  else
+    return 1
   fi
 }
