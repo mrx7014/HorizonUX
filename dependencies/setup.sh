@@ -289,8 +289,10 @@ elif [[ "${BUILD_TARGET_SDK_VERSION}" -ge "29" ]] && [[ "${TARGET_INCLUDE_SAMSUN
 	28)
 	  for i in $(seq 13); do
 	    if ask "Do you want to download ${GOODLOOK_MODULES_FOR_28_APP_NAMES[i]}"; then
-		  mkdir -p ./build/system/priv-app/
+		  mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_28_APP_NAMES[i]}/
           wget https://github.com/corsicanu/goodlock_dump/releases/download/${BUILD_TARGET_SDK_VERSION}/${GOODLOOK_MODULES_FOR_28[i]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_28_APP_NAMES[i]}/
+		else 
+		  rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_28_APP_NAMES[i]}/
 		fi
       done
 	;;
@@ -298,8 +300,10 @@ elif [[ "${BUILD_TARGET_SDK_VERSION}" -ge "29" ]] && [[ "${TARGET_INCLUDE_SAMSUN
 	29)
 	  for i in $(seq 15); do
 	    if ask "Do you want to download ${GOODLOOK_MODULES_FOR_29_APP_NAMES[i]}"; then
-		  mkdir -p ./build/system/priv-app/
+		  mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_29_APP_NAMES[i]}/
           wget https://github.com/corsicanu/goodlock_dump/releases/download/${BUILD_TARGET_SDK_VERSION}/${GOODLOOK_MODULES_FOR_29[i]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_29_APP_NAMES[i]}/
+		else 
+		  rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_29_APP_NAMES[i]}/ &>/dev/null
 		fi
       done
 	;;
@@ -307,8 +311,10 @@ elif [[ "${BUILD_TARGET_SDK_VERSION}" -ge "29" ]] && [[ "${TARGET_INCLUDE_SAMSUN
 	30)
 	  for i in $(seq 14); do
 	    if ask "Do you want to download ${GOODLOOK_MODULES_FOR_30_APP_NAMES[i]}"; then
-		  mkdir -p ./build/system/priv-app/
+		  mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_30_APP_NAMES[i]}/
           wget https://github.com/corsicanu/goodlock_dump/releases/download/${BUILD_TARGET_SDK_VERSION}/${GOODLOOK_MODULES_FOR_30[i]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_30_APP_NAMES[i]}/
+		else 
+		  rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_30_APP_NAMES[i]}/ &>/dev/null
 		fi
       done
 	;;
@@ -316,8 +322,10 @@ elif [[ "${BUILD_TARGET_SDK_VERSION}" -ge "29" ]] && [[ "${TARGET_INCLUDE_SAMSUN
 	31)
 	  for i in $(seq 14); do
 	    if ask "Do you want to download ${GOODLOOK_MODULES_FOR_31_APP_NAMES[i]}"; then
-		  mkdir -p ./build/system/priv-app/
+		  mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_31_APP_NAMES[i]}/
           wget https://github.com/corsicanu/goodlock_dump/releases/download/${BUILD_TARGET_SDK_VERSION}/${GOODLOOK_MODULES_FOR_31[i]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_31_APP_NAMES[i]}/
+		else 
+		  rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_31_APP_NAMES[i]}/ &>/dev/null
 		fi
       done
 	;;
@@ -325,8 +333,10 @@ elif [[ "${BUILD_TARGET_SDK_VERSION}" -ge "29" ]] && [[ "${TARGET_INCLUDE_SAMSUN
 	32)
 	  for i in $(seq 14); do
 	    if ask "Do you want to download ${GOODLOOK_MODULES_FOR_32_APP_NAMES[i]}"; then
-		  mkdir -p ./build/system/priv-app/
+		  mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_32_APP_NAMES[i]}/
           wget https://github.com/corsicanu/goodlock_dump/releases/download/${BUILD_TARGET_SDK_VERSION}/${GOODLOOK_MODULES_FOR_32[i]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_32_APP_NAMES[i]}/
+		else 
+		  rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_32_APP_NAMES[i]}/ &>/dev/null
 		fi
       done
 	;;
@@ -334,8 +344,10 @@ elif [[ "${BUILD_TARGET_SDK_VERSION}" -ge "29" ]] && [[ "${TARGET_INCLUDE_SAMSUN
 	33)
 	  for i in $(seq 15); do
 	    if ask "Do you want to download ${GOODLOOK_MODULES_FOR_33_APP_NAMES[i]}"; then
-		  mkdir -p ./build/system/priv-app/
+		  mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_33_APP_NAMES[i]}/
           wget https://github.com/corsicanu/goodlock_dump/releases/download/${BUILD_TARGET_SDK_VERSION}/${GOODLOOK_MODULES_FOR_33[i]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_33_APP_NAMES[i]}/
+		else 
+		  rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_33_APP_NAMES[i]}/ &>/dev/null
 		fi
       done
 	;;
@@ -343,8 +355,10 @@ elif [[ "${BUILD_TARGET_SDK_VERSION}" -ge "29" ]] && [[ "${TARGET_INCLUDE_SAMSUN
 	34)
 	  for i in $(seq 16); do
 	    if ask "Do you want to download ${GOODLOOK_MODULES_FOR_34_APP_NAMES[i]}"; then
-		  mkdir -p ./build/system/priv-app/
+		  mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_34_APP_NAMES[i]}/
           wget https://github.com/corsicanu/goodlock_dump/releases/download/${BUILD_TARGET_SDK_VERSION}/${GOODLOOK_MODULES_FOR_34[i]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_34_APP_NAMES[i]}/
+		else 
+		  rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_34_APP_NAMES[i]}/ &>/dev/null
 		fi
       done
 	;;
@@ -352,8 +366,10 @@ elif [[ "${BUILD_TARGET_SDK_VERSION}" -ge "29" ]] && [[ "${TARGET_INCLUDE_SAMSUN
 	35)
 	  for i in $(seq 15); do
 	    if ask "Do you want to download ${GOODLOOK_MODULES_FOR_35_APP_NAMES[i]}"; then
-		  mkdir -p ./build/system/priv-app/
+		  mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_35_APP_NAMES[i]}/
           wget https://github.com/corsicanu/goodlock_dump/releases/download/${BUILD_TARGET_SDK_VERSION}/${GOODLOOK_MODULES_FOR_35[i]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_35_APP_NAMES[i]}/
+		else 
+		  rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_35_APP_NAMES[i]}/ &>/dev/null
 		fi
       done
 	;;
