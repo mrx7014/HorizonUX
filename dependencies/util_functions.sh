@@ -228,9 +228,7 @@ function bool() {
 
 function warns_api_limitations() {
   local adrod_version=$1
-  if [ "${BUILD_TARGET_ANDROID_VERSION}" -ge "12" ]; then 
-    warns "this feature is found on android $adrod_version, report if it doesn't work. thanks!" "TARGET_OUT_OF_BOUNDS"; 
-  fi
+  warns "this feature is found on android $adrod_version, report if it doesn't work. thanks!" "TARGET_OUT_OF_BOUNDS"; 
 }
 
 function omc() {
@@ -563,4 +561,22 @@ HEX_PATCH() {
 function existance() {
    local file="$1"
    [ -e "$file" ] && { return 0; } || { return 1; }
+}
+
+function download_stuffs() {
+  local link="$1"
+  local save_path="$2"
+  
+  # some error checks.
+  if [[ -z "${link}" ]]; then
+    abort "The link wasn't provided lol"
+  elif [[ -z "${save_path}" ]]; then  
+    abort "The save patch wasn't provided lol"
+  fi
+  
+  # let's start the shits...
+  wget "${link}" "${save_path}"
+  if [[ "$?" -ge "1" ]]; then
+    abort "The download was failed..."
+  fi
 }
