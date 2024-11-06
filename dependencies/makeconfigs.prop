@@ -58,6 +58,7 @@ bool TARGET_INCLUDE_SAMSUNG_THEMING_MODULES false
 # some advanced stuffs.
 bool TARGET_INCLUDE_CUSTOM_SETUP_WELCOME_MESSAGES false
 bool TARGET_INCLUDE_CUSTOM_BRAND_NAME true
+bool TARGET_INCLUDE_CUSTOM_SCREEN_RESOLUTION_CONTROLLER_APP false
 int TARGET_SCREEN_WIDTH 0000
 int TARGET_SCREEN_HEIGHT 0000
 CUSTOM_SETUP_WELCOME_MESSAGE="helno :D, please put your own typa rizzy drizzy shiiii here :D"
@@ -115,6 +116,10 @@ bool TARGET_FLOATING_FEATURE_DISABLE_SMART_SWITCH false
 
 # bring dolby sound effects on games. (if supported + if the hw is capable of doing this)
 bool TARGET_FLOATING_FEATURE_SUPPORTS_DOLBY_IN_GAMES false
+
+# Exclusive HorizonUX Features.
+# this feature includes an resampler that is used to avoid smoky distortion specifically to those LDAC Bluetooth earphones and DAC's under $30 (probably), this sets special re-sampling tweaks in the system level.
+bool TARGET_INCLUDE_HORIZON_AUDIO_RESAMPLER false
 
 # miscs for goodlock modules
 GOODLOOK_MODULES_FOR_28=(

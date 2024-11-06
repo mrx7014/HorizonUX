@@ -51,6 +51,8 @@ function default_language_configuration() {
   # capture and abort the op if the length is invalid.
   if [ "$(echo ${country} | wc -c)" -ge "4" ]; then
     abort "invalid country string length."
+  elif [ "$(echo ${language} | wc -c)" -ge "4" ]; then
+    abort "invalid language string length."
   fi
   
   # thing that actually switches the default lang.
@@ -59,10 +61,8 @@ function default_language_configuration() {
     sed 's|<DefLanguageNoSIM>[^<]*</DefLanguageNoSIM>|<DefLanguageNoSIM>${language}-${country}</DefLanguageNoSIM>|g' ${PRODUCT_DIR}/omc/${PRODUCT_CSC_NAME}/conf/consumer.xml
   else 
     local tmp_dir="$(echo "${PRODUCT_DIR}/omc/*/conf/consumer.xml")"
-	for i in ${tmp_dir}; do # just in case if we have any bunch of shits laying around.
-      sed 's|<DefLanguage>[^<]*</DefLanguage>|<DefLanguage>${language}-${country}</DefLanguage>|g' $i
-      sed 's|<DefLanguageNoSIM>[^<]*</DefLanguageNoSIM>|<DefLanguageNoSIM>${language}-${country}</DefLanguageNoSIM>|g' $i
-	done
+    sed 's|<DefLanguage>[^<]*</DefLanguage>|<DefLanguage>${language}-${country}</DefLanguage>|g' $tmp_dir
+    sed 's|<DefLanguageNoSIM>[^<]*</DefLanguageNoSIM>|<DefLanguageNoSIM>${language}-${country}</DefLanguageNoSIM>|g' $tmp_dir
   fi
 }
 
@@ -255,8 +255,6 @@ function ask() {
   answer="$(echo "${answer}" | tr '[:upper:]' '[:lower:]')"
   if [[ "${answer}" == "y" ]]; then
     return 0
-  elif [[ "${answer}" == "n" ]]; then
-    return 1
   else
     return 1
   fi
@@ -324,7 +322,7 @@ function remove_attributes() {
 	} > "$OUTPUT_FILE"
 
 	# Feedback
-	echo "Rewritten XML saved to $OUTPUT_FILE, skipping <hal> with name='$NAME_TO_SKIP'."
+	console_print "Rewritten XML saved to $OUTPUT_FILE, skipping <hal> with name='$NAME_TO_SKIP'."
 }
 
 function nuke_stuffs() {
@@ -350,25 +348,25 @@ function nuke_stuffs() {
 	)
 
     for service in "security.wsm" "security.proca" "tlc.ucm" "tlc.payment"; do
-		echo -e "\e[0;31m [!] - Removing ${service} service from the system config files..."
+		console_print "Removing ${service} service from the system config files..."
 		remove_attributes "${service}"
 	done
 	for line in "${stuffs2nukeinvintf[@]}"; do
 		if [ -f "${VENDOR_ETC_FOLDER}/vintf/manifest/${line}" ]; then
 			rm -f "${VENDOR_ETC_FOLDER}/vintf/manifest/${line}"
-			echo " [!] - Deleting ${line}..."
+			console_print "Deleting ${line}..."
 		fi
 	done
 	for tlc in "$(ls ${VENDOR_ETC_FOLDER}/init/ | grep tlc.)"; do
 		if [ -f "${tlc}" ]; then
 			rm -f ${tlc}
-			echo " [!] - Deleting ${tlc}..."
+			console_print "Deleting ${tlc}..."
 		fi
 	done
 	for shit in "${stuffs2nukeininitdir[@]}"; do
 		if [ -f "${shit}" ]; then
 			rm -f "${shit}"
-			echo -e " [!] - Deleting ${shit}...\e[0m"
+			console_print "Deleting ${shit}...\e[0m"
 		fi
 	done
 	echo ""
@@ -542,20 +540,20 @@ HEX_PATCH() {
     local TO="$3"
 
     if xxd -p "$FILE" | tr -d \\n | tr -d " " | grep -q "$TO"; then
-        echo " - the patches were already applied to the file, no need to apply them again.."
+        warns "the patches were already applied to the file, no need to apply them again.." "HEX_PATCHER"
         return 0
     fi
 
     if ! xxd -p "$FILE" | tr -d \\n | tr -d " " | grep -q "$FROM"; then
-        echo " - No need to patch the file cuz the file was perfect..."
+        warns "No need to patch the file cuz the file was perfect..." "HEX_PATCHER"
         return 1
     fi
 
-    echo " - Patching the bluetooth system file..."
+    console_print "Patching the bluetooth system file..."
     xxd -p "$FILE" | tr -d \\n | tr -d " " | sed "s/$FROM/$TO/" | xxd -r -p > "$FILE.tmp"
 	mkdir -p ./patched_resources/system/lib64/
 	mv "$FILE.tmp" "./patched_resources/system/lib64/libbluetooth_jni.so"
-    echo " - Patched successfully, the file was moved to \"patched_resources/system/lib64/libbluetooth_jni.so\" folder.."
+    console_print "Patched successfully, the file was moved to \"patched_resources/system/lib64/libbluetooth_jni.so\" folder.."
 }
 
 function existance() {
@@ -567,16 +565,71 @@ function download_stuffs() {
   local link="$1"
   local save_path="$2"
   
-  # some error checks.
-  if [[ -z "${link}" ]]; then
-    abort "The link wasn't provided lol"
-  elif [[ -z "${save_path}" ]]; then  
-    abort "The save patch wasn't provided lol"
+  # let's end the op if the args werent enough.
+  if [[ "$#" -le "1" ]]; then
+    warns "Arguments are not enough.." "HORIZON_MODULE_INSTALLER"
   fi
   
   # let's start the shits...
   wget "${link}" "${save_path}"
   if [[ "$?" -ge "1" ]]; then
     abort "The download was failed..."
+  fi
+}
+
+function install_horizon_modules() {
+  local i
+  local tarPATH="$1"
+  local moduleTYPE="$(echo "$2" | tr '[:upper:]' '[:lower:]')"
+  
+  # let's end the op if the args werent enough.
+  if [[ "$#" -le "1" ]]; then
+    warns "Arguments are not enough.." "HORIZON_MODULE_INSTALLER"
+  fi
+
+  # the bomb starts from here.
+  mkdir -p ./tmp/
+  tar -xf ${tarPATH} -C ./tmp/
+  local moduleName="$(grep "horizon.module.name" module.prop | cut -d '=' -f 2 | sed 's/"//g')"
+  
+  # unpacking and copying files into the respected directories.
+  if [[ "${moduleTYPE}" == "--system" ]]; then
+    console_print "Installing ${moduleName}..."
+	for i in ./tmp/system/*; do
+	  if [[ -f "${SYSTEM_DIR}/${i}" ]]; then
+	    mv ${i} ${SYSTEM_DIR}/
+      else
+	    warns "can't find /${i} in the system, the module can't be installed...."
+		return 1
+        rm -rf ./tmp
+	  fi
+	done
+	console_print "$moduleName has been installed..."
+  elif [[ "${moduleTYPE}" == "--vendor" ]]; then  
+    console_print "Installing ${moduleName}..."
+	for i in ./tmp/vendor/*; do
+	  if [[ -f "${VENDOR_DIR}/${i}" ]]; then
+	    mv ${i} ${VENDOR_DIR}/
+      else
+	    warns "can't find /${i} in the vendor, the module can't be installed...."
+		return 1
+        rm -rf ./tmp
+	  fi
+	done
+	console_print "$moduleName has been installed..."
+  elif [[ "${moduleTYPE}" == "--product" ]]; then
+    console_print "Installing ${moduleName}..."
+	for i in ./tmp/product/*; do
+	  if [[ -f "${PRODUCT_DIR}/${i}" ]]; then
+	    mv ${i} ${PRODUCT_DIR}/
+      else
+	    warns "can't find /${i} in the product, the module can't be installed...."
+		return 1
+        rm -rf ./tmp
+	  fi
+	done
+	console_print "$moduleName has been installed..."
+  else
+    console_print "unknown module type, $moduleTYPE can't be installed..."
   fi
 }

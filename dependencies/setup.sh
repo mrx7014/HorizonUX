@@ -119,11 +119,13 @@ fi
 
 
 if [ "${TARGET_SCREEN_WIDTH}" == "1080" ] && [ "${TARGET_SCREEN_HEIGHT}" == "2340" ]; then
-  console_print "Building HorizonUXScreenResolution app for your device...."
-  mkdir -p ./build/system/product/priv-app/HorizonUXResolution
-  . ${SCRIPTS[3]}
-  build_and_sign --conventional ./packages/horizonux_resolution/ --privilaged "HorizonUXResolution"
-  mv ./build/system/etc/permissions/privapp-permissions-horizonux.screen.resolution.xml ./build/system/product/etc/permissions/
+  if [ "${TARGET_INCLUDE_CUSTOM_SCREEN_RESOLUTION_CONTROLLER_APP}" == "true" ]; then
+    console_print "Building HorizonUXScreenResolution app for your device...."
+    mkdir -p ./build/system/product/priv-app/HorizonUXResolution
+    . ${SCRIPTS[3]}
+    build_and_sign --conventional ./packages/horizonux_resolution/ --privilaged "HorizonUXResolution"
+    mv ./build/system/etc/permissions/privapp-permissions-horizonux.screen.resolution.xml ./build/system/product/etc/permissions/
+  fi
 fi
 
 if "${TARGET_INCLUDE_FASTBOOTD_PATCH_BY_RATCODED}"; then

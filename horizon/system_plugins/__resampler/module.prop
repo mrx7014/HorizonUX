@@ -1,0 +1,4 @@
+horizon.module.name="Audio Resampler"
+horizon.module.description="This module is used to improve your audio quality."
+horizon.module.when.it.was.made="11th November, 2024"
+horizon.module.authors="Luna @forsaken-heart24"

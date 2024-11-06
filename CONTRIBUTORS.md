@@ -15,6 +15,7 @@ Shoutout to the real MVPs who made this project pop! Without you, it would just 
 - [Furiousdroid](https://github.com/furiousdroid) - self-proclaimed " profeshional adrod developar "
 - [Vedraj](https://github.com/gawasvedraj) - my buddy :D
 - [Razvan](https://github.com/corsicanu) - haha, pro samsung custom IoT dev.
+- [yzyhk904](https://github.com/yzyhk904) - Audiophile (i guess...)
 
 You all are legends! 💖
 
