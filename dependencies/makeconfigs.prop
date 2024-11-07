@@ -119,7 +119,10 @@ bool TARGET_FLOATING_FEATURE_SUPPORTS_DOLBY_IN_GAMES false
 
 # Exclusive HorizonUX Features.
 # this feature includes an resampler that is used to avoid smoky distortion specifically to those LDAC Bluetooth earphones and DAC's under $30 (probably), this sets special re-sampling tweaks in the system level.
-bool TARGET_INCLUDE_HORIZON_AUDIO_RESAMPLER false
+bool TARGET_INCLUDE_HORIZON_AUDIO_RESAMPLER_PLUGIN false
+
+# this feature switches the scheduler to fio (if possible) to improve the io performance a bit.
+bool TARGET_INCLUDE_HORIZON_SCHEDULER_SWITCHER_PLUGIN false
 
 # miscs for goodlock modules
 GOODLOOK_MODULES_FOR_28=(

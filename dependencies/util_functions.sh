@@ -143,7 +143,7 @@ function add_float_xml_values() {
     {
       while IFS= read -r line; do
         echo "${line}"
-        if [[ "${line}" == "<SecFloatingFeatureSet>" ]]; then
+        if [ "${line}" == "<SecFloatingFeatureSet>" ]; then
           echo "    <${feature_code}>${feature_code_value}</${feature_code}>"
         fi
       done
@@ -207,7 +207,7 @@ function change_xml_values() {
 function int() {
     local variable_name="$1"
     local value="$2"
-    if [[ "$value" =~ ^-?[0-9]+$ ]]; then
+    if [ "$value" =~ ^-?[0-9]+$ ]; then
         eval "$variable_name=$value"
     else
         abort "Error: '$value' is not an integer."
@@ -218,7 +218,7 @@ function bool() {
     local variable_name="$1"
     local value="$(echo "$2" | tr '[:upper:]' '[:lower:]')"
     # Check if the value is either "true" or "false"
-    if [[ "$value" == "true" || "$value" == "false" || "$value" == "1" || "$value" == "0" ]]; then
+    if [ "$value" == "true" || "$value" == "false" || "$value" == "1" || "$value" == "0" ]; then
         eval "$variable_name=$value"
     else
         abort "Error: '$value' is not a boolean."
@@ -253,7 +253,7 @@ function ask() {
   printf "[\e[0;35m$(date +%d-%m-%Y) \e[0;37m- \e[0;32m$(date +%H:%M%p)\e[0;37m] / [:\e[0;36mMESSAGE\e[0;37m:] / [:\e[0;32mJOB\e[0;37m:] -\e[0;33m $1\e[0;37m (y/n) : "
   read answer
   answer="$(echo "${answer}" | tr '[:upper:]' '[:lower:]')"
-  if [[ "${answer}" == "y" ]]; then
+  if [ "${answer}" == "y" ]; then
     return 0
   else
     return 1
@@ -566,13 +566,13 @@ function download_stuffs() {
   local save_path="$2"
   
   # let's end the op if the args werent enough.
-  if [[ "$#" -le "1" ]]; then
+  if [ "$#" -le "1" ]; then
     warns "Arguments are not enough.." "HORIZON_MODULE_INSTALLER"
   fi
   
   # let's start the shits...
   wget "${link}" "${save_path}"
-  if [[ "$?" -ge "1" ]]; then
+  if [ "$?" -ge "1" ]; then
     abort "The download was failed..."
   fi
 }
@@ -580,10 +580,10 @@ function download_stuffs() {
 function install_horizon_modules() {
   local i
   local tarPATH="$1"
-  local moduleTYPE="$(echo "$2" | tr '[:upper:]' '[:lower:]')"
+  local additionalARGUMENTS=""$(echo "$3" | tr '[:upper:]' '[:lower:]')""
   
   # let's end the op if the args werent enough.
-  if [[ "$#" -le "1" ]]; then
+  if [ "$#" -le "1" ]; then
     warns "Arguments are not enough.." "HORIZON_MODULE_INSTALLER"
   fi
 
@@ -591,9 +591,14 @@ function install_horizon_modules() {
   mkdir -p ./tmp/
   tar -xf ${tarPATH} -C ./tmp/
   local moduleName="$(grep "horizon.module.name" module.prop | cut -d '=' -f 2 | sed 's/"//g')"
+  local moduleTYPE="$(grep "horizon.module.type" module.prop | cut -d '=' -f 2 | sed 's/"//g')"
+  if [ "${additionalARGUMENTS}" == "--silenced" ] || ask "Do you wanna know what does this system plugin do?"; then
+    console_print "${moduleName}, $(grep "horizon.module.description" module.prop | cut -d '=' -f 2 | sed 's/"//g')"
+	console_print "Brought to you by $(grep "horizon.module.authors" module.prop | cut -d '=' -f 2 | sed 's/"//g')"
+  fi
   
   # unpacking and copying files into the respected directories.
-  if [[ "${moduleTYPE}" == "--system" ]]; then
+  if [[ "${moduleTYPE}" == "system" ]]; then
     console_print "Installing ${moduleName}..."
 	for i in ./tmp/system/*; do
 	  if [[ -f "${SYSTEM_DIR}/${i}" ]]; then
@@ -605,7 +610,7 @@ function install_horizon_modules() {
 	  fi
 	done
 	console_print "$moduleName has been installed..."
-  elif [[ "${moduleTYPE}" == "--vendor" ]]; then  
+  elif [[ "${moduleTYPE}" == "vendor" ]]; then  
     console_print "Installing ${moduleName}..."
 	for i in ./tmp/vendor/*; do
 	  if [[ -f "${VENDOR_DIR}/${i}" ]]; then
@@ -617,7 +622,7 @@ function install_horizon_modules() {
 	  fi
 	done
 	console_print "$moduleName has been installed..."
-  elif [[ "${moduleTYPE}" == "--product" ]]; then
+  elif [[ "${moduleTYPE}" == "product" ]]; then
     console_print "Installing ${moduleName}..."
 	for i in ./tmp/product/*; do
 	  if [[ -f "${PRODUCT_DIR}/${i}" ]]; then

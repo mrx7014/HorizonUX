@@ -382,6 +382,10 @@ elif [[ "${BUILD_TARGET_SDK_VERSION}" -ge "29" ]] && [[ "${TARGET_INCLUDE_SAMSUN
   } || { warns "Please connect the computer to a wifi or an ethernet connection to download good look modules." "GOODLOCK_INSTALLER" ; }
 fi
 
+if ${TARGET_INCLUDE_HORIZON_AUDIO_RESAMPLER_PLUGIN}; then
+  install_horizon_modules "./horizon/system_plugins"
+fi
+
 # send off message.
 console_print " Check the /build folder for the items you have built."
 console_print " Please sign the built overlay or application packages manually with your own private keys;"
