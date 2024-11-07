@@ -26,11 +26,6 @@ You all are legends! 💖
 
 - **Description**: This project is all about personallizing oneui. It’s designed to improve the ux.
   
-- **Installation**: Get in on the action with these easy steps to set it up:
-  
-  1. Clone the repo: `git clone [https://github.com/forsaken-heart24/HorizonXOneUI-HorizonUX]`
-  2. Execute the build script: `./build.sh`
-  
 - **Contributing**: Want to join the fun? Hit me up! Here’s how you can contribute to this project:
   
   1. Fork the repo
