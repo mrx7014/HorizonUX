@@ -1,5 +1,3 @@
-# How to Mod Your OneUI ROM
-
 ## 🚀 Quick Start Guide
 
 Follow these steps to customize your OneUI ROM with ease:
