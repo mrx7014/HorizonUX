@@ -2,50 +2,42 @@
 awk '{print}' ./banner
 console_print "Starting to build HorizonUX ${CODENAME} - v${CODENAME_VERSION_REFERENCE_ID} on $(id -un)'s computer..."
 console_print "Build started by $(id -un) at $(date +%I:%M%p) on $(date +%d\ %B\ %Y)"
-console_print "The Current User ID : $(lslogins | grep $(id -un) | xargs | cut -c 1-5)"
-console_print "CPU Architecture : $(lscpu | grep Architecture | xargs | cut -c 15-21)"
-console_print "CPU Manufacturer and model : $(lscpu | grep "Model name" | xargs | cut -c 13-1000)"
-console_print "L2 Cache Memory Size : $(lscpu | grep L2 | xargs | cut -c 11-16)"
-console_print "Available RAM Memory : $(free -h | grep Mem | xargs | cut -c 6-9)B"
-console_print "The Computer is turned on since : $(uptime --pretty | cut -c 4-100)"
+console_print "The Current Username : $(id -un)"
+console_print "CPU Architecture : $(lscpu | grep Architecture | awk '{print $2}')"
+console_print "CPU Manufacturer and model : $(lscpu | grep 'Model name' | awk -F: '{print $2}' | xargs)"
+console_print "L2 Cache Memory Size : $(lscpu | grep L2 | awk '{print $3}')"
+console_print "Available RAM Memory : $(free -h | grep Mem | awk '{print $7}')B"
+console_print "The Computer is turned on since : $(uptime --pretty | awk '{print substr($0, 4)}')"
 
 ################ boom
 if ! $testEnv; then
-  if [[ ! -f "${SCRIPTS[1]}" ]]; then
+  if [ ! -d "${SCRIPTS[1]}" ]; then
     abort "Script files are missing, exiting..."
-  elif [[ ! -f "${TARS[1]}" ]]; then
+  elif [ ! -d "${TARS[1]}" ]; then
     abort "Tar files are missing, exiting..."
-  fi
-
-  # ban users if this shit doesn't have the required things
-  if [[ ! -f "${PREFIX}/bin/download_stuffs" ]]; then
-    warns "download_stuffs is required for downloading some dependencies, please connect the device into the internet." "$(echo "dependencies_errors" | tr '[:lower:]' '[:upper:]')"
-  elif [[ ! -f "${PREFIX}/bin/zip" ]]; then
+  elif [ ! -d "${PREFIX}/bin/zip" ]; then
     abort "zip is not installed. Please install it to proceed."
-  elif [[ ! -f "${PREFIX}/bin/python3"  ]]; then
-    warns "python3 is not installed, it's not required unless if you want to patch your recovery image." "$(echo "dependencies_errors" | tr '[:lower:]' '[:upper:]')"
-  fi
-
-  if [ ${SYSTEM_DIR} == "xxx" ] || [ -z "${SYSTEM_DIR}" ]; then
-    abort "system directory environment path is not set, exiting..."
-  elif [ ${SYSTEM_EXT_DIR} == "xxx" ] || [ -z "${SYSTEM_EXT_DIR}" ]; then
+  elif [ ! -d "${PREFIX}/bin/python3" ]; then
+    warns "python3 is not installed. It's not required unless you want to patch your recovery image." "$(echo "DEPENDENCIES_ERRORS" | tr '[:lower:]' '[:upper:]')"
+  elif [ ! -d "${SYSTEM_DIR}" ]; then
+    abort "System directory environment path is not set, exiting..."
+  elif [ ! -d "${SYSTEM_EXT_DIR}" ]; then
     abort "system_ext directory environment path is not set, exiting..."
-  elif [ ${VENDOR_DIR} == "xxx" ] || [ -z "${VENDOR_DIR}" ]; then
-    abort "vendor directory environment path is not set, exiting..."
-  elif [ ${PRODUCT_DIR} == "xxx" ] || [ -z "${PRODUCT_DIR}" ]; then
-    abort "product directory environment path is not set, exiting..."
-  elif [ ${PRISM_DIR} == "xxx" ] && [ ${BUILD_TARGET_HAS_PRISM} == "true" ] ; then
-    abort "prism directory environment path is not set, exiting..."
-  fi
-  
-  if [ -z "${JAVA_HOME}" ]; then
-    abort "Please install the latest openjdk or any preferred java installation to proceed."
+  elif [ ! -d "${VENDOR_DIR}" ]; then
+    abort "Vendor directory environment path is not set, exiting..."
+  elif [ ! -d "${PRODUCT_DIR}" ]; then
+    abort "Product directory environment path is not set, exiting..."
+  elif [ "${BUILD_TARGET_HAS_PRISM}" == "true" ] && [ ! -d "$PRISM_DIR" ]; then
+    abort "Prism directory environment path is not set, exiting..."
+  elif [ -z "${JAVA_HOME}" ]; then
+    abort "Please install the latest openjdk or any preferred Java installation to proceed."
   fi
 fi
 ################ boom
 if $TARGET_BUILD_IS_FOR_DEBUGGING; then
   {
-    echo "############ WARNING, EXPERIMENTAL FLAGS AHEAD!
+    echo "
+############ WARNING, EXPERIMENTAL FLAGS AHEAD!
 logcat.live=enable
 sys.lpdumpd=1
 persist.debug.atrace.boottrace=1
@@ -70,7 +62,8 @@ persist.systemserver.sa_bindertracker=false
 ############ WARNING, EXPERIMENTAL FLAGS AHEAD!"
   } >> ${SYSTEM_DIR}/build.prop
   { 
-    echo "############ WARNING, EXPERIMENTAL FLAGS AHEAD!
+    echo "
+############ WARNING, EXPERIMENTAL FLAGS AHEAD!
 setprop log.tag.snap_api::snpe VERBOSE
 setprop log.tag.snap_api::V3 VERBOSE
 setprop log.tag.snap_api::V2 VERBOSE
@@ -88,13 +81,12 @@ fi
 
 if [ "$BUILD_TARGET_ANDROID_VERSION" == "14" ]; then
   console_print "removing some bloats, thnx Salvo!"
-  cd ${SYSTEM_DIR}
-  rm -rf etc/permissions/privapp-permissions-com.samsung.android.kgclient.xml \
-  etc/public.libraries-wsm.samsung.txt \
-  lib/libhal.wsm.samsung.so \
-  lib/vendor.samsung.hardware.security.wsm.service-V1-ndk.so \
-  lib64/libhal.wsm.samsung.so \
-  lib64/vendor.samsung.hardware.security.wsm.service-V1-ndk.so priv-app/KnoxGuard
+  rm -rf ${SYSTEM_DIR}/etc/permissions/privapp-permissions-com.samsung.android.kgclient.xml \
+  ${SYSTEM_DIR}/etc/public.libraries-wsm.samsung.txt \
+  ${SYSTEM_DIR}/lib/libhal.wsm.samsung.so \
+  ${SYSTEM_DIR}/lib/vendor.samsung.hardware.security.wsm.service-V1-ndk.so \
+  ${SYSTEM_DIR}/lib64/libhal.wsm.samsung.so \
+  ${SYSTEM_DIR}/lib64/vendor.samsung.hardware.security.wsm.service-V1-ndk.so ${SYSTEM_DIR}/priv-app/KnoxGuard
 fi
 
 console_print "changing default language..."
@@ -382,8 +374,24 @@ elif [[ "${BUILD_TARGET_SDK_VERSION}" -ge "29" ]] && [[ "${TARGET_INCLUDE_SAMSUN
   } || { warns "Please connect the computer to a wifi or an ethernet connection to download good look modules." "GOODLOCK_INSTALLER" ; }
 fi
 
+# installs a init module which forces the system to switch to dark mode if it's in the setup-wizard.
+if [ "${BUILD_TARGET_SDK_VERSION}" -ge "30" ]; then
+  install_horizon_modules "./horizon/system_plugins/theme_switcher.tar" --silenced
+fi
+
+# install a module which improves the cheap earphones experience.
 if ${TARGET_INCLUDE_HORIZON_AUDIO_RESAMPLER_PLUGIN}; then
-  install_horizon_modules "./horizon/system_plugins"
+  install_horizon_modules "./horizon/system_plugins/resampler.tar"
+fi
+
+# improves i/o speeds a bit. (if possible)
+if ${TARGET_INCLUDE_HORIZON_SCHEDULER_SWITCHER_PLUGIN}; then
+  install_horizon_modules "./horizon/system_plugins/scheduler_switcher.tar"
+fi
+
+# L, see the dawn makeconfigs.prop file :\
+if ${TARGET_INCLUDE_HORIZON_OEMCRYPTO_DISABLER_PLUGIN}; then
+  install_horizon_modules "./horizon/system_plugins/liboemcryptodisabler.tar"
 fi
 
 # send off message.

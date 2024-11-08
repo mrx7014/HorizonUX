@@ -30,7 +30,6 @@ function abort() {
 function warns() {
   echo -e "[\e[0;35m$(date +%d-%m-%Y) \e[0;37m- \e[0;32m$(date +%H:%M%p)] / [:\e[0;36mWARN\e[0;37m:] / [:\e[0;32m$2\e[0;37m:] -\e[0;33m $1\e[0;37m"
   sleep 0.5
-  return 1
 }
 
 function console_print() {
@@ -111,8 +110,11 @@ function catch_duplicates_in_xml() {
   local feature_code="$1"
   local file="$2" 
   # Check if feature_code and file are provided
-  [ -z "${feature_code}" ] && warns "Feature code is missing in the given argument...";
-  [ -z "$file" ] && warns "XML file is missing in the given argument...";
+  if [ "$#" -le "1" ]; then
+    warns "Arguments are not enough for this script to run..." "DUPLICATES_CATCHER"
+	return 1
+  fi
+  
   # Convert feature_code to uppercase
   feature_code="$(echo "${feature_code}" | tr '[:lower:]' '[:upper:]')"
   # Initialize count
@@ -130,11 +132,16 @@ function catch_duplicates_in_xml() {
 function add_float_xml_values() {
   local feature_code="$1"
   local feature_code_value="$2"
+  
   # Check if feature_code, feature_code_value, and file are provided
-  [ -z "${feature_code_value}" ] && warns "Feature value is missing in the given argument.";
-  [ -z "${feature_code}" ] && warns "Feature code is missing in the given argument.";
+  if [ "$#" -le "1" ]; then
+    warns "Arguments are not enough for this script to run..." "ADD_FLOAT_VALUES"
+	return 1
+  fi
+  
   # Convert feature_code to uppercase
   feature_code="$(echo "${feature_code}" | tr '[:lower:]' '[:upper:]')"
+  
   # check if we have duplicates or not, uf we have anything extra, call the catch_duplicates_in_xml to do the job lol.
   if [ "$(catch_duplicates_in_xml "${feature_code}" "${TARGET_BUILD_FLOATING_FEATURE_PATH}")" == "0" ]; then
 	# Create a temporary file to hold the modified content
@@ -161,8 +168,11 @@ function add_csc_xml_values() {
   local feature_code="$1"
   local feature_code_value="$2"
   # Check if feature_code, feature_code_value, and file are provided
-  [ -z "${feature_code_value}" ] && warns "Feature value is missing in the given argument.";
-  [ -z "${feature_code}" ] && warns "Feature code is missing in the given argument.";
+  if [ "$#" -le "1" ]; then
+    warns "Arguments are not enough.." "CSC_MODIFIER"
+	return 1
+  fi
+  
   # Convert feature_code to uppercase
   feature_code="$(echo "${feature_code}" | tr '[:lower:]' '[:upper:]')"
   # check if we have duplicates or not, uf we have anything extra, call the catch_duplicates_in_xml to do the job lol.
@@ -191,8 +201,11 @@ function change_xml_values() {
   local feature_code="$1"
   local feature_code_value="$2"
   # Check for missing arguments
-  [ -z "${feature_code_value}" ] && warns "Feature value is missing in the given argument...";
-  [ -z "${feature_code}" ] && warns "Feature code is missing in the given argument...";
+  if [ "$#" -le "1" ]; then
+    warns "Arguments are not enough.." "XML_VALUE_TINKER"
+	return 1
+  fi
+  
   # Convert feature_code to uppercase
   feature_code="$(echo "${feature_code}" | tr '[:lower:]' '[:upper:]')"
   # catch the duplicate values and warn the user lol.
@@ -236,8 +249,10 @@ function omc() {
   local xml_filename="$2"
   
   # boom boom
-  [ -z "${arg}" ] && warns "No arguments has been provided for the function to run :("
-  [ -z "${xml_filename}" ] && warns "No file has been provided for the function to run :("
+  if [ "$#" -le "1" ]; then
+    warns "Arguments are not enough.." "OMC_DECODER"
+	return 1
+  fi
   
   # bomboclatttttttt 😭😭😭😭😭
   if [ "${arg}" == "--decode" ]; then
@@ -567,7 +582,8 @@ function download_stuffs() {
   
   # let's end the op if the args werent enough.
   if [ "$#" -le "1" ]; then
-    warns "Arguments are not enough.." "HORIZON_MODULE_INSTALLER"
+    warns "Arguments are not enough.." "DOWNLOADER"
+	return 1
   fi
   
   # let's start the shits...
@@ -583,8 +599,9 @@ function install_horizon_modules() {
   local additionalARGUMENTS=""$(echo "$3" | tr '[:upper:]' '[:lower:]')""
   
   # let's end the op if the args werent enough.
-  if [ "$#" -le "1" ]; then
+  if [ "$#" == "0" ]; then
     warns "Arguments are not enough.." "HORIZON_MODULE_INSTALLER"
+	return 1
   fi
 
   # the bomb starts from here.
@@ -592,6 +609,7 @@ function install_horizon_modules() {
   tar -xf ${tarPATH} -C ./tmp/
   local moduleName="$(grep "horizon.module.name" module.prop | cut -d '=' -f 2 | sed 's/"//g')"
   local moduleTYPE="$(grep "horizon.module.type" module.prop | cut -d '=' -f 2 | sed 's/"//g')"
+  local moduleSCRIPTNAME="$(grep "horizon.module.script.name" module.prop | cut -d '=' -f 2 | sed 's/"//g')"
   if [ "${additionalARGUMENTS}" == "--silenced" ] || ask "Do you wanna know what does this system plugin do?"; then
     console_print "${moduleName}, $(grep "horizon.module.description" module.prop | cut -d '=' -f 2 | sed 's/"//g')"
 	console_print "Brought to you by $(grep "horizon.module.authors" module.prop | cut -d '=' -f 2 | sed 's/"//g')"
@@ -634,6 +652,9 @@ function install_horizon_modules() {
 	  fi
 	done
 	console_print "$moduleName has been installed..."
+  elif [[ "${moduleTYPE}" == "script" ]]; then
+    console_print "Installing ${moduleName}..."
+	./tmp/${moduleSCRIPTNAME} "$SYSTEM_DIR" "$SYSTEM_EXT_DIR" "$VENDOR_DIR" "$PRODUCT_DIR" "$PRISM_DIR"
   else
     console_print "unknown module type, $moduleTYPE can't be installed..."
   fi

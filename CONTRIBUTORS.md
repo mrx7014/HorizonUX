@@ -17,6 +17,7 @@ Shoutout to the real MVPs who made this project pop! Without you, it would just 
 - [Razvan](https://github.com/corsicanu) - haha, pro samsung custom IoT dev.
 - [yzyhk904](https://github.com/yzyhk904) - Audiophile (i guess...)
 - [Nobletaro](https://t.me/GalaxyApksOfftopic/908527) - nobletaro.
+- [Ian Macdonald](https://github.com/ianmacd) - Silicon Valley survivor...
 
 You all are legends! 💖
 
