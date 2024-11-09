@@ -6,7 +6,7 @@ Follow these steps to customize your OneUI ROM with ease:
    Start by cloning this repository to your local machine. Afterward, unpack the stock firmware of your choice.
 
 2. **Edit the Configuration**  
-   Navigate to the `dependencies` folder in the repo and open `makeconfigs.prop`. Edit the variables in the file to match your desired configuration. This will define your ROM's build settings.
+   Navigate to the `misc/build_scripts` folder in the repo and open `makeconfigs.prop`. Edit the variables in the file to match your desired configuration. This will define your ROM's build settings.
 
 3. **Build the ROM**  
    With your custom configurations in place, proceed to build the ROM using the unpacked firmware. Ensure everything is set up correctly before starting the build process.
