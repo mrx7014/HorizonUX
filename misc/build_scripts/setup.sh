@@ -374,24 +374,15 @@ elif [[ "${BUILD_TARGET_SDK_VERSION}" -ge "29" ]] && [[ "${TARGET_INCLUDE_SAMSUN
   } || { warns "Please connect the computer to a wifi or an ethernet connection to download good look modules." "GOODLOCK_INSTALLER" ; }
 fi
 
-# installs a init module which forces the system to switch to dark mode if it's in the setup-wizard.
-if [ "${BUILD_TARGET_SDK_VERSION}" -ge "30" ]; then
-  install_horizon_modules "./horizon/system_plugins/theme_switcher.tar" --silenced
-fi
-
-# install a module which improves the cheap earphones experience.
-if ${TARGET_INCLUDE_HORIZON_AUDIO_RESAMPLER_PLUGIN}; then
-  install_horizon_modules "./horizon/system_plugins/resampler.tar"
-fi
-
-# improves i/o speeds a bit. (if possible)
-if ${TARGET_INCLUDE_HORIZON_SCHEDULER_SWITCHER_PLUGIN}; then
-  install_horizon_modules "./horizon/system_plugins/scheduler_switcher.tar"
-fi
-
 # L, see the dawn makeconfigs.prop file :\
 if ${TARGET_INCLUDE_HORIZON_OEMCRYPTO_DISABLER_PLUGIN}; then
-  install_horizon_modules "./horizon/system_plugins/liboemcryptodisabler.tar"
+  for part in system vendor; do
+    for libdir in $part/lib $part/lib64; Do
+	  if [ -f $part/$libdir/liboemcrypto.so ]; then
+		touch $part/$libdir/liboemcrypto.so
+	  fi
+	done
+  done
 fi
 
 # send off message.

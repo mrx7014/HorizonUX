@@ -19,10 +19,11 @@ dd if=raw.img of=header.img bs=4k count="$off" iflag=count_bytes
 # bomb
 console_print "Done editing the given image!"
 console_print "checking the file..."
-if ! existance "./build/custom_recovery_with_fastbootd/header.img"; then
+if existance "./build/custom_recovery_with_fastbootd/header.img"; then
+  console_print "finished!"
+else
   abort "file check on header.img failed"
 fi
-console_print "finished!"
 
 # Make keystore file.
 mkdir "./build/custom_recovery_with_fastbootd/keys"
@@ -31,8 +32,8 @@ openssl genrsa -f4 -out "$csd/keys/phh.pem" 4096
 # Fragment the edited image
 mkdir "./build/custom_recovery_with_fastbootd/fragments"
 cd "./build/custom_recovery_with_fastbootd/fragments" || exit
-./build/custom_recovery_with_fastbootd/magiskboot unpack "./build/custom_recovery_with_fastbootd/header.img"
-./build/custom_recovery_with_fastbootd/magiskboot cpio ramdisk.cpio extract
+./dependencies/bin/magiskboot unpack "./build/custom_recovery_with_fastbootd/header.img"
+./dependencies/bin/magiskboot cpio ramdisk.cpio extract
 
 if existance "./build/custom_recovery_with_fastbootd/fragments/system/bin/recovery"; then
   console_print "successfully fragmented image!" 
@@ -61,7 +62,7 @@ for patch in \
 do
   src="${patch%% *}"
   dst="${patch##* }"
-  ./build/custom_recovery_with_fastbootd/magiskboot hexpatch "./build/custom_recovery_with_fastbootd/fragments/system/bin/recovery" $src $dst
+  ./dependencies/bin/magiskboot hexpatch "./build/custom_recovery_with_fastbootd/fragments/system/bin/recovery" $src $dst
 done
 
 # Reassemble fragmented image
@@ -78,8 +79,8 @@ fi
 
 # Sign patched image with keyfile
 console_print "Signing patched image with generated openssh key..."
-python3 "./build/custom_recovery_with_fastbootd/avbtool" extract_public_key --key "./build/custom_recovery_with_fastbootd/keys/phh.pem" --output "./build/custom_recovery_with_fastbootd/keys/phh.pub.bin" &&
-python3 "./build/custom_recovery_with_fastbootd/avbtool" add_hash_footer --image "./build/custom_recovery_with_fastbootd/output/output.img" --partition_name recovery --partition_size "$(wc -c < "$csd/raw.img")" --key "./build/custom_recovery_with_fastbootd/keys/phh.pem" --algorithm SHA256_RSA4096
+python3 "./dependencies/bin/avbtool" extract_public_key --key "./build/custom_recovery_with_fastbootd/keys/phh.pem" --output "./build/custom_recovery_with_fastbootd/keys/phh.pub.bin" &&
+python3 "./dependencies/bin/avbtool" add_hash_footer --image "./build/custom_recovery_with_fastbootd/output/output.img" --partition_name recovery --partition_size "$(wc -c < "$csd/raw.img")" --key "./build/custom_recovery_with_fastbootd/keys/phh.pem" --algorithm SHA256_RSA4096
 console_print "Signed image successfully!"
 
 if ask "Do you want to make an odin tar for flashing the patched recovery image?"; then

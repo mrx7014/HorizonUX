@@ -3,12 +3,13 @@ mkdir -p ./build/system/product/priv-app ./build/system/product/etc ./build/syst
 
 # uuhrm.
 SCRIPTS=(
-  "./misc/scripts/add_unlimited_backups.sh"
-  "./horizon/patches/disable_adb_authorization/disable_adb_authorization.sh"
-  "./horizon/patches/bluetooth_library_patcher/patch.sh"
-  "./misc/scripts/resolution_app_permissions_xml_conf.sh"
-  "./misc/scripts/github_at_luna__FLOSSPAPER.sh"
-  "./patches/bring_fastbootd_into_recovery/patches.sh"
+  "./misc/rom_modifier_scripts/add_unlimited_backups.sh"
+  "./misc/rom_modifier_scripts/disable_adb_authorization/disable_adb_authorization.sh"
+  "./misc/rom_modifier_scripts/bluetooth_library_patcher.sh"
+  "./misc/rom_modifier_scripts/resolution_app_permissions_xml_conf.sh"
+  "./misc/rom_modifier_scripts/github_at_luna__FLOSSPAPER.sh"
+  "./misc/rom_modifier_scripts/bring_fastbootd_into_recovery.sh"
+  "./misc/rom_modifier_scripts/useless_vendor_stuffs.sh"
 )
 
 TARS=(
@@ -573,7 +574,13 @@ HEX_PATCH() {
 
 function existance() {
    local file="$1"
-   [ -e "$file" ] && { return 0; } || { return 1; }
+   
+   # grrrrrrrrrrrrrr
+   if [ -e "$file" ]; then
+     return 0
+   else
+     return 1
+   fi
 }
 
 function download_stuffs() {
