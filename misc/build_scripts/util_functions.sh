@@ -82,7 +82,7 @@ function build_and_sign() {
   rm -rf ./build/sign_applications/*
   apktool build --api-level "${BUILD_TARGET_SDK_VERSION}" "${extracted_dir_path}" &>/dev/null
   mv ${extracted_dir_path}/dist/${apkFileName} ./build/sign_applications/
-  java -jar ./dependencies/signer.jar --apks ./build/sign_applications/${apkFileName}
+  java -jar ./dependencies/bin/signer.jar --apks ./build/sign_applications/${apkFileName}
   case "$(echo $type | tr '[:upper:]' '[:lower:]')" in 
     --overlay)
       mv ./build/sign_applications/$(ls | grep aligned-debugSigned.apk | head -n 1) ./build/system/product/overlay/
@@ -257,9 +257,9 @@ function omc() {
   
   # bomboclatttttttt 😭😭😭😭😭
   if [ "${arg}" == "--decode" ]; then
-    java -jar ./dependencies/omc-decoder.jar -i ${xml_filename}.xml -o ${xml_filename}_decoded.xml
+    java -jar ./dependencies/bin/omc-decoder.jar -i ${xml_filename}.xml -o ${xml_filename}_decoded.xml
   elif [ "${arg}" == "--encode" ]; then
-    java -jar omc-decoder.jar -e -i ${xml_filename}_decoded.xml -o ${xml_filename}.xml
+    java -jar ./dependencies/bin/omc-decoder.jar -e -i ${xml_filename}_decoded.xml -o ${xml_filename}.xml
   fi
 }
 
