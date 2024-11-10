@@ -43,10 +43,11 @@ bool TARGET_REQUIRES_BLUETOOTH_LIBRARY_PATCHES false
 # you know these :
 bool TARGET_REMOVE_NONE_SECURITY_OPTION true
 bool TARGET_REMOVE_SWIPE_SECURITY_OPTION false
+bool TARGET_REMOVE_USELESS_VENDOR_STUFFS true
 bool TARGET_ADD_EXTRA_ANIMATION_SCALES true
 bool TARGET_ADD_ROUNDED_CORNERS_TO_THE_PIP_WINDOWS true
 
-# bring fastboot mode on samsung launched with android 10, useful if the device never had a custom recovery.
+# bring fastboot mode on samsung launched with android 10.
 bool TARGET_INCLUDE_FASTBOOTD_PATCH_BY_RATCODED false
 
 # this brings unlimited pictures backup.
@@ -119,14 +120,14 @@ bool TARGET_FLOATING_FEATURE_SUPPORTS_DOLBY_IN_GAMES false
 
 ############################################# Exclusive HorizonUX Features #############################################
 # this feature includes an resampler that is used to avoid smoky distortion specifically to those LDAC Bluetooth earphones and DAC's under $30 (probably), this sets special re-sampling tweaks in the system level.
-bool TARGET_INCLUDE_HORIZON_AUDIO_RESAMPLER_PLUGIN false
+bool TARGET_INCLUDE_HORIZON_AUDIO_RESAMPLER false
 
 # this feature switches the scheduler to fio (if possible) to improve the io performance a bit.
-bool TARGET_INCLUDE_HORIZON_SCHEDULER_SWITCHER_PLUGIN false
+bool TARGET_INCLUDE_HORIZON_SCHEDULER_SWITCHER false
 
 # this feature removes a file that is necessary for drm / ott platforms, please note that the widevine level will fallback to L3
 # which will disable HD playbacks. DRM-protected apps might work after appling this patch but im not sure....
-bool TARGET_INCLUDE_HORIZON_OEMCRYPTO_DISABLER_PLUGIN false
+bool TARGET_INCLUDE_HORIZON_OEMCRYPTO_DISABLER false
 ############################################# Exclusive HorizonUX Features #############################################
 
 # miscs for goodlock modules

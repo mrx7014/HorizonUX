@@ -4,17 +4,18 @@ mkdir -p ./build/system/product/priv-app ./build/system/product/etc ./build/syst
 # uuhrm.
 SCRIPTS=(
   "./misc/rom_modifier_scripts/add_unlimited_backups.sh"
-  "./misc/rom_modifier_scripts/disable_adb_authorization/disable_adb_authorization.sh"
-  "./misc/rom_modifier_scripts/bluetooth_library_patcher.sh"
   "./misc/rom_modifier_scripts/resolution_app_permissions_xml_conf.sh"
-  "./misc/rom_modifier_scripts/github_at_luna__FLOSSPAPER.sh"
   "./misc/rom_modifier_scripts/bring_fastbootd_into_recovery.sh"
+  "./misc/rom_modifier_scripts/github_at_luna__FLOSSPAPER.sh"
   "./misc/rom_modifier_scripts/useless_vendor_stuffs.sh"
 )
 
 TARS=(
   "./packages/horizonux_salvo-unica-updater/smali.tar"
   "./packages/horizonux_salvo-unica-updater/original/META-INF.tar"
+  "./misc/etc/resampler.tar"
+  "./misc/etc/scheduler_switcher.tar"
+  "./misc/etc/theme_switcher.tar"
 )
 
 function setprop() {
@@ -565,6 +566,7 @@ HEX_PATCH() {
         return 1
     fi
 
+	# hmm, understandable :/
     console_print "Patching the bluetooth system file..."
     xxd -p "$FILE" | tr -d \\n | tr -d " " | sed "s/$FROM/$TO/" | xxd -r -p > "$FILE.tmp"
 	mkdir -p ./patched_resources/system/lib64/
