@@ -12,7 +12,7 @@
 /*
 - Artificial Intelligence does this does that. 
 - Man fuck them it's useless and it ruined some of my code. 
-- You might say these things are experimental and not that much accurate but that motherfucker from nvidia said that it's useless to learn "programming", jokes on you nigga.
+- You might say these things are experimental and not that much accurate but that motherfucker from nvidia said that it's useless to learn "programming" LFMAOOOOO
 */
 
 int ___validate__input__length(const char *input, size_t max_length) {
@@ -59,8 +59,7 @@ int ___set__system__settings(const char *table, const char *prop, const void *va
     }
 	
 	// Null-terminate the uppercase string
-    upperTable[i] = '\0'; 
-	// Null-terminate the uppercase string
+    upperTable[i] = '\0';
 
     // Check if the table name is valid
     if (strcmp(upperTable, "SYSTEM") != 0 && strcmp(upperTable, "SECURE") != 0 && strcmp(upperTable, "GLOBAL") != 0) {
@@ -74,13 +73,9 @@ int ___set__system__settings(const char *table, const char *prop, const void *va
 	else {
         snprintf(command, sizeof(command), "settings put %s %s %s", table, prop, (const char *)value);
     }
-    // Prepare the command based on the value type
 
     // Execute the command
-    if(system(command) != 0) {
-		console_log(" - you're screwed...");
-		return 1;
-	}
+	execlp("sh", "sh", "-c", command (char *) NULL);
 }
 
 int ___get__system__settings__value(const char *table, const char *prop, bool asInt) {
@@ -121,6 +116,13 @@ int ___get__system__settings__value(const char *table, const char *prop, bool as
         }
     }
     pclose(fp);
+}
+
+// this function ahhh prints like if you give it a 50 it prints the reminding of the numbers sooo, yeah hope you get the explanation.
+void seq(int end) {
+    for (int i = 1; i <= end; i++) {
+        printf("%d\n", i);
+    }
 }
 
 const char* ___get__system__property(const char *property, const char *default_value) {
@@ -181,13 +183,13 @@ void ___set__system__property(const char *prop, const void *value, bool isInt) {
 	else {
         snprintf(command, sizeof(command), "resetprop -n %s %s", prop, (const char *)value); // let's set the alphabet value (ig plox)
     }
-    system(command);
+	execlp("sh", "sh", "-c", command, (char *) NULL);
 }
 
 void ___remove__system__property(const char *property) {
     char command[BUFFER_SIZE];
     snprintf(command, sizeof(command), "resetprop --delete %s", property);
-    system(command);
+	execlp("sh", "sh", "-c", command, (char *) NULL);
 }
 
 // ___change__given__line__on__a__file "prop / flag without it's value" "flag / prop value" "system property file path"
@@ -235,8 +237,7 @@ void ___execute__command(const char *command, bool *ignore_child_processes) {
 }
 
 void ___make__OpenRecoveryScript() {
-    system("touch /cache/recovery/command"); // make a dummy file lol
-    system("touch /data/horizonux_rcm"); // make a dummy file for the installer script.
+	execlp("sh", "sh", "-c" "echo > /cache/recovery/command", (char *)NULL); // make a dummy file lol
     FILE *file = fopen("/cache/recovery/command", "w"); // let's open that dummy file to write the script.
     if(file == NULL) {
         perror(" - Failed to create recovery script");
@@ -244,18 +245,18 @@ void ___make__OpenRecoveryScript() {
     }
     fprintf(file, "--data_resizing\n--delete_apn_changes\n--wipe_cache\n--update_package=/data/horizonux/snapshots/snapshot.zip"); // [Luna] - nothing to say @3:04AM 10/11/2024
     fclose(file);
-    system("chmod 755 /cache/recovery/command"); // Optionally, make the script executable to fix feature errors;
+	execlp("sh", "sh", "-c", "chmod 755 /cache/recovery/command"); // Optionally, make the script executable to fix feature errors;
 }
 
 void ___reboot__device(const char *state) {
     if(strcmp(state, "recovery") == 0) {
-        system("reboot recovery");
+		execlp("sh", "sh", "-c", "reboot recovery", (char *)NULL);
     } 
 	else if(strcmp(state, "bootloader") == 0) {
-        system("reboot bootloader");
+        execlp("sh", "sh", "-c", "reboot bootloader", (char *)NULL);
     } 
 	else {
-        system("reboot");
+        execlp("sh", "sh", "-c", "reboot", (char *)NULL);
     }
 }
 
