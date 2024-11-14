@@ -1,3 +1,17 @@
+# rouna will ban me for this :(
+if [ -f "${SYSTEM_DIR}/etc/floating_feature.xml" ]; then
+	TARGET_BUILD_FLOATING_FEATURE_PATH="${SYSTEM_DIR}/etc/floating_feature.xml"
+else
+	TARGET_BUILD_FLOATING_FEATURE_PATH="${VENDOR_DIR}/etc/floating_feature.xml"
+fi
+
+# bomb.
+if [ "${TARGET_BUILD_IS_FOR_DEBUGGING}" == "true" ]; then 
+	bool TARGET_BUILD_REMOVE_ADB_AUTHORIZATION true
+else
+	bool TARGET_BUILD_REMOVE_ADB_AUTHORIZATION false
+fi
+
 # ok, fbans dropped!
 awk '{print}' ./banner
 console_print "Starting to build HorizonUX ${CODENAME} - v${CODENAME_VERSION_REFERENCE_ID} on $(id -un)'s computer..."
@@ -31,7 +45,7 @@ if ! $testEnv; then
 		abort "Prism directory environment path is not set, exiting..."
 	elif [ -z "${JAVA_HOME}" ]; then
 		abort "Please install the latest openjdk or any preferred Java installation to proceed."
-  fi
+	fi
 fi
 ################ boom
 if $TARGET_BUILD_IS_FOR_DEBUGGING; then
@@ -121,7 +135,7 @@ if [ "${TARGET_SCREEN_WIDTH}" == "1080" ] && [ "${TARGET_SCREEN_HEIGHT}" == "234
 		console_print "Building HorizonUXScreenResolution app for your device...."
 		mkdir -p ./build/system/product/priv-app/HorizonUXResolution
 		. ${SCRIPTS[1]}
-		build_and_sign --conventional ./packages/horizonux_resolution/ --privilaged "HorizonUXResolution"
+		build_and_sign --conventional ./horizon/packages/horizonux_resolution/ --privilaged "HorizonUXResolution"
 		mv ./build/system/etc/permissions/privapp-permissions-horizonux.screen.resolution.xml ./build/system/product/etc/permissions/
 	fi
 fi
@@ -134,13 +148,13 @@ fi
 if "${TARGET_INCLUDE_CUSTOM_SETUP_WELCOME_MESSAGES}"; then
 	console_print "adding custom setup wizard text...."
 	custom_setup_finished_messsage
-	build_and_sign --overlay ./packages/sec_setup_wizard_horizonux_overlay/
+	build_and_sign --overlay ./horizon/packages/sec_setup_wizard_horizonux_overlay/
 fi
 
 if "$TARGET_REMOVE_NONE_SECURITY_OPTION"; then
 	warns_api_limitations "11"
 	console_print "removing none security option from lockscreen settings..."
-	cat >> "./packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml" << EOF
+	cat >> "./horizon/packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml" << EOF
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <bool name="config_hide_none_security_option">true</bool>
@@ -150,33 +164,33 @@ fi
 if "${TARGET_REMOVE_SWIPE_SECURITY_OPTION}"; then
 	console_print "removing swipe security option from lockscreen settings..."
 	warns_api_limitations "11"
-	echo "    <bool name="config_hide_swipe_security_option">true</bool>" >> ./packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml
-	echo "</resources>" >> ./packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml
+	echo "    <bool name="config_hide_swipe_security_option">true</bool>" >> ./horizon/packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml
+	echo "</resources>" >> ./horizon/packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml
 else
-	echo "</resources>" >> ./packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml
+	echo "</resources>" >> ./horizon/packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml
 fi
 
 if "${TARGET_REMOVE_SWIPE_SECURITY_OPTION}"; then
 	warns_api_limitations "11"
-	build_and_sign --overlay ./packages/settings/oneui3/remove_none_option_on_security_tab/
+	build_and_sign --overlay ./horizon/packages/settings/oneui3/remove_none_option_on_security_tab/
 fi
 
 if "${TARGET_ADD_EXTRA_ANIMATION_SCALES}"; then
 	console_print "cooking extra animation scales.."
-	build_and_sign --overlay ./packages/settings/oneui3/extra_animation_scales/
+	build_and_sign --overlay ./horizon/packages/settings/oneui3/extra_animation_scales/
 fi
 
 if "${TARGET_ADD_ROUNDED_CORNERS_TO_THE_PIP_WINDOWS}"; then
 	console_print "cooking rounded corners on pip window...."
 	warns_api_limitations "11"
-	build_and_sign --overlay ./packages/systemui/oneui3/rounded_corners_on_pip/
+	build_and_sign --overlay ./horizon/packages/systemui/oneui3/rounded_corners_on_pip/
 fi
 
 if "${TARGET_FLOATING_FEATURE_INCLUDE_GAMELAUNCHER_IN_THE_HOMESCREEN}"; then
 	console_print "Enabling Game Launcher..."
 	change_xml_values "SEC_FLOATING_FEATURE_GRAPHICS_SUPPORT_DEFAULT_GAMELAUNCHER_ENABLE" "TRUE"
 elif "${TARGET_FLOATING_FEATURE_INCLUDE_GAMELAUNCHER_IN_THE_HOMESCREEN}"; then
-	warns "Disabling Game Launcher...""TARGET_FEATURE_CONFIGURATION"
+	warns "Disabling Game Launcher..." "TARGET_FEATURE_CONFIGURATION"
 	change_xml_values "SEC_FLOATING_FEATURE_GRAPHICS_SUPPORT_DEFAULT_GAMELAUNCHER_ENABLE" "FALSE"
 fi
 
@@ -214,10 +228,6 @@ if "${TARGET_FLOATING_FEATURE_INCLUDE_EASY_MODE}"; then
 elif "${TARGET_FLOATING_FEATURE_INCLUDE_EASY_MODE}"; then
 	console_print "Disabling Easy Mode..."
 	change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_SUPPORT_EASY_MODE" "FALSE"
-fi
-
-if "${TARGET_INCLUDE_CUSTOM_BRAND_NAME}"; then
-	change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_BRAND_NAME" "${BUILD_TARGET_CUSTOM_BRAND_NAME}"
 fi
 
 if "${TARGET_FLOATING_FEATURE_DISABLE_BLUR_EFFECTS}"; then
@@ -278,7 +288,7 @@ elif [[ "${BUILD_TARGET_SDK_VERSION}" -ge "29" ]] && [[ "${TARGET_INCLUDE_SAMSUN
 					mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_28_APP_NAMES[${i}]}/
 					download_stuffs https://github.com/corsicanu/goodlock_dump/releases/download/28/${GOODLOOK_MODULES_FOR_28[${i}]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_28_APP_NAMES[${i}]}/
 				else 
-					rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_28_APP_NAMES[${i}]}/
+					rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_28_APP_NAMES[${i}]}/ &>/dev/null
 				fi
 			done
 		;;
@@ -391,13 +401,18 @@ fi
 
 # L, see the dawn makeconfigs.prop file :\
 if $TARGET_INCLUDE_HORIZON_OEMCRYPTO_DISABLER_PLUGIN; then
-	for part in system vendor; do
+	for part in ${SYSTEM_DIR} ${VENDOR_DIR}; do
 		for libdir in $part/lib $part/lib64; Do
 			if [ -f $part/$libdir/liboemcrypto.so ]; then
 				touch $part/$libdir/liboemcrypto.so
 			fi
 		done
 	done
+fi
+
+# no idea, idk you just figure it by yourself.
+if "${TARGET_INCLUDE_CUSTOM_BRAND_NAME}"; then
+	change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_BRAND_NAME" "${BUILD_TARGET_CUSTOM_BRAND_NAME}"
 fi
 
 # ahem..

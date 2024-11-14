@@ -1,4 +1,4 @@
-![HorizonUX Banner](https://github.com/forsaken-heart24/HorizonUX/blob/main/banner_images/HorizonUX.png?raw=true)
+![HorizonUX Banner](https://github.com/forsaken-heart24/i_dont_want_to_be_an_weirdo/blob/main/banner_images/HorizonUX.png?raw=true)
 
 # ⭐ HorizonUX
 

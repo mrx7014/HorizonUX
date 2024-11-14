@@ -15,6 +15,13 @@
 # 12:35AM - 30-10-2024 @Luna : fuck no, i dont want to have an another version for testing purposes lmao.
 testEnv=false
 
+# replace these with your dir
+SYSTEM_DIR="xxx/system"
+SYSTEM_EXT_DIR="xxx/system_ext"
+VENDOR_DIR="xxx/vendor"
+PRODUCT_DIR="xxx/product"
+PRISM_DIR="xxx/prism"
+
 # Horizon codename and etc..
 CODENAME="Birds"
 CODENAME_VERSION_REFERENCE_ID=0.0
@@ -33,9 +40,6 @@ bool BUILD_TARGET_HAS_PRISM false
 # Target properties.
 # this variable will enable some debugging features and this thing will make your phone overheat and hang alot, do with pre-caution!s
 bool TARGET_BUILD_IS_FOR_DEBUGGING false
-
-if [ "${BUILD_TARGET_ANDROID_VERSION}" -ge "12" ]; then TARGET_BUILD_FLOATING_FEATURE_PATH="${SYSTEM_DIR}/etc/floating_feature.xml"; else TARGET_BUILD_FLOATING_FEATURE_PATH="${VENDOR_DIR}/etc/floating_feature.xml"; fi
-if [ "${TARGET_BUILD_IS_FOR_DEBUGGING}" == "true" ]; then bool TARGET_BUILD_REMOVE_ADB_AUTHORIZATION true; else bool TARGET_BUILD_REMOVE_ADB_AUTHORIZATION false; fi
 
 # applies patches to bluetooth library if the bluetooth doesnt work properly.
 bool TARGET_REQUIRES_BLUETOOTH_LIBRARY_PATCHES false
@@ -70,13 +74,6 @@ PRODUCT_CSC_NAME=BTE
 bool SWITCH_DEFAULT_LANGUAGE_ON_PRODUCT_BUILD true
 NEW_DEFAULT_LANGUAGE_ON_PRODUCT=en
 NEW_DEFAULT_LANGUAGE_COUNTRY_ON_PRODUCT=US
-
-# replace these with your dir
-SYSTEM_DIR="xxx/system"
-SYSTEM_EXT_DIR="xxx/system_ext"
-VENDOR_DIR="xxx/vendor"
-PRODUCT_DIR="xxx/product"
-PRISM_DIR="xxx/prism"
 
 # floating feature configs. THANKS Furiousdroid for the suggestion!
 bool TARGET_FLOATING_FEATURE_INCLUDE_GAMELAUNCHER_IN_THE_HOMESCREEN false
