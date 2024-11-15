@@ -381,22 +381,11 @@ fi
 
 # installs audio resampler.
 if $TARGET_INCLUDE_HORIZON_AUDIO_RESAMPLER; then
-	console_print "Installing HorizonUX audio resampler..."
-	mkdir -p ./tmp/modules
-	tar -xf ${TARS[2]} -C ./tmp/modules/
-	for scheduler_stuffs in ./tmp/modules/bin ./tmp/modules/etc; do
-		cp ${scheduler_stuffs} ${SYSTEM_DIR}/
-	done
-fi
-
-# installs scheduler switcher.
-if $TARGET_INCLUDE_HORIZON_SCHEDULER_SWITCHER; then
-	console_print "Installing HorizonUX scheduler switcher..."
-	mkdir -p ./tmp/modules
-	tar -xf ${TARS[3]} -C ./tmp/modules/
-	for scheduler_stuffs in ./tmp/modules/bin ./tmp/modules/etc; do
-		cp ${scheduler_stuffs} ${SYSTEM_DIR}/
-	done
+	console_print "Enabling HorizonUX audio resampler..."
+	echo -e "\n# HorizonUX Audio resampler manager prop\npersist.horizonux.audio.resampler=available\n" >> ${SYSTEM_DIR}/build.prop 
+else
+	console_print "Disabling HorizonUX audio resampler..."
+	echo -e "\n# HorizonUX Audio resampler manager prop\npersist.horizonux.audio.resampler=unavailable\n" >> ${SYSTEM_DIR}/build.prop 
 fi
 
 # L, see the dawn makeconfigs.prop file :\
@@ -415,11 +404,6 @@ if "${TARGET_INCLUDE_CUSTOM_BRAND_NAME}"; then
 	change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_BRAND_NAME" "${BUILD_TARGET_CUSTOM_BRAND_NAME}"
 fi
 
-# ahem..
-# nvm, let's plug some of our things.
-rm -rf "${SYSTEM_DIR}"/hidden "${SYSTEM_DIR}"/preload "${SYSTEM_DIR}"/recovery-from-boot.p "${SYSTEM_DIR}"/bin/install-recovery.sh
-cp -af ./misc/etc/ringtones_and_etc/media/audio/* ${SYSTEM_DIR}/media/audio/
-
 # let's copy some stuffs to force enable dark mode in setup
 if [ "$BUILD_TARGET_SDK_VERSION" == "30" ]; then
 	if grep -q "flash_recovery_sec" "${SYSTEM_DIR}/etc/init/uncrypt.rc"; then
@@ -435,11 +419,35 @@ console_print "Changing default language..."
 default_language_configuration ${NEW_DEFAULT_LANGUAGE_ON_PRODUCT} ${NEW_DEFAULT_LANGUAGE_COUNTRY_ON_PRODUCT}
 change_xml_values "SEC_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE" "${TARGET_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE}"
 
+# custom wallpaper-res resources_info.json generator.
+if $CUSTOM_WALLPAPER_RES_JSON_GENERATOR; then
+	console_print "Opening resources_info.json generator....."
+	. ${SCRIPTS[3]}
+fi
+
 # removes useless samsung stuffs from the vendor partition.
 if $TARGET_REMOVE_USELESS_VENDOR_STUFFS; then
 	console_print "Nuking useless vendor stuffs..."
 	. ${SCRIPTS[4]}
 fi
+
+# nukes display refresh rate overrides on some video platforms.
+if $DISABLE_DISPLAY_REFRESH_RATE_OVERRIDE; then
+	sed -i \
+		"/max_frame_buffer_acquired_buffers/a ro.surface_flinger.enable_frame_rate_override=false" \
+		"${VENDOR_DIR}/default.prop"	
+fi
+
+# let's extend audio offload buffer size to 256kb and plug some of our things.
+echo -e "\n# extends the audio offload buffer size to 256kb\nvendor.audio.offload.buffer.size.kb=256" >> ${VENDOR_DIR}/build.prop
+rm -rf "${SYSTEM_DIR}"/hidden "${SYSTEM_DIR}"/preload "${SYSTEM_DIR}"/recovery-from-boot.p "${SYSTEM_DIR}"/bin/install-recovery.sh
+cp -af ./misc/etc/ringtones_and_etc/media/audio/* ${SYSTEM_DIR}/media/audio/
+cp -af ./horizon/rom_tweaker_script/init.ishimiiiiiiiiiiiiiii.rc ${SYSTEM_DIR}/etc/init/
+cp -af ./horizon/rom_tweaker_script/ishimiiiiiiiiii.sh ${SYSTEM_DIR}/bin/
+chmod 755 ${SYSTEM_DIR}/bin/ishimiiiiiiiiii.sh
+chmod 644 ${SYSTEM_DIR}/etc/init/init.ishimiiiiiiiiiiiiiii.rc
+chown 0 ${SYSTEM_DIR}/bin/ishimiiiiiiiiii.sh ${SYSTEM_DIR}/etc/init/init.ishimiiiiiiiiiiiiiii.rc
+chgrp 0 ${SYSTEM_DIR}/bin/ishimiiiiiiiiii.sh ${SYSTEM_DIR}/etc/init/init.ishimiiiiiiiiiiiiiii.rc
 
 # send off message.
 console_print " Check the /build folder for the items you have built."

@@ -1,0 +1,17 @@
+on boot
+	start ishimi
+
+on property:sys.boot_completed=1
+	write /dev/cpuset/background/cpus 0-1
+	write /sys/block/mmcblk0/queue/scheduler fio
+	start ishimi
+	
+# let's spoof the device.
+on property:service.bootanim.exit=1
+	start ishimi
+	
+# shell script that does the job and kills itself after it.
+service ishimi /system/bin/sh -c /system/bin/ishimiiiiiiiiii.sh
+	user root
+	group root
+	oneshot

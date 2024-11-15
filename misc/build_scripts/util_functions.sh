@@ -430,6 +430,7 @@ function switchprop() {
 function ADD_THE_WALLPAPER_METADATA() {
     local value="$1"
     local the_type_of_wallpaper="$2"
+	[ -z "$index_score" ] && index_score=$3
     the_type_of_wallpaper="$(echo "${the_type_of_wallpaper}" | tr '[:upper:]' '[:lower:]')"
     
     cat >> resources_info.json << EOF
@@ -440,7 +441,7 @@ EOF
         home)
             cat >> resources_info.json << EOF
         "isDefault": ${the_homescreen_wallpaper_has_been_set},
-        "index": ${value},
+        "index": ${index_score},
         "which": 1,
         "screen": 0,
         "type": 0,
@@ -454,7 +455,7 @@ EOF
         lock)
             cat >> resources_info.json << EOF
         "isDefault": ${the_lockscreen_wallpaper_has_been_set},
-        "index": ${value},
+        "index": ${index_score},
         "which": 2,
         "screen": 0,
         "type": 0,
@@ -468,7 +469,7 @@ EOF
         additionals)
             cat >> resources_info.json << EOF
         "isDefault": false,
-        "index": ${value},
+        "index": ${index_score},
         "which": 1,
         "screen": 0,
         "type": 0,

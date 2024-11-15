@@ -119,13 +119,21 @@ bool TARGET_FLOATING_FEATURE_SUPPORTS_DOLBY_IN_GAMES false
 # this feature includes an resampler that is used to avoid smoky distortion specifically to those LDAC Bluetooth earphones and DAC's under $30 (probably), this sets special re-sampling tweaks in the system level.
 bool TARGET_INCLUDE_HORIZON_AUDIO_RESAMPLER false
 
-# this feature switches the scheduler to fio (if possible) to improve the io performance a bit.
-bool TARGET_INCLUDE_HORIZON_SCHEDULER_SWITCHER false
-
 # this feature removes a file that is necessary for drm / ott platforms, please note that the widevine level will fallback to L3
 # which will disable HD playbacks. DRM-protected apps might work after appling this patch but im not sure....
 bool TARGET_INCLUDE_HORIZON_OEMCRYPTO_DISABLER false
 ############################################# Exclusive HorizonUX Features #############################################
+
+############################################# Misc Configs #############################################
+# this allows you to add tons of wallpaper within some clicks.
+# you have to replace the auto-generated resources_info.json with the stock apk.
+bool CUSTOM_WALLPAPER_RES_JSON_GENERATOR false
+
+# this allows you to disable display refresh rate override
+# this thing forces the refresh rate to 30Hz on some playbacks in platforms like youtube , tiktok & instagram.
+# ignore if you're building an android 13 or lesser version of oneui.
+bool DISABLE_DISPLAY_REFRESH_RATE_OVERRIDE false
+############################################# Misc Configs #############################################
 
 # miscs for goodlock modules
 GOODLOOK_MODULES_FOR_28=(
