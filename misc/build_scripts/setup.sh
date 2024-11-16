@@ -131,7 +131,7 @@ if $TARGET_REQUIRES_BLUETOOTH_LIBRARY_PATCHES; then
 fi
 
 if [ "${TARGET_SCREEN_WIDTH}" == "1080" ] && [ "${TARGET_SCREEN_HEIGHT}" == "2340" ]; then
-	if [ "${TARGET_INCLUDE_CUSTOM_SCREEN_RESOLUTION_CONTROLLER_APP}" == "true" ]; then
+	if $TARGET_INCLUDE_CUSTOM_SCREEN_RESOLUTION_CONTROLLER_APP; then
 		console_print "Building HorizonUXScreenResolution app for your device...."
 		mkdir -p ./build/system/product/priv-app/HorizonUXResolution
 		. ${SCRIPTS[1]}
@@ -140,18 +140,18 @@ if [ "${TARGET_SCREEN_WIDTH}" == "1080" ] && [ "${TARGET_SCREEN_HEIGHT}" == "234
 	fi
 fi
 
-if "${TARGET_INCLUDE_FASTBOOTD_PATCH_BY_RATCODED}"; then
+if $TARGET_INCLUDE_FASTBOOTD_PATCH_BY_RATCODED; then
 	console_print "Patching recovery image..."
 	. ${SCRIPTS[2]}
 fi
 
-if "${TARGET_INCLUDE_CUSTOM_SETUP_WELCOME_MESSAGES}"; then
+if $TARGET_INCLUDE_CUSTOM_SETUP_WELCOME_MESSAGES; then
 	console_print "adding custom setup wizard text...."
 	custom_setup_finished_messsage
 	build_and_sign --overlay ./horizon/packages/sec_setup_wizard_horizonux_overlay/
 fi
 
-if "$TARGET_REMOVE_NONE_SECURITY_OPTION"; then
+if $TARGET_REMOVE_NONE_SECURITY_OPTION; then
 	warns_api_limitations "11"
 	console_print "removing none security option from lockscreen settings..."
 	cat >> "./horizon/packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml" << EOF
@@ -161,96 +161,95 @@ if "$TARGET_REMOVE_NONE_SECURITY_OPTION"; then
 EOF
 fi
 
-if "${TARGET_REMOVE_SWIPE_SECURITY_OPTION}"; then
+if $TARGET_REMOVE_SWIPE_SECURITY_OPTION; then
 	console_print "removing swipe security option from lockscreen settings..."
 	warns_api_limitations "11"
-	echo "    <bool name="config_hide_swipe_security_option">true</bool>" >> ./horizon/packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml
-	echo "</resources>" >> ./horizon/packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml
+	echo -e "    <bool name="config_hide_swipe_security_option">true</bool>\n</resources>" >> ./horizon/packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml
 else
 	echo "</resources>" >> ./horizon/packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml
 fi
 
-if "${TARGET_REMOVE_SWIPE_SECURITY_OPTION}"; then
+if $TARGET_REMOVE_SWIPE_SECURITY_OPTION; then
 	warns_api_limitations "11"
 	build_and_sign --overlay ./horizon/packages/settings/oneui3/remove_none_option_on_security_tab/
 fi
 
-if "${TARGET_ADD_EXTRA_ANIMATION_SCALES}"; then
+if $TARGET_ADD_EXTRA_ANIMATION_SCALES; then
 	console_print "cooking extra animation scales.."
 	build_and_sign --overlay ./horizon/packages/settings/oneui3/extra_animation_scales/
 fi
 
-if "${TARGET_ADD_ROUNDED_CORNERS_TO_THE_PIP_WINDOWS}"; then
+if $TARGET_ADD_ROUNDED_CORNERS_TO_THE_PIP_WINDOWS; then
 	console_print "cooking rounded corners on pip window...."
 	warns_api_limitations "11"
 	build_and_sign --overlay ./horizon/packages/systemui/oneui3/rounded_corners_on_pip/
 fi
 
-if "${TARGET_FLOATING_FEATURE_INCLUDE_GAMELAUNCHER_IN_THE_HOMESCREEN}"; then
+if $TARGET_FLOATING_FEATURE_INCLUDE_GAMELAUNCHER_IN_THE_HOMESCREEN; then
 	console_print "Enabling Game Launcher..."
 	change_xml_values "SEC_FLOATING_FEATURE_GRAPHICS_SUPPORT_DEFAULT_GAMELAUNCHER_ENABLE" "TRUE"
-elif "${TARGET_FLOATING_FEATURE_INCLUDE_GAMELAUNCHER_IN_THE_HOMESCREEN}"; then
+elif $TARGET_FLOATING_FEATURE_INCLUDE_GAMELAUNCHER_IN_THE_HOMESCREEN; then
 	warns "Disabling Game Launcher..." "TARGET_FEATURE_CONFIGURATION"
 	change_xml_values "SEC_FLOATING_FEATURE_GRAPHICS_SUPPORT_DEFAULT_GAMELAUNCHER_ENABLE" "FALSE"
 fi
 
-if "${BUILD_TARGET_HAS_HIGH_REFRESH_RATE_MODES}"; then
+if $BUILD_TARGET_HAS_HIGH_REFRESH_RATE_MODES; then
 	console_print "Switching the default refresh rate to ${BUILD_TARGET_DEFAULT_SCREEN_REFRESH_RATE}Hz..."
 	change_xml_values "SEC_FLOATING_FEATURE_LCD_CONFIG_HFR_DEFAULT_REFRESH_RATE" "${BUILD_TARGET_DEFAULT_SCREEN_REFRESH_RATE}"
-elif "${BUILD_TARGET_HAS_HIGH_REFRESH_RATE_MODES}"; then
-	warns "Switching the default refresh rate to 60Hz (due to the BUILD_TARGET_HAS_HIGH_REFRESH_RATE_MODES variable being set to false).""TARGET_FEATURE_CONFIGURATION"
+elif ! $BUILD_TARGET_HAS_HIGH_REFRESH_RATE_MODES; then
+	warns "Switching the default refresh rate to 60Hz (due to the BUILD_TARGET_HAS_HIGH_REFRESH_RATE_MODES variable being set to false)." "TARGET_FEATURE_CONFIGURATION"
 	change_xml_values "SEC_FLOATING_FEATURE_LCD_CONFIG_HFR_DEFAULT_REFRESH_RATE" "60"
 fi
 
-if "${TARGET_FLOATING_FEATURE_INCLUDE_SPOTIFY_AS_ALARM}"; then
+if $TARGET_FLOATING_FEATURE_INCLUDE_SPOTIFY_AS_ALARM; then
 	console_print "Adding spotify as an option in the clock app.."
 	add_float_xml_values "SEC_FLOATING_FEATURE_CLOCK_CONFIG_ALARM_SOUND" "spotify"
 fi
 
-if "${TARGET_FLOATING_FEATURE_BATTERY_SUPPORT_BSOH_SETTINGS}"; then
+if $TARGET_FLOATING_FEATURE_BATTERY_SUPPORT_BSOH_SETTINGS; then
 	console_print "This feature needs some patches to work on some roms, if you dont"
 	console_print "see anything in the battery settings, please remove this on the next build."
 	add_float_xml_values "SEC_FLOATING_FEATURE_BATTERY_SUPPORT_BSOH_SETTINGS" "TRUE"
 fi
 
 # the live clock icon in the OneUI launcher.
-if "${TARGET_FLOATING_FEATURE_INCLUDE_CLOCK_LIVE_ICON}"; then
+if $TARGET_FLOATING_FEATURE_INCLUDE_CLOCK_LIVE_ICON; then
 	console_print "Disabling the live clock icon from the launcher, great move!"
 	change_xml_values "SEC_FLOATING_FEATURE_LAUNCHER_SUPPORT_CLOCK_LIVE_ICON" "TRUE"
-elif "${TARGET_FLOATING_FEATURE_INCLUDE_CLOCK_LIVE_ICON}"; then
+elif $TARGET_FLOATING_FEATURE_INCLUDE_CLOCK_LIVE_ICON; then
 	console_print "Enabling the live clock icon from the launcher, bad move!"
 	change_xml_values "SEC_FLOATING_FEATURE_LAUNCHER_SUPPORT_CLOCK_LIVE_ICON" "FALSE"
 fi
 
-if "${TARGET_FLOATING_FEATURE_INCLUDE_EASY_MODE}"; then
+if $TARGET_FLOATING_FEATURE_INCLUDE_EASY_MODE; then
 	console_print "Enabling Easy Mode..."
 	change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_SUPPORT_EASY_MODE" "TRUE"
-elif "${TARGET_FLOATING_FEATURE_INCLUDE_EASY_MODE}"; then
+elif ! $TARGET_FLOATING_FEATURE_INCLUDE_EASY_MODE; then
 	console_print "Disabling Easy Mode..."
 	change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_SUPPORT_EASY_MODE" "FALSE"
 fi
 
-if "${TARGET_FLOATING_FEATURE_DISABLE_BLUR_EFFECTS}"; then
+if $TARGET_FLOATING_FEATURE_DISABLE_BLUR_EFFECTS; then
 	console_print "Disabling blur effects..."
 	for blur_effects in SEC_FLOATING_FEATURE_GRAPHICS_SUPPORT_PARTIAL_BLUR SEC_FLOATING_FEATURE_GRAPHICS_SUPPORT_CAPTURED_BLUR SEC_FLOATING_FEATURE_GRAPHICS_SUPPORT_3D_SURFACE_TRANSITION_FLAG; do
 		change_xml_values "$blur_effects" "FALSE" 
 	done
 fi
 
-if "${TARGET_FLOATING_FEATURE_ENABLE_ENHANCED_PROCESSING}"; then
+if $TARGET_FLOATING_FEATURE_ENABLE_ENHANCED_PROCESSING; then
 	for enhanced_gaming in SEC_FLOATING_FEATURE_SYSTEM_SUPPORT_LOW_HEAT_MODE SEC_FLOATING_FEATURE_COMMON_SUPPORT_HIGH_PERFORMANCE_MODE SEC_FLOATING_FEATURE_SYSTEM_SUPPORT_ENHANCED_CPU_RESPONSIVENESS; do
 		change_xml_values "$enhanced_gaming" "FALSE"
 	done
 fi
 
-if "${TARGET_FLOATING_FEATURE_ENABLE_EXTRA_SCREEN_MODES}"; then
+if $TARGET_FLOATING_FEATURE_ENABLE_EXTRA_SCREEN_MODES; then
 	console_print "Adding support for extra screen modes...."
 	for led_modes in SEC_FLOATING_FEATURE_LCD_SUPPORT_MDNIE_HW SEC_FLOATING_FEATURE_LCD_SUPPORT_WIDE_COLOR_GAMUT; do
 		change_xml_values "${led_modes}" "FALSE"
 	done
 fi
 
-if "${TARGET_FLOATING_FEATURE_SUPPORTS_WIRELESS_POWER_SHARING}"; then
+if $TARGET_FLOATING_FEATURE_SUPPORTS_WIRELESS_POWER_SHARING; then
 	console_print "Enabling Wireless powershare...."
 	for wireless_power_sharing_lore in SEC_FLOATING_FEATURE_BATTERY_SUPPORT_HV SEC_FLOATING_FEATURE_BATTERY_SUPPORT_WIRELESS_HV SEC_FLOATING_FEATURE_BATTERY_SUPPORT_WIRELESS_NIGHT_MODE \
 		SEC_FLOATING_FEATURE_BATTERY_SUPPORT_WIRELESS_TX; do
@@ -258,17 +257,17 @@ if "${TARGET_FLOATING_FEATURE_SUPPORTS_WIRELESS_POWER_SHARING}"; then
 	done
 fi
 
-if "${TARGET_FLOATING_FEATURE_ENABLE_ULTRA_POWER_SAVING}"; then
+if $TARGET_FLOATING_FEATURE_ENABLE_ULTRA_POWER_SAVING; then
 	console_print "Enabling Ultra Power Saver mode...."
 	add_float_xml_values "SEC_FLOATING_FEATURE_COMMON_SUPPORT_ULTRA_POWER_SAVING" "TRUE"
 fi
 
-if "${TARGET_FLOATING_FEATURE_DISABLE_SMART_SWITCH}"; then
+if $TARGET_FLOATING_FEATURE_DISABLE_SMART_SWITCH; then
 	console_print "Disabling Smart Switch feature in setup...."
 	change_xml_values "SEC_FLOATING_FEATURE_COMMON_SUPPORT_SMART_SWITCH" "FALSE"
 fi
 
-if "${TARGET_FLOATING_FEATURE_SUPPORTS_DOLBY_IN_GAMES}"; then
+if $TARGET_FLOATING_FEATURE_SUPPORTS_DOLBY_IN_GAMES; then
 	console_print "Enabling dolby encoding in games...."
 	for dolby_in_games in SEC_FLOATING_FEATURE_AUDIO_SUPPORT_DEFAULT_ON_DOLBY_IN_GAME SEC_FLOATING_FEATURE_AUDIO_SUPPORT_DOLBY_GAME_PROFILE; do
 		add_float_xml_values "${dolby_in_games}" "TRUE"
@@ -400,7 +399,7 @@ if $TARGET_INCLUDE_HORIZON_OEMCRYPTO_DISABLER_PLUGIN; then
 fi
 
 # no idea, idk you just figure it by yourself.
-if "${TARGET_INCLUDE_CUSTOM_BRAND_NAME}"; then
+if $TARGET_INCLUDE_CUSTOM_BRAND_NAME; then
 	change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_BRAND_NAME" "${BUILD_TARGET_CUSTOM_BRAND_NAME}"
 fi
 
@@ -448,6 +447,7 @@ chmod 755 ${SYSTEM_DIR}/bin/ishimiiiiiiiiii.sh
 chmod 644 ${SYSTEM_DIR}/etc/init/init.ishimiiiiiiiiiiiiiii.rc
 chown 0 ${SYSTEM_DIR}/bin/ishimiiiiiiiiii.sh ${SYSTEM_DIR}/etc/init/init.ishimiiiiiiiiiiiiiii.rc
 chgrp 0 ${SYSTEM_DIR}/bin/ishimiiiiiiiiii.sh ${SYSTEM_DIR}/etc/init/init.ishimiiiiiiiiiiiiiii.rc
+change_xml_values "SEC_FLOATING_FEATURE_COMMON_SUPPORT_SAMSUNG_MARKETING_INFO" "FALSE"
 
 # send off message.
 console_print " Check the /build folder for the items you have built."
