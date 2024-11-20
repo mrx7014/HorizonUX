@@ -15,3 +15,5 @@
 * **If you want to build or add any assert from this repo, please check this out :- <a href="https://github.com/forsaken-heart24/HorizonUX/blob/main/HOWTOGUIDE.md">How to modify your stock rom**</a>
 
 * **Here's our contributors list, please check these guys out! - <a href="https://github.com/forsaken-heart24/HorizonUX/blob/main/CONTRIBUTORS.md">Lovely contributors**</a>
+
+* **Please report any bugs or any feature request messages at :- <a href="https://t.me/luna_project_bugreporter_bot">Luna's Project Bugreporter Bot**</a>
