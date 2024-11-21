@@ -1,12 +1,11 @@
 function grep_prop() {
 	local variable_name=$1
 	local prop_file=$2
-	if [ -z "$variable_name" ]; then
-		echo "Invalid handler request!"; exit 1
-	elif [ ! -f "$prop_file" ]; then
-		echo "Prop file wasn't found!"; exit 1
+	local args="$#"
+	if [ ! "$args" -eq "2" ]; then
+		return 1
 	fi
-	echo $(grep "$variable_name" $prop_file | cut -d '=' -f 2 | sed 's/"//g')
+	grep "$variable_name" $prop_file | cut -d '=' -f 2 | sed 's/"//g'
 }
 
 function restart_audioserver() {
@@ -72,16 +71,19 @@ function is_bootanimation_exited() {
 	fi
 }
 
+function maybe_set_prop() {
+    local prop="$1"
+    local contains="$2"
+    local value="$3"
+    if [[ "$(getprop "$prop")" == *"$contains"* ]]; then
+        resetprop "$prop" "$value"
+    fi
+}
+
 # let's change the default theme to dark, Thanks to nobletaro for the idea!
 if [ "$(settings get secure device_provisioned)" == "0" ]; then
     settings put secure ui_night_mode 2
     cmd uimode night yes
-fi
-
-# spoof the device to green state, making it seem like an locked device.
-if is_bootanimation_exited; then
-	resetprop -n ro.boot.verifiedbootstate green
-	return 0
 fi
 
 # let's initialize the resampler thing.
@@ -90,13 +92,26 @@ if [ "$(grep_prop "persist.horizonux.audio.resampler" "/system/build.prop")" == 
 		resampler_fix
 		restart_audioserver
 	fi
-	return 0
 fi
 
-# GMS-DOZE
 # Disable collective device administrators for all users
 for U in $(ls /data/user); do
     for C in "auth.managed.admin.DeviceAdminReceiver" "mdm.receivers.MdmDeviceAdminReceiver"; do
         pm disable --user $U com.google.android.gms/com.google.android.gms.$C
     done
 done
+
+# spoof the device to green state, making it seem like an locked device.
+if is_bootanimation_exited; then
+	resetprop --delete ro.build.selinux
+	resetprop ro.boot.warranty_bit=0
+	resetprop ro.vendor.boot.warranty_bit=0
+	resetprop ro.vendor.warranty_bit=0
+	resetprop ro.warranty_bit=0
+	resetprop ro.boot.verifiedbootstate green
+	resetprop ro.boot.veritymode enforcing
+	resetprop vendor.boot.vbmeta.device_state locked
+	maybe_set_prop ro.bootmode recovery unknown
+	maybe_set_prop ro.boot.mode recovery unknown
+	maybe_set_prop vendor.boot.mode recovery unknown
+fi
