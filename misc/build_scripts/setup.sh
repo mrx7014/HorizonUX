@@ -1,8 +1,7 @@
-# rouna will ban me for this :(
-if [ -f "${SYSTEM_DIR}/etc/floating_feature.xml" ]; then
-	TARGET_BUILD_FLOATING_FEATURE_PATH="${SYSTEM_DIR}/etc/floating_feature.xml"
-else
-	TARGET_BUILD_FLOATING_FEATURE_PATH="${VENDOR_DIR}/etc/floating_feature.xml"
+# bomboclatt
+TARGET_BUILD_FLOATING_FEATURE_PATH="$(absolute_path --system)/etc/floating_feature.xml"
+if [ ! -f "$(absolute_path --system)/etc/floating_feature.xml" ]; then
+	TARGET_BUILD_FLOATING_FEATURE_PATH="$(absolute_path --vendor)/etc/floating_feature.xml"
 fi
 
 # bomb.
@@ -27,7 +26,6 @@ echo -e "|_      _| | |_) | |_| | | | (_| |  __/ |    \\__ \\ (__| |  | | |_) | 
 echo -e "  |_||_|   |____/ \\__,_|_|_|\\__,_|\\___|_|    |___/\\___|_|  |_| .__/ \\__|"
 echo -e "                                                             |_|"
 echo -e "'\033[0;33m'########################################################################'\033[0m'"
-
 console_print "Starting to build HorizonUX ${CODENAME} - v${CODENAME_VERSION_REFERENCE_ID} on $(id -un)'s computer..."
 console_print "Build started by $(id -un) at $(date +%I:%M%p) on $(date +%d\ %B\ %Y)"
 console_print "The Current Username : $(id -un)"
@@ -37,7 +35,7 @@ console_print "L2 Cache Memory Size : $(lscpu | grep L2 | awk '{print $3}')"
 console_print "Available RAM Memory : $(free -h | grep Mem | awk '{print $7}')B"
 console_print "The Computer is turned on since : $(uptime --pretty | awk '{print substr($0, 4)}')"
 
-################ boom
+# boom
 if ! $testEnv; then
 	if [ ! -d "${SCRIPTS[1]}" ]; then
 		abort "Script files are missing, exiting..."
@@ -47,20 +45,11 @@ if ! $testEnv; then
 		abort "zip is not installed. Please install it to proceed."
 	elif [ ! -d "${PREFIX}/bin/python3" ]; then
 		warns "python3 is not installed. It's not required unless you want to patch your recovery image." "$(echo "DEPENDENCIES_ERRORS" | tr '[:lower:]' '[:upper:]')"
-	elif [ ! -d "${SYSTEM_DIR}" ]; then
-		abort "System directory environment path is not set, exiting..."
-	elif [ ! -d "${SYSTEM_EXT_DIR}" ]; then
-		abort "system_ext directory environment path is not set, exiting..."
-	elif [ ! -d "${VENDOR_DIR}" ]; then
-		abort "Vendor directory environment path is not set, exiting..."
-	elif [ ! -d "${PRODUCT_DIR}" ]; then
-		abort "Product directory environment path is not set, exiting..."
-	elif [ "${BUILD_TARGET_HAS_PRISM}" == "true" ] && [ ! -d "$PRISM_DIR" ]; then
-		abort "Prism directory environment path is not set, exiting..."
 	elif [ -z "${JAVA_HOME}" ]; then
 		abort "Please install the latest openjdk or any preferred Java installation to proceed."
 	fi
 fi
+
 ################ boom
 if $TARGET_BUILD_IS_FOR_DEBUGGING; then
 	{
@@ -88,7 +77,7 @@ security.edmaudit=false
 ro.sys.dropdump.on=On
 persist.systemserver.sa_bindertracker=false
 ############ WARNING, EXPERIMENTAL FLAGS AHEAD!"
-	} >> ${SYSTEM_DIR}/build.prop
+	} >> $(absolute_path --system)/build.prop
 	{
 		echo "
 ############ WARNING, EXPERIMENTAL FLAGS AHEAD!
@@ -106,42 +95,43 @@ setprop log.tag.snap_service@1.2 VERBOSE
 	} > ./build/system/etc/init/init.debug_castleprops.rc
 	warns "Debugging stuffs are enabled in this build, please proceed with caution and do remember that your device will heat more due to debugging process running in the background.." "DEBUGGING_ENABLER"
 	# change the values to enable debugging without authorization.
-	switchprop "ro.adb.secure" "0" "${SYSTEM_DIR}/build.prop"
-	switchprop "ro.debuggable" "1" "${SYSTEM_DIR}/build.prop"
+	switchprop "ro.adb.secure" "0" "$(absolute_path --system)/build.prop"
+	switchprop "ro.debuggable" "1" "$(absolute_path --system)/build.prop"
 	if ! cat ${PRODUCT_PROP} | grep -q persist.sys.usb.config; then
-		PRODUCT_PROP=${SYSTEM_DIR}/product/build.prop
-		switchprop "persist.sys.usb.config" "mtp,adb" "${SYSTEM_DIR}/product/build.prop"
+		PRODUCT_PROP=$(absolute_path --system)/product/build.prop
+		switchprop "persist.sys.usb.config" "mtp,adb" "$(absolute_path --system)/product/build.prop"
 	else
-		switchprop "persist.sys.usb.config" "mtp,adb" "${PRODUCT_DIR}/build.prop"
+		switchprop "persist.sys.usb.config" "mtp,adb" "$(absolute_path --product)/build.prop" 
 	fi
 fi
 
 if [ "$BUILD_TARGET_ANDROID_VERSION" == "14" ]; then
 	console_print "removing some bloats, thnx Salvo!"
-	rm -rf ${SYSTEM_DIR}/etc/permissions/privapp-permissions-com.samsung.android.kgclient.xml \
-	${SYSTEM_DIR}/etc/public.libraries-wsm.samsung.txt \
-	${SYSTEM_DIR}/lib/libhal.wsm.samsung.so \
-	${SYSTEM_DIR}/lib/vendor.samsung.hardware.security.wsm.service-V1-ndk.so \
-	${SYSTEM_DIR}/lib64/libhal.wsm.samsung.so \
-	${SYSTEM_DIR}/lib64/vendor.samsung.hardware.security.wsm.service-V1-ndk.so ${SYSTEM_DIR}/priv-app/KnoxGuard
+	rm -rf $(absolute_path --system)/etc/permissions/privapp-permissions-com.samsung.android.kgclient.xml \
+	$(absolute_path --system)/etc/public.libraries-wsm.samsung.txt \
+	$(absolute_path --system)/lib/libhal.wsm.samsung.so \
+	$(absolute_path --system)/lib/vendor.samsung.hardware.security.wsm.service-V1-ndk.so \
+	$(absolute_path --system)/lib64/libhal.wsm.samsung.so \
+	$(absolute_path --system)/lib64/vendor.samsung.hardware.security.wsm.service-V1-ndk.so \
+	$(absolute_path --system)/priv-app/KnoxGuard
 fi
 
 if $TARGET_INCLUDE_UNLIMITED_BACKUP; then
 	console_print "Adding unlimited backup feature...."
 	mkdir -p ./build/system/product/etc/sysconfig/
 	. ${SCRIPTS[0]}
-	mv ./build/system/product/etc/sysconfig/* ${SYSTEM_DIR}/etc/sysconfig/
+	mv ./build/system/product/etc/sysconfig/* $(absolute_path --system)/etc/sysconfig/
 fi
 
 if $TARGET_REQUIRES_BLUETOOTH_LIBRARY_PATCHES; then
 	console_print "Patching bluetooth...."
 	# initial checks.
-	if [ ! -f "${SYSTEM_DIR}/lib64/libbluetooth_jni.so" ]; then
+	if [ ! -f "$(absolute_path --system)/lib64/libbluetooth_jni.so" ]; then
 		abort "The \"libbluetooth_jni.so\" file from the system/lib64 wasn't found, copy and put them in a random directory and try again.."
 	fi
 
 	# patch this weird device lib.
-	HEX_PATCH "${SYSTEM_DIR}/lib64/libbluetooth_jni.so" "6804003528008052" "2b00001428008052"
+	HEX_PATCH "$(absolute_path --system)/lib64/libbluetooth_jni.so" "6804003528008052" "2b00001428008052"
 fi
 
 if [ "${TARGET_SCREEN_WIDTH}" == "1080" ] && [ "${TARGET_SCREEN_HEIGHT}" == "2340" ]; then
@@ -395,15 +385,15 @@ fi
 # installs audio resampler.
 if $TARGET_INCLUDE_HORIZON_AUDIO_RESAMPLER; then
 	console_print "Enabling HorizonUX audio resampler..."
-	echo -e "\n# HorizonUX Audio resampler manager prop\npersist.horizonux.audio.resampler=available\n" >> ${SYSTEM_DIR}/build.prop 
+	echo -e "\n# HorizonUX Audio resampler manager prop\npersist.horizonux.audio.resampler=available\n" >> $(absolute_path --system)/build.prop 
 else
 	console_print "Disabling HorizonUX audio resampler..."
-	echo -e "\n# HorizonUX Audio resampler manager prop\npersist.horizonux.audio.resampler=unavailable\n" >> ${SYSTEM_DIR}/build.prop 
+	echo -e "\n# HorizonUX Audio resampler manager prop\npersist.horizonux.audio.resampler=unavailable\n" >> $(absolute_path --system)/build.prop 
 fi
 
 # L, see the dawn makeconfigs.prop file :\
 if $TARGET_INCLUDE_HORIZON_OEMCRYPTO_DISABLER_PLUGIN; then
-	for part in ${SYSTEM_DIR} ${VENDOR_DIR}; do
+	for part in $(absolute_path --system) $(absolute_path --vendor); do
 		for libdir in $part/lib $part/lib64; Do
 			if [ -f $part/$libdir/liboemcrypto.so ]; then
 				touch $part/$libdir/liboemcrypto.so
@@ -419,11 +409,9 @@ fi
 
 # let's copy some stuffs to force enable dark mode in setup
 if [ "$BUILD_TARGET_SDK_VERSION" == "30" ]; then
-	if grep -q "flash_recovery_sec" "${SYSTEM_DIR}/etc/init/uncrypt.rc"; then
-		mkdir -p ./tmp/
-		grep -v "flash_recovery_sec" "${SYSTEM_DIR}/etc/init/uncrypt.rc" > ./tmp/uncrypt.rc
-		mv ./tmp/uncrypt.rc "${SYSTEM_DIR}/etc/init/uncrypt.rc"
-		rm -rf ./tmp/
+	if grep -q "flash_recovery_sec" "$(absolute_path --system)/etc/init/uncrypt.rc"; then
+		grep -v "flash_recovery_sec" "$(absolute_path --system)/etc/init/uncrypt.rc" > ./tmp/uncrypt.rc
+		mv ./tmp/uncrypt.rc "$(absolute_path --system)/etc/init/uncrypt.rc"
 	fi
 fi
 
@@ -448,19 +436,19 @@ fi
 if $DISABLE_DISPLAY_REFRESH_RATE_OVERRIDE; then
 	sed -i \
 		"/max_frame_buffer_acquired_buffers/a ro.surface_flinger.enable_frame_rate_override=false" \
-		"${VENDOR_DIR}/default.prop"	
+		"$(absolute_path --vendor)/default.prop"	
 fi
 
 # let's extend audio offload buffer size to 256kb and plug some of our things.
-echo -e "\n# extends the audio offload buffer size to 256kb\nvendor.audio.offload.buffer.size.kb=256" >> ${VENDOR_DIR}/build.prop
-rm -rf "${SYSTEM_DIR}"/hidden "${SYSTEM_DIR}"/preload "${SYSTEM_DIR}"/recovery-from-boot.p "${SYSTEM_DIR}"/bin/install-recovery.sh
-cp -af ./misc/etc/ringtones_and_etc/media/audio/* ${SYSTEM_DIR}/media/audio/
-cp -af ./horizon/rom_tweaker_script/init.ishimiiiiiiiiiiiiiii.rc ${SYSTEM_DIR}/etc/init/
-cp -af ./horizon/rom_tweaker_script/ishimiiiiiiiiii.sh ${SYSTEM_DIR}/bin/
-chmod 755 ${SYSTEM_DIR}/bin/ishimiiiiiiiiii.sh
-chmod 644 ${SYSTEM_DIR}/etc/init/init.ishimiiiiiiiiiiiiiii.rc
-chown 0 ${SYSTEM_DIR}/bin/ishimiiiiiiiiii.sh ${SYSTEM_DIR}/etc/init/init.ishimiiiiiiiiiiiiiii.rc
-chgrp 0 ${SYSTEM_DIR}/bin/ishimiiiiiiiiii.sh ${SYSTEM_DIR}/etc/init/init.ishimiiiiiiiiiiiiiii.rc
+echo -e "\n# extends the audio offload buffer size to 256kb\nvendor.audio.offload.buffer.size.kb=256" >> $(absolute_path --vendor)/build.prop
+rm -rf $(absolute_path --system)/hidden $(absolute_path --system)/preload $(absolute_path --system)/recovery-from-boot.p $(absolute_path --system)/bin/install-recovery.sh
+cp -af ./misc/etc/ringtones_and_etc/media/audio/* $(absolute_path --system)/media/audio/
+cp -af ./horizon/rom_tweaker_script/init.ishimiiiiiiiiiiiiiii.rc $(absolute_path --system)/etc/init/
+cp -af ./horizon/rom_tweaker_script/ishimiiiiiiiiii.sh $(absolute_path --system)/bin/
+chmod 755 $(absolute_path --system)/bin/ishimiiiiiiiiii.sh
+chmod 644 $(absolute_path --system)/etc/init/init.ishimiiiiiiiiiiiiiii.rc
+chown 0 $(absolute_path --system)/bin/ishimiiiiiiiiii.sh $(absolute_path --system)/etc/init/init.ishimiiiiiiiiiiiiiii.rc
+chgrp 0 $(absolute_path --system)/bin/ishimiiiiiiiiii.sh $(absolute_path --system)/etc/init/init.ishimiiiiiiiiiiiiiii.rc
 change_xml_values "SEC_FLOATING_FEATURE_COMMON_SUPPORT_SAMSUNG_MARKETING_INFO" "FALSE"
 
 # send off message.

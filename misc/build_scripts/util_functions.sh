@@ -26,6 +26,8 @@ function setprop() {
 function abort() {
   echo -e "[\e[0;35m$(date +%d-%m-%Y) \e[0;37m- \e[0;32m$(date +%H:%M%p)] [:\e[0;36mABORT\e[0;37m:] -\e[0;31m $1\e[0;37m"
   sleep 0.5
+  umount $HASH_KEY_FOR_SUPER_BLOCK_PATH &>/dev/null
+  rm -rf $HASH_KEY_FOR_SUPER_BLOCK_PATH &>/dev/null
   exit 1
 }
 
@@ -46,8 +48,8 @@ function default_language_configuration() {
   [ -z $country ] && country=US
   
   # change the strings cases to prevent issues on the system.
-  language=$(echo $language | tr '[:upper:]' '[:lower:]')
-  country=$(echo $country | tr '[:lower:]' '[:upper:]')
+  language=$(echo $language | string_format -l)
+  country=$(echo $country | string_format -u)
   
   # capture and abort the op if the length is invalid.
   if [ "$(echo ${country} | wc -c)" -ge "4" ]; then
@@ -57,11 +59,11 @@ function default_language_configuration() {
   fi
   
   # thing that actually switches the default lang.
-  if [ -f "${PRODUCT_DIR}/omc/${PRODUCT_CSC_NAME}/conf/consumer.xml" ]; then
-    sed 's|<DefLanguage>[^<]*</DefLanguage>|<DefLanguage>${language}-${country}</DefLanguage>|g' ${PRODUCT_DIR}/omc/${PRODUCT_CSC_NAME}/conf/consumer.xml
-    sed 's|<DefLanguageNoSIM>[^<]*</DefLanguageNoSIM>|<DefLanguageNoSIM>${language}-${country}</DefLanguageNoSIM>|g' ${PRODUCT_DIR}/omc/${PRODUCT_CSC_NAME}/conf/consumer.xml
+  if [ -f "$(absolute_path --product)/omc/${PRODUCT_CSC_NAME}/conf/consumer.xml" ]; then
+    sed 's|<DefLanguage>[^<]*</DefLanguage>|<DefLanguage>${language}-${country}</DefLanguage>|g' $(absolute_path --product)/omc/${PRODUCT_CSC_NAME}/conf/consumer.xml
+    sed 's|<DefLanguageNoSIM>[^<]*</DefLanguageNoSIM>|<DefLanguageNoSIM>${language}-${country}</DefLanguageNoSIM>|g' $(absolute_path --product)/omc/${PRODUCT_CSC_NAME}/conf/consumer.xml
   else 
-    local tmp_dir="$(echo "${PRODUCT_DIR}/omc/*/conf/consumer.xml")"
+    local tmp_dir="$(echo "$(absolute_path --product)/omc/*/conf/consumer.xml")"
     sed 's|<DefLanguage>[^<]*</DefLanguage>|<DefLanguage>${language}-${country}</DefLanguage>|g' $tmp_dir
     sed 's|<DefLanguageNoSIM>[^<]*</DefLanguageNoSIM>|<DefLanguageNoSIM>${language}-${country}</DefLanguageNoSIM>|g' $tmp_dir
   fi
@@ -84,7 +86,7 @@ function build_and_sign() {
   apktool build --api-level "${BUILD_TARGET_SDK_VERSION}" "${extracted_dir_path}" &>/dev/null
   mv ${extracted_dir_path}/dist/${apkFileName} ./build/sign_applications/
   java -jar ./dependencies/bin/signer.jar --apks ./build/sign_applications/${apkFileName}
-  case "$(echo $type | tr '[:upper:]' '[:lower:]')" in 
+  case "$(echo $type | string_format -l)" in
     --overlay)
       mv ./build/sign_applications/$(ls | grep aligned-debugSigned.apk | head -n 1) ./build/system/product/overlay/
     ;;
@@ -142,7 +144,7 @@ function add_float_xml_values() {
   fi
   
   # Convert feature_code to uppercase
-  feature_code="$(echo "${feature_code}" | tr '[:lower:]' '[:upper:]')"
+  feature_code="$(echo "${feature_code}" | string_format -u)"
   
   # check if we have duplicates or not, uf we have anything extra, call the catch_duplicates_in_xml to do the job lol.
   if [ "$(catch_duplicates_in_xml "${feature_code}" "${TARGET_BUILD_FLOATING_FEATURE_PATH}")" == "0" ]; then
@@ -176,7 +178,7 @@ function add_csc_xml_values() {
   fi
   
   # Convert feature_code to uppercase
-  feature_code="$(echo "${feature_code}" | tr '[:lower:]' '[:upper:]')"
+  feature_code="$(echo "${feature_code}" | string_format -u)"
   # check if we have duplicates or not, uf we have anything extra, call the catch_duplicates_in_xml to do the job lol.
   if [ "$(catch_duplicates_in_xml "${feature_code}" "${TARGET_BUILD_FLOATING_FEATURE_PATH}")" == "0" ]; then
 	# Create a temporary file to hold the modified content
@@ -209,7 +211,7 @@ function change_xml_values() {
   fi
   
   # Convert feature_code to uppercase
-  feature_code="$(echo "${feature_code}" | tr '[:lower:]' '[:upper:]')"
+  feature_code="$(echo "${feature_code}" | string_format -u)"
   # catch the duplicate values and warn the user lol.
   if [ "$(catch_duplicates_xml "${feature_code}" "${TARGET_BUILD_FLOATING_FEATURE_PATH}")" -ge "2" ]; then
     warns "${feature_code} named feature has duplicate values, please remove them to prevent conflicts."
@@ -222,16 +224,13 @@ function change_xml_values() {
 function int() {
     local variable_name="$1"
     local value="$2"
-    if [ "$value" =~ ^-?[0-9]+$ ]; then
-        eval "$variable_name=$value"
-    else
-        abort "Error: '$value' is not an integer."
-    fi
+    # those shits are not working...
+    eval "$variable_name=$value"
 }
 
 function bool() {
     local variable_name="$1"
-    local value="$(echo "$2" | tr '[:upper:]' '[:lower:]')"
+    local value="$(echo "$2" | string_format -l)"
     # Check if the value is either "true" or "false"
     if [ "$value" == "true" || "$value" == "false" || "$value" == "1" || "$value" == "0" ]; then
         eval "$variable_name=$value"
@@ -269,7 +268,7 @@ function ask() {
   local answer=""
   printf "[\e[0;35m$(date +%d-%m-%Y) \e[0;37m- \e[0;32m$(date +%H:%M%p)\e[0;37m] / [:\e[0;36mMESSAGE\e[0;37m:] / [:\e[0;32mJOB\e[0;37m:] -\e[0;33m $1\e[0;37m (y/n) : "
   read answer
-  answer="$(echo "${answer}" | tr '[:upper:]' '[:lower:]')"
+  answer="$(echo "${answer}" | string_format -l)"
   if [ "${answer}" == "y" ]; then
     return 0
   else
@@ -353,15 +352,15 @@ function nuke_stuffs() {
 		"vaultkeeper_manifest.xml"
         "vendor.samsung.hardware.tlc*.xml"
         "wsm_manifest.xml"
-    )
+    ) # 
 	local stuffs2nukeininitdir=(
-		"${VENDOR_ETC_FOLDER}/init/*android.hardware.dumpstate@*.rc"
-		"${VENDOR_ETC_FOLDER}/init/boringssl_self_test.rc"
-		"${VENDOR_ETC_FOLDER}/init/cass.rc"
-		"${VENDOR_ETC_FOLDER}/init/vaultkeeper_common.rc"
-		"${VENDOR_ETC_FOLDER}/init/pa_daemon_teegris.rc"
-		"${VENDOR_ETC_FOLDER}/init/wsm-service.rc"
-		"${VENDOR_ETC_FOLDER}/init/vendor.samsung.hardware.tlc*.rc"
+		"$(absolute_path --vendor)/etc/init/*android.hardware.dumpstate@*.rc"
+		"$(absolute_path --vendor)/etc/init/boringssl_self_test.rc"
+		"$(absolute_path --vendor)/etc/init/cass.rc"
+		"$(absolute_path --vendor)/etc/init/vaultkeeper_common.rc"
+		"$(absolute_path --vendor)/etc/init/pa_daemon_teegris.rc"
+		"$(absolute_path --vendor)/etc/init/wsm-service.rc"
+		"$(absolute_path --vendor)/etc/init/vendor.samsung.hardware.tlc*.rc"
 	)
 
     for service in "security.wsm" "security.proca" "tlc.ucm" "tlc.payment"; do
@@ -369,12 +368,12 @@ function nuke_stuffs() {
 		remove_attributes "${service}"
 	done
 	for line in "${stuffs2nukeinvintf[@]}"; do
-		if [ -f "${VENDOR_ETC_FOLDER}/vintf/manifest/${line}" ]; then
-			rm -f "${VENDOR_ETC_FOLDER}/vintf/manifest/${line}"
+		if [ -f "$(absolute_path --vendor)/etc/vintf/manifest/${line}" ]; then
+			rm -f "$(absolute_path --vendor)/etc/vintf/manifest/${line}"
 			console_print "Deleting ${line}..."
 		fi
 	done
-	for tlc in "$(ls ${VENDOR_ETC_FOLDER}/init/ | grep tlc.)"; do
+	for tlc in "$(ls $(absolute_path --vendor)/etc/init/ | grep tlc.)"; do
 		if [ -f "${tlc}" ]; then
 			rm -f ${tlc}
 			console_print "Deleting ${tlc}..."
@@ -431,7 +430,7 @@ function ADD_THE_WALLPAPER_METADATA() {
     local value="$1"
     local the_type_of_wallpaper="$2"
 	[ -z "$index_score" ] && index_score=$3
-    the_type_of_wallpaper="$(echo "${the_type_of_wallpaper}" | tr '[:upper:]' '[:lower:]')"
+    the_type_of_wallpaper="$(echo "${the_type_of_wallpaper}" | string_format -l)"
     
     cat >> resources_info.json << EOF
     {
@@ -548,69 +547,85 @@ function download_stuffs() {
   fi
 }
 
-function install_horizon_modules() {
-  local i
-  local tarPATH="$1"
-  local additionalARGUMENTS=""$(echo "$3" | tr '[:upper:]' '[:lower:]')""
-  
-  # let's end the op if the args werent enough.
-  if [ "$#" == "0" ]; then
-    warns "Arguments are not enough.." "HORIZON_MODULE_INSTALLER"
-	return 1
-  fi
+function string_format() {
+    local string="$2"
+    case "$1" in
+        -l)
+            echo $string | tr '[:upper:]' '[:lower:]'
+        ;;
 
-  # the bomb starts from here.
-  mkdir -p ./tmp/
-  tar -xf ${tarPATH} -C ./tmp/
-  local moduleName="$(grep "horizon.module.name" module.prop | cut -d '=' -f 2 | sed 's/"//g')"
-  local moduleTYPE="$(grep "horizon.module.type" module.prop | cut -d '=' -f 2 | sed 's/"//g')"
-  local moduleSCRIPTNAME="$(grep "horizon.module.script.name" module.prop | cut -d '=' -f 2 | sed 's/"//g')"
-  if [ "${additionalARGUMENTS}" == "--silenced" ] || ask "Do you wanna know what does this system plugin do?"; then
-    console_print "${moduleName}, $(grep "horizon.module.description" module.prop | cut -d '=' -f 2 | sed 's/"//g')"
-	console_print "Brought to you by $(grep "horizon.module.authors" module.prop | cut -d '=' -f 2 | sed 's/"//g')"
-  fi
-  
-  # unpacking and copying files into the respected directories.
-  if [[ "${moduleTYPE}" == "system" ]]; then
-    console_print "Installing ${moduleName}..."
-	for i in ./tmp/system/*; do
-	  if [[ -f "${SYSTEM_DIR}/${i}" ]]; then
-	    mv ${i} ${SYSTEM_DIR}/
-      else
-	    warns "can't find /${i} in the system, the module can't be installed...."
-		return 1
-        rm -rf ./tmp
-	  fi
-	done
-	console_print "$moduleName has been installed..."
-  elif [[ "${moduleTYPE}" == "vendor" ]]; then  
-    console_print "Installing ${moduleName}..."
-	for i in ./tmp/vendor/*; do
-	  if [[ -f "${VENDOR_DIR}/${i}" ]]; then
-	    mv ${i} ${VENDOR_DIR}/
-      else
-	    warns "can't find /${i} in the vendor, the module can't be installed...."
-		return 1
-        rm -rf ./tmp
-	  fi
-	done
-	console_print "$moduleName has been installed..."
-  elif [[ "${moduleTYPE}" == "product" ]]; then
-    console_print "Installing ${moduleName}..."
-	for i in ./tmp/product/*; do
-	  if [[ -f "${PRODUCT_DIR}/${i}" ]]; then
-	    mv ${i} ${PRODUCT_DIR}/
-      else
-	    warns "can't find /${i} in the product, the module can't be installed...."
-		return 1
-        rm -rf ./tmp
-	  fi
-	done
-	console_print "$moduleName has been installed..."
-  elif [[ "${moduleTYPE}" == "script" ]]; then
-    console_print "Installing ${moduleName}..."
-	./tmp/${moduleSCRIPTNAME} "$SYSTEM_DIR" "$SYSTEM_EXT_DIR" "$VENDOR_DIR" "$PRODUCT_DIR" "$PRISM_DIR"
-  else
-    console_print "unknown module type, $moduleTYPE can't be installed..."
-  fi
+        -u)
+            echo $string | tr '[:lower:]' '[:upper:]'
+        ;;
+
+        *)
+            echo $string
+        ;;
+    esac
+}
+
+function generate_random_hash() {
+    local how_much
+    int how_much $(echo "$1")
+    if [ ! "$#" == "1" ]; then
+        warns "Don't you want me like i want you baby?" "arguments"
+        abort "Not enough arguments..."
+    fi
+    timeout 0.1 cat /dev/urandom | xxd -p | head -n 1 | cut -c 1-${how_much}
+    unset how_much
+}
+
+function execute_scripts() {
+    local script="$1"
+    $BATTLEMAGE_BUILD && { . $script --battlemage 2>./error_ring.log; } || { . $script --non-battlemage 2>./error_ring.log; }
+}
+
+function absolute_path() {
+    local parsed_argument=$(string_format -l $1 | wc -c)
+    local parsed_argument="$(string_format -l $1 | cut -c 3-$parsed_argument)"
+    if $BATTLEMAGE_BUILD; then
+        if string_format -l ${TARGET_BUILD_PARTITIONS[@]} | grep -q $parsed_argument; then
+            if [ -f "${HASH_KEY_FOR_SUPER_BLOCK_PATH}/$parsed_argument/build.prop" ]; then
+                echo "${HASH_KEY_FOR_SUPER_BLOCK_PATH}/$parsed_argument"
+            elif [ -f "${HASH_KEY_FOR_SUPER_BLOCK_PATH}/$parsed_argument/$parsed_argument/build.prop" ]; then
+                echo "${HASH_KEY_FOR_SUPER_BLOCK_PATH}/$parsed_argument/$parsed_argument"
+            fi
+        else
+            abort "no way this cant be happening..."
+        fi
+    else
+        case $parsed_argument in
+            system)
+                if [ -f "${SYSTEM_DIR}/build.prop" ]; then
+                    echo "${SYSTEM_DIR}/"
+                elif [ -f "${SYSTEM_DIR}/system/build.prop" ]; then
+                    echo "${SYSTEM_DIR}/system/"
+                fi
+            ;;
+            vendor)
+                if [ -f "${VENDOR_DIR}/build.prop" ]; then
+                    echo "${VENDOR_DIR}/"
+                elif [ -f "${VENDOR_DIR}/vendor/build.prop" ]; then
+                    echo "${VENDOR_DIR}/vendor/"
+                fi
+            ;;
+            product)
+                if [ -f "${PRODUCT_DIR}/build.prop" ]; then
+                    echo "${PRODUCT_DIR}/"
+                elif [ -f "${PRODUCT_DIR}/product/build.prop" ]; then
+                    echo "${PRODUCT_DIR}/product/"
+                fi
+            ;;
+            prism)
+                if [ -f "${PRISM_DIR}/build.prop" ]; then
+                    echo "${PRISM_DIR}/"
+                elif [ -f "${PRISM_DIR}/prism/build.prop" ]; then
+                    echo "${PRISM_DIR}/prism/"
+                fi
+            ;;
+            *)
+                echo "/dev/null"
+            ;;
+        esac
+    fi
 }

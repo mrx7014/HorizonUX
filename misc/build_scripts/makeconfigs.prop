@@ -35,11 +35,17 @@ BUILD_TARGET_MODEL=$(grep "ro.product.system.model" "${SYSTEM_DIR}/build.prop" |
 #  60 or 90 or 120 maybe 144 if it exists (lmao it doesnt ik it) - put a single value, dont put multiple values here lol
 int BUILD_TARGET_DEFAULT_SCREEN_REFRESH_RATE 60
 bool BUILD_TARGET_HAS_HIGH_REFRESH_RATE_MODES false
-bool BUILD_TARGET_HAS_PRISM false
 
 # Target properties.
 # this variable will enable some debugging features and this thing will make your phone overheat and hang alot, do with pre-caution!s
 bool TARGET_BUILD_IS_FOR_DEBUGGING false
+# replace those empty quotes with system , vendor and etc etc.
+TARGET_BUILD_PARTITIONS=(
+""
+""
+""
+""
+)
 
 # applies patches to bluetooth library if the bluetooth doesnt work properly.
 bool TARGET_REQUIRES_BLUETOOTH_LIBRARY_PATCHES false
@@ -66,7 +72,7 @@ bool TARGET_INCLUDE_CUSTOM_BRAND_NAME true
 bool TARGET_INCLUDE_CUSTOM_SCREEN_RESOLUTION_CONTROLLER_APP false
 int TARGET_SCREEN_WIDTH 0000
 int TARGET_SCREEN_HEIGHT 0000
-CUSTOM_SETUP_WELCOME_MESSAGE="helno :D, please put your own typa rizzy drizzy shiiii here :D"
+CUSTOM_SETUP_WELCOME_MESSAGE="helno, please put your own typa rizzy drizzy shiiii here :D"
 
 # misc properties..
 RECOVERY_IMAGE_PATH="xx/recovery.img"
@@ -409,7 +415,7 @@ GOODLOOK_MODULES_FOR_35=(
     "com.samsung.systemui.lockstar.apk"
 )
 
-GOODLOOK_MODULES_FOR_34_APP_NAMES=(
+GOODLOOK_MODULES_FOR_35_APP_NAMES=(
   "CameraAssistant"
   "CapturePlugin"
   "ClockFace"
