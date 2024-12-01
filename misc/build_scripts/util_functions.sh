@@ -514,8 +514,8 @@ HEX_PATCH() {
 	# hmm, understandable :/
     console_print "Patching the bluetooth system file..."
     xxd -p "$FILE" | tr -d \\n | tr -d " " | sed "s/$FROM/$TO/" | xxd -r -p > "$FILE.tmp"
-	mkdir -p ./patched_resources/system/lib64/
-	mv "$FILE.tmp" "./patched_resources/system/lib64/libbluetooth_jni.so"
+	  mkdir -p ./patched_resources/system/lib64/
+  	mv "$FILE.tmp" "./patched_resources/system/lib64/libbluetooth_jni.so"
     console_print "Patched successfully, the file was moved to \"patched_resources/system/lib64/libbluetooth_jni.so\" folder.."
 }
 
@@ -585,9 +585,9 @@ function absolute_path() {
     local parsed_argument="$(string_format -l $1 | cut -c 3-$parsed_argument)"
     if $BATTLEMAGE_BUILD; then
         if string_format -l ${TARGET_BUILD_PARTITIONS[@]} | grep -q $parsed_argument; then
-            if [ -f "${HASH_KEY_FOR_SUPER_BLOCK_PATH}/$parsed_argument/build.prop" ]; then
+            if [ -f "${HASH_KEY_FOR_SUPER_BLOCK_PATH}/$parsed_argument/etc" ]; then
                 echo "${HASH_KEY_FOR_SUPER_BLOCK_PATH}/$parsed_argument"
-            elif [ -f "${HASH_KEY_FOR_SUPER_BLOCK_PATH}/$parsed_argument/$parsed_argument/build.prop" ]; then
+            elif [ -f "${HASH_KEY_FOR_SUPER_BLOCK_PATH}/$parsed_argument/$parsed_argument/etc" ]; then
                 echo "${HASH_KEY_FOR_SUPER_BLOCK_PATH}/$parsed_argument/$parsed_argument"
             fi
         else
@@ -599,6 +599,15 @@ function absolute_path() {
                 if [ -f "${SYSTEM_DIR}/build.prop" ]; then
                     echo "${SYSTEM_DIR}/"
                 elif [ -f "${SYSTEM_DIR}/system/build.prop" ]; then
+                    echo "${SYSTEM_DIR}/system/"
+                fi
+            ;;
+            system_ext)
+                # ive chose to find the etc because after android 11 i guess, the build.prop in system_ext was moved to /system_ext/etc/build.prop on newer versions
+                # the etc wont get changed that's why lol.
+                if [ -f "${SYSTEM_DIR}/system_ext/etc/" ]; then
+                    echo "${SYSTEM_DIR}/system_ext/"
+                elif [ -f "${SYSTEM_DIR}/system_ext/etc/" ]; then
                     echo "${SYSTEM_DIR}/system/"
                 fi
             ;;
