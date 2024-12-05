@@ -61,9 +61,7 @@
 # setup the script environment and execute it
 export INSTALLER="$TMPDIR/install"
 for file in "install.sh" "rom.prop" "util-functions.sh"; do
-    unzip -o "$3" "$file" -d "${INSTALLER}/" || {
-        exit 1
-    }
+    unzip -o "$3" "$file" -d "${INSTALLER}/"; || exit 1
 done
 
-exec sh "$INSTALLER/install.sh" "/dev/null" "$2" "$3"
+exec sh "$INSTALLER/util-functions.sh" "/dev/null" "$2" "$3"

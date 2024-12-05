@@ -6,15 +6,16 @@ codename=Birds
 # true = enables the thing, false = disables the thing, each one has their own things to do.
 PRODUCT_IS_SERVED_AS_ROOT=true
 THE_DEVICE_HAS_DYNAMIC_PARTITIONS=false
+FLASH_LOW_LEVEL_PARTITIONS=false
 
-# 										misc
-# arguments can be : tar , sparse & raw for now.
+####################################### misc
+# arguments for SHIPPED_AS_WHAT can be : tar, sparse & raw for now.
 # the format specifier should added to the FORMAT_SPECIFIER variable lol
-# for example FORMAT_SPECIFIER=.img.xz; this extracts super.img.xz if found.
+# for example FORMAT_SPECIFIER=.img.xz; this extracts super.img.xz if it's avaliable...
 SHIPPED_AS_WHAT=tar
 FORMAT_SPECIFIER=.img.xz
-stuffs_to_wipe=data
-# 										misc
+
+####################################### misc
 
 # the values can be added or removed but they should obey the device partition structure like 
 # if you have an xbl_config partition in /dev/block/*/*/by-name/xbl_config, you have to add it's blob name
@@ -42,5 +43,3 @@ LOW_LEVEL_PARTITIONS_MD5SUMS=(
 	"d41d8cd98f00b204e9800998ecf8427e"
 	"d41d8cd98f00b204e9800998ecf8427e"
 )
-
-md5sum something | cut -c 1-34
