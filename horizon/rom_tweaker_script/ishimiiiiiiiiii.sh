@@ -108,8 +108,8 @@ function maybe_kill_daemons() {
 
 function dawn() {
     local dir=$1
-    local the_50_jeez=$(du -h $dir | head -n 1 | cut -c 4-4 | string_case -l)
-    if [ "$(echo $the_50_jeez | grep -q m)" ] || [ "$(echo $the_50_jeez | grep -q g)" ]; then
+    local the_fifty_jeez=$(du -h $dir | head -n 1 | cut -c 4-4 | string_case -l)
+    if [ "$(echo $the_fifty_jeez | grep -q m)" ] || [ "$(echo $the_fifty_jeez | grep -q g)" ]; then
         return 0
     else
         return 1
@@ -126,6 +126,15 @@ function horizon_features() {
     fi
 }
 
+function maybe_nuke_prop() {
+    local variable="$@"
+    if [[ ! -z "$(command -v resetprop)" && ! -z "$(resetprop $variable)" ]]; then
+        if ! resetprop -d $variable; then
+            horizon_ishiiimi_logfile "resetprop_services" "Can't remove $variable for some unknown reason..."
+        fi
+    fi
+}
+
 ########################################### effectless services #####################################
 
 # let's change the default theme to dark, Thanks to nobletaro for the idea!
@@ -134,12 +143,36 @@ if [ "$(settings get secure device_provisioned)" == "0" ]; then
     cmd uimode night yes
 fi
 
-# Disable collective device administrators for all users
-for U in $(ls /data/user); do
-    for C in "auth.managed.admin.DeviceAdminReceiver" "mdm.receivers.MdmDeviceAdminReceiver"; do
-        pm disable --user $U com.google.android.gms/com.google.android.gms.$C
+# gms doze crap 
+{
+    # Disable collective device administrators for all users
+    for U in $(ls /data/user); do
+        for C in "auth.managed.admin.DeviceAdminReceiver" "mdm.receivers.MdmDeviceAdminReceiver"; do
+            pm disable --user $U com.google.android.gms/com.google.android.gms.$C
+        done
     done
-done
+    # The GMS0 variable holds the Google Mobile Services package name
+    GMS0="\"com.google.android.gms\""
+    STR1="allow-unthrottled-location package=$GMS0"
+    STR2="allow-ignore-location-settings package=$GMS0"
+    STR3="allow-in-power-save package=$GMS0"
+    STR4="allow-in-data-usage-save package=$GMS0"
+    # Find all XML files under /data/adb directory (case-insensitive search for .xml files)
+    find /data/adb/* -type f -iname "*.xml" -print |
+    while IFS= read -r XML; do
+        for X in $XML; do
+        # If any of the defined strings (STR1, STR2, STR3, STR4) are found in the file,
+        # execute the following block
+        if grep -qE "$STR1|$STR2|$STR3|$STR4" $X 2>/dev/null; then
+            # Use sed to remove the matched strings from the XML file
+            # It deletes lines containing any of STR1, STR2, STR3, or STR4
+            sed -i "/$STR1/d;/$STR2/d;/$STR3/d;/$STR4/d" $X
+        fi
+        done
+    done
+    # Add GMS to battery optimization
+    dumpsys deviceidle whitelist -com.google.android.gms
+}
 
 ########################################### effectless services #####################################
 
@@ -147,17 +180,18 @@ done
 
 # spoof the device to green state, making it seem like an locked device.
 if is_bootanimation_exited; then
-    resetprop --delete ro.build.selinux
-    resetprop ro.boot.warranty_bit 0
-    resetprop ro.vendor.boot.warranty_bit 0
-    resetprop ro.vendor.warranty_bit 0
-    resetprop ro.warranty_bit 0
+    for bootmodecrap in ro.bootmode ro.boot.mode vendor.boot.mode; do
+        maybe_set_prop $bootmodecrap unknown
+    done
+    for warranty_bit in ro.warranty_bit ro.vendor.warranty_bit ro.vendor.boot.warranty_bit ro.boot.warranty_bit; do
+        maybe_set_prop $warranty_bit 0
+    done
+    maybe_nuke_prop persist.log.tag.LSPosed
+    maybe_nuke_prop persist.log.tag.LSPosed-Bridge
+    maybe_nuke_prop ro.build.selinux
     resetprop ro.boot.verifiedbootstate green
     resetprop ro.boot.veritymode enforcing
     resetprop vendor.boot.vbmeta.device_state locked
-    maybe_set_prop ro.bootmode recovery unknown
-    maybe_set_prop ro.boot.mode recovery unknown
-    maybe_set_prop vendor.boot.mode recovery unknown
 fi
 
 # let's cook an tmp file to save our logs because we have to save things on it
@@ -199,5 +233,6 @@ fi
 
 ############################################ late_start_services ############################################################
 
-# let's exit with '0' because we dont want to f-around things lol
+# let's clear the system logs and exit with '0' because we dont want to f-around things lol
+logcat -c
 exit 0

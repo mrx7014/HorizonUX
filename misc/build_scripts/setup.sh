@@ -39,14 +39,12 @@ console_print "The Computer is turned on since : $(uptime --pretty | awk '{print
 if ! $testEnv; then
 	if [ ! -d "${SCRIPTS[1]}" ]; then
 		abort "Script files are missing, exiting..."
-	elif [ ! -d "${TARS[1]}" ]; then
-		abort "Tar files are missing, exiting..."
 	elif [ ! -d "${PREFIX}/bin/zip" ]; then
 		abort "zip is not installed. Please install it to proceed."
 	elif [ ! -d "${PREFIX}/bin/python3" ]; then
 		warns "python3 is not installed. It's not required unless you want to patch your recovery image." "$(echo "DEPENDENCIES_ERRORS" | tr '[:lower:]' '[:upper:]')"
 	elif [ -z "${JAVA_HOME}" ]; then
-		abort "Please install the latest openjdk or any preferred Java installation to proceed."
+		abort "Please install the latest openjdk to proceed."
 	fi
 fi
 
@@ -429,14 +427,24 @@ fi
 # removes useless samsung stuffs from the vendor partition.
 if $TARGET_REMOVE_USELESS_VENDOR_STUFFS; then
 	console_print "Nuking useless vendor stuffs..."
-	. ${SCRIPTS[4]}
+	mkdir -p ./build/vendor/etc/init/
+    # nothing frfr
+    nuke_stuffs
+	echo -e "\n [ • Finished removing stuffs from wifi.rc file, checkout patched_resources/vendor/etc/init/ folder"
+	echo -e "   • and yeah besure to copy that into your actual vendor/etc/init folder and try if it works or not! ]\n"
 fi
 
 # nukes display refresh rate overrides on some video platforms.
 if $DISABLE_DISPLAY_REFRESH_RATE_OVERRIDE; then
+	console_print "Disabling Refresh rate override from surfaceflinger..."
 	sed -i \
 		"/max_frame_buffer_acquired_buffers/a ro.surface_flinger.enable_frame_rate_override=false" \
 		"$(absolute_path --vendor)/default.prop"	
+fi
+
+# disable's DRC shit
+if $DISABLE_DYNAMIC_RANGE_COMPRESSION; then
+	sed -i 's/speaker_drc_enabled="true"/speaker_drc_enabled="false"/' $(absolute_path --vendor)/etc/audio_policy_configuration.xml
 fi
 
 # let's extend audio offload buffer size to 256kb and plug some of our things.
