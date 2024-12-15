@@ -613,3 +613,30 @@ function absolute_path() {
         esac
     fi
 }
+
+function fetch_rom_arch() {
+    local nvm
+    local jk
+    local arg="$@"
+    for jk in $(absolute_path --system)/build.prop $(absolute_path --system_ext)/build.prop $(absolute_path --product)/build.prop; do
+        cat $jk | grep -q ro.product.cpu.abi && break;
+    done
+    nvm=$(grep_prop $jk)
+    if [[ "$(echo $nvm | string_format --lower)" == "arm64-v8a|armeabi-v7a" ]]; then
+        if [ "$arg" == "--libpath" ]; then
+            case "$(echo $nvm | string_format --lower)"; in 
+                arm64-v8a)
+                    echo "lib64"
+                ;;
+                armeabi-v7a)
+                    echo "lib"
+                ;;
+            done
+        else
+            echo $nvm | string_format --lower
+        return 0
+    else 
+        abort "Unsupported architecture!!"
+        return 1
+    fi
+}
