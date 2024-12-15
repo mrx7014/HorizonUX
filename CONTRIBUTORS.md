@@ -18,6 +18,7 @@ Shoutout to the real MVPs who made this project pop! Without you, it would just 
 - [yzyhk904](https://github.com/yzyhk904) - Audiophile (i guess...)
 - [Nobletaro](https://t.me/GalaxyApksOfftopic/908527) - nobletaro.
 - [Ian Macdonald](https://github.com/ianmacd) - Silicon Valley survivor...
+- [BrotherBoard](https://github.com/BrotherBoard) - bro board🥰🥰🥰🥰
 
 You all are legends! 💖
 

@@ -132,16 +132,6 @@ if $TARGET_REQUIRES_BLUETOOTH_LIBRARY_PATCHES; then
 	HEX_PATCH "$(absolute_path --system)/lib64/libbluetooth_jni.so" "6804003528008052" "2b00001428008052"
 fi
 
-if [ "${TARGET_SCREEN_WIDTH}" == "1080" ] && [ "${TARGET_SCREEN_HEIGHT}" == "2340" ]; then
-	if $TARGET_INCLUDE_CUSTOM_SCREEN_RESOLUTION_CONTROLLER_APP; then
-		console_print "Building HorizonUXScreenResolution app for your device...."
-		mkdir -p ./build/system/product/priv-app/HorizonUXResolution
-		. ${SCRIPTS[1]}
-		build_and_sign --conventional ./horizon/packages/horizonux_resolution/ --privilaged "HorizonUXResolution"
-		mv ./build/system/etc/permissions/privapp-permissions-horizonux.screen.resolution.xml ./build/system/product/etc/permissions/
-	fi
-fi
-
 if $TARGET_INCLUDE_FASTBOOTD_PATCH_BY_RATCODED; then
 	console_print "Patching recovery image..."
 	. ${SCRIPTS[2]}
@@ -389,6 +379,15 @@ else
 	echo -e "\n# HorizonUX Audio resampler manager prop\npersist.horizonux.audio.resampler=unavailable\n" >> $(absolute_path --system)/build.prop 
 fi
 
+if $TARGET_INCLUDE_HORIZON_TOUCH_FIX; then
+	console_print "Adding brotherboard's GSI touch fix..."
+	echo -e "persist.horizonux.brotherboard.touch_fix=available\n" >> $(absolute_path --system)/build.prop
+	cp -af ./horizon/rom_tweaker_script/brotherboard_touch_fix.sh $(absolute_path --system)/bin/
+	chmod 755 $(absolute_path --system)/bin/brotherboard_touch_fix.sh
+	chown 0 $(absolute_path --system)/bin/brotherboard_touch_fix.sh
+	chgrp 0 $(absolute_path --system)/bin/brotherboard_touch_fix.sh
+fi
+
 # L, see the dawn makeconfigs.prop file :\
 if $TARGET_INCLUDE_HORIZON_OEMCRYPTO_DISABLER_PLUGIN; then
 	for part in $(absolute_path --system) $(absolute_path --vendor); do
@@ -453,6 +452,7 @@ rm -rf $(absolute_path --system)/hidden $(absolute_path --system)/preload $(abso
 cp -af ./misc/etc/ringtones_and_etc/media/audio/* $(absolute_path --system)/media/audio/
 cp -af ./horizon/rom_tweaker_script/init.ishimiiiiiiiiiiiiiii.rc $(absolute_path --system)/etc/init/
 cp -af ./horizon/rom_tweaker_script/ishimiiiiiiiiii.sh $(absolute_path --system)/bin/
+echo -e "\nservice brotherboard_touch_fix /system/bin/sh -c /system/bin/brotherboard_touch_fix.sh\n\tuser root\n\tgroup root\n\toneshot" >> $(absolute_path --system)/etc/init/init.ishimiiiiiiiiiiiiiii.rc
 chmod 755 $(absolute_path --system)/bin/ishimiiiiiiiiii.sh
 chmod 644 $(absolute_path --system)/etc/init/init.ishimiiiiiiiiiiiiiii.rc
 chown 0 $(absolute_path --system)/bin/ishimiiiiiiiiii.sh $(absolute_path --system)/etc/init/init.ishimiiiiiiiiiiiiiii.rc

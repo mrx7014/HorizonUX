@@ -1,3 +1,5 @@
+#!/system/bin/sh
+
 function grep_prop() {
 	local variable_name=$1
 	local prop_file=$2
@@ -204,10 +206,11 @@ fi
 # we can plug things but idc, im just gonna f'round with the temp file and fuckin' move
 # it to the directory.
 if is_boot_completed; then
-    the_logfile="/data/horizonux/logs/$(date +%d-%m-%Y-[%H:%M%p]__horizon__ishiimi__logfile__)"; 
+    the_logfile="/data/horizonux/logs/horizon_ishiimi_logfile.log"; 
     horizon_ishiiimi_logfile "ishimi" "The ROM decryped the storage, using the $the_logfile file to store logs..."
+    [ "$(grep_prop persist.horizonux.brotherboard.touch_fix)" == "$(string_case --lower "available")" ] && start brotherboard_touch_fix
 else
-    the_logfile=$(mktemp); 
+    the_logfile=$(mktemp)
     horizon_ishiiimi_logfile "ishimi" "using the $the_logfile file to store logs because the storage haven't decryped yet!"
 fi
 dawn "/data/horizonux/logs/" && rm -rf /data/horizonux/logs/*

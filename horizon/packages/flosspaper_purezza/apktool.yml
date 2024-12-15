@@ -6,7 +6,7 @@ usesFramework:
   - 1
   tag: null
 sdkInfo:
-  minSdkVersion: 30
+  minSdkVersion: 29
   targetSdkVersion: 30
 packageInfo:
   forcedPackageId: 127
@@ -20,3 +20,5 @@ sparseResources: false
 doNotCompress:
 - resources.arsc
 - webp
+- png 
+- jpg
