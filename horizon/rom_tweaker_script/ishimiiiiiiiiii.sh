@@ -137,6 +137,13 @@ function maybe_nuke_prop() {
     fi
 }
 
+check_reset_prop() {
+    local NAME=$1
+    local EXPECTED=$2
+    local VALUE=$(resetprop $NAME)
+    [ -z $VALUE ] || [ $VALUE = $EXPECTED ] || resetprop $NAME $EXPECTED
+}
+
 ########################################### effectless services #####################################
 
 # let's change the default theme to dark, Thanks to nobletaro for the idea!
@@ -146,6 +153,8 @@ if [ "$(settings get secure device_provisioned)" == "0" ]; then
 fi
 
 # gms doze crap 
+horizon_ishiiimi_logfile "GMSDoze" "Tweaking gms..."
+horizon_ishiiimi_logfile "GMSDoze" "The logs of this commands can be seen below:"
 {
     # Disable collective device administrators for all users
     for U in $(ls /data/user); do
@@ -173,32 +182,12 @@ fi
         done
     done
     # Add GMS to battery optimization
-    dumpsys deviceidle whitelist -com.google.android.gms
-}
+    dumpsys deviceidle whitelist com.google.android.gms
+} >> ${the_logfile}
 
 ########################################### effectless services #####################################
 
 ############################################ late_start_services ############################################################
-
-# spoof the device to green state, making it seem like an locked device.
-if is_bootanimation_exited; then
-    for bootmodecrap in ro.bootmode ro.boot.mode vendor.boot.mode; do
-        maybe_set_prop $bootmodecrap unknown
-    done
-    for warranty_bit in ro.warranty_bit ro.vendor.warranty_bit ro.vendor.boot.warranty_bit ro.boot.warranty_bit; do
-        maybe_set_prop $warranty_bit 0
-    done
-    maybe_nuke_prop persist.log.tag.LSPosed
-    maybe_nuke_prop persist.log.tag.LSPosed-Bridge
-    maybe_nuke_prop ro.build.selinux
-    resetprop ro.boot.verifiedbootstate green
-    resetprop ro.boot.veritymode enforcing
-    resetprop vendor.boot.vbmeta.device_state locked
-    # let's try to disable user apps log visibitlity...
-    for Disable_Log_Visibility_For_These_Apps in $(pm list packages | cut -d':' -f2); do
-        cmd package log-visibility --disable $Disable_Log_Visibility_For_These_Apps || horizon_ishiiimi_logfile "ishimi" "Can't disable logs for this application: ${Disable_Log_Visibility_For_These_Apps}..."
-    done
-fi
 
 # let's cook an tmp file to save our logs because we have to save things on it
 # and after that we have to move it to the /data/horizonux/logs because we
@@ -206,9 +195,8 @@ fi
 # we can plug things but idc, im just gonna f'round with the temp file and fuckin' move
 # it to the directory.
 if is_boot_completed; then
-    the_logfile="/data/horizonux/logs/horizon_ishiimi_logfile.log"; 
+    the_logfile="/data/horizonux/logs/horizon_ishiiimi_logfile.log"; 
     horizon_ishiiimi_logfile "ishimi" "The ROM decryped the storage, using the $the_logfile file to store logs..."
-    [ "$(grep_prop persist.horizonux.brotherboard.touch_fix)" == "$(string_case --lower "available")" ] && start brotherboard_touch_fix
 else
     the_logfile=$(mktemp)
     horizon_ishiiimi_logfile "ishimi" "using the $the_logfile file to store logs because the storage haven't decryped yet!"
@@ -234,6 +222,54 @@ if horizon_features "persist.horizonux.audio.resampler"; then
             horizon_ishiiimi_logfile "late_start_service" "audioserver restarted successfully..."
         else 
             horizon_ishiiimi_logfile "late_start_service" "failed to reboot audioserver, the resampler stuffs aren't saved.. sorryyy"
+        fi
+    fi
+fi
+
+if boot_completed; then
+    # spoof the device to green state, making it seem like an locked device.
+    check_reset_prop "ro.boot.vbmeta.device_state" "locked"
+    check_reset_prop "ro.boot.verifiedbootstate" "green"
+    check_reset_prop "ro.boot.flash.locked" "1"
+    check_reset_prop "ro.boot.veritymode" "enforcing"
+    check_reset_prop "ro.boot.warranty_bit" "0"
+    check_reset_prop "ro.warranty_bit" "0"
+    check_reset_prop "ro.debuggable" "0"
+    check_reset_prop "ro.secure" "1"
+    check_reset_prop "ro.adb.secure" "1"
+    check_reset_prop "ro.build.type" "user"
+    check_reset_prop "ro.build.tags" "release-keys"
+    check_reset_prop "ro.vendor.boot.warranty_bit" "0"
+    check_reset_prop "ro.vendor.warranty_bit" "0"
+    check_reset_prop "vendor.boot.vbmeta.device_state" "locked"
+    check_reset_prop "vendor.boot.verifiedbootstate" "green"
+    check_reset_prop "ro.secureboot.lockstate" "locked"
+    # Hide that we booted from recovery when magisk is in recovery mode
+    contains_reset_prop "ro.bootmode" "recovery" "unknown"
+    contains_reset_prop "ro.boot.bootmode" "recovery" "unknown"
+    contains_reset_prop "vendor.boot.bootmode" "recovery" "unknown"
+    # nuke these mfs if they have any value
+    maybe_nuke_prop persist.log.tag.LSPosed
+    maybe_nuke_prop persist.log.tag.LSPosed-Bridge
+    maybe_nuke_prop ro.build.selinux
+    # start bro board's touch fix commands
+    [ "$(grep_prop persist.horizonux.brotherboard.touch_fix)" == "$(string_case --lower "available")" ] && start brotherboard_touch_fix
+    # let's try to disable user apps log visibitlity...
+    for idkmanwtfdowhateveridcyouarebomblikebeambfrfr in $(pm list packages | cut -d':' -f2); do
+        cmd package log-visibility --disable $idkmanwtfdowhateveridcyouarebomblikebeambfrfr || horizon_ishiiimi_logfile "ishimi" "Can't disable logs for this application: ${idkmanwtfdowhateveridcyouarebomblikebeambfrfr}..."
+    done
+    # fx kernelSU image size lmao
+    if [ -f "/data/adb/ksu/modules_update.img" ]; then
+        horizon_ishiiimi_logfile "Fixing userdata block size...."
+        if [ -z "$(resetprop persist.horizonux.kernelsu_imgfixerrantime)" ]; then
+            resetprop persist.horizonux.kernelsu_imgfixerrantime $(date +%U)
+        elif [ "$(resetprop persist.horizonux.kernelsu_imgfixerrantime)" == "$(date +%U)" ]; then
+            horizon_ishiiimi_logfile "horizonux_kernelsu_fix" "Not touching the kernel image, fam, 'cause it can only get touched in the $(($(date +%U) + 1))th week of this year. So, it ain't running this week—it's already been fixed, no cap."
+        elif [ "$(resetprop persist.horizonux.kernelsu_imgfixerrantime)" -ge "$(($(date +%U) + 1))" ]; then
+            e2fsck -f /data/adb/ksu/modules_update.img
+            resize2fs /data/adb/ksu/modules_update.img 500M
+            resetprop persist.horizonux.kernelsu_image_size_fix_ran true
+            horizon_ishiiimi_logfile "horizonux_kernelsu_fix" "The kernelSU image has been resized fam! it might fix the issue xD"
         fi
     fi
 fi

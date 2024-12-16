@@ -127,7 +127,6 @@ if $TARGET_REQUIRES_BLUETOOTH_LIBRARY_PATCHES; then
 	if [ ! -f "$(absolute_path --system)/lib64/libbluetooth_jni.so" ]; then
 		abort "The \"libbluetooth_jni.so\" file from the system/lib64 wasn't found, copy and put them in a random directory and try again.."
 	fi
-
 	# patch this weird device lib.
 	HEX_PATCH "$(absolute_path --system)/lib64/libbluetooth_jni.so" "6804003528008052" "2b00001428008052"
 fi
@@ -146,17 +145,13 @@ fi
 if $TARGET_REMOVE_NONE_SECURITY_OPTION; then
 	warns_api_limitations "11"
 	console_print "removing none security option from lockscreen settings..."
-	cat >> "./horizon/packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml" << EOF
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <bool name="config_hide_none_security_option">true</bool>
-EOF
+	echo -e "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<resources>\n\t<bool name=\"config_hide_none_security_option\">true</bool>\n" > ./horizon/packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml
 fi
 
 if $TARGET_REMOVE_SWIPE_SECURITY_OPTION; then
 	console_print "removing swipe security option from lockscreen settings..."
 	warns_api_limitations "11"
-	echo -e "    <bool name="config_hide_swipe_security_option">true</bool>\n</resources>" >> ./horizon/packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml
+	echo -e "\t<bool name=\"config_hide_swipe_security_option\">true</bool>\n</resources>" >> ./horizon/packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml
 else
 	echo "</resources>" >> ./horizon/packages/settings/oneui3/remove_none_option_on_security_tab/res/values/bools.xml
 fi
@@ -399,24 +394,6 @@ if $TARGET_INCLUDE_HORIZON_OEMCRYPTO_DISABLER_PLUGIN; then
 	done
 fi
 
-# no idea, idk you just figure it by yourself.
-if $TARGET_INCLUDE_CUSTOM_BRAND_NAME; then
-	change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_BRAND_NAME" "${BUILD_TARGET_CUSTOM_BRAND_NAME}"
-fi
-
-# let's copy some stuffs to force enable dark mode in setup
-if [ "$BUILD_TARGET_SDK_VERSION" == "30" ]; then
-	if grep -q "flash_recovery_sec" "$(absolute_path --system)/etc/init/uncrypt.rc"; then
-		grep -v "flash_recovery_sec" "$(absolute_path --system)/etc/init/uncrypt.rc" > ./tmp/uncrypt.rc
-		mv ./tmp/uncrypt.rc "$(absolute_path --system)/etc/init/uncrypt.rc"
-	fi
-fi
-
-# self-explanatory.
-console_print "Changing default language..."
-default_language_configuration ${NEW_DEFAULT_LANGUAGE_ON_PRODUCT} ${NEW_DEFAULT_LANGUAGE_COUNTRY_ON_PRODUCT}
-change_xml_values "SEC_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE" "${TARGET_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE}"
-
 # custom wallpaper-res resources_info.json generator.
 if $CUSTOM_WALLPAPER_RES_JSON_GENERATOR; then
 	console_print "Opening resources_info.json generator....."
@@ -427,10 +404,9 @@ fi
 if $TARGET_REMOVE_USELESS_VENDOR_STUFFS; then
 	console_print "Nuking useless vendor stuffs..."
 	mkdir -p ./build/vendor/etc/init/
-    # nothing frfr
     nuke_stuffs
-	echo -e "\n [ • Finished removing stuffs from wifi.rc file, checkout patched_resources/vendor/etc/init/ folder"
-	echo -e "   • and yeah besure to copy that into your actual vendor/etc/init folder and try if it works or not! ]\n"
+	console_print "• Finished removing stuffs from wifi.rc file, checkout patched_resources/vendor/etc/init/ folder"
+	console_print "  and yeah besure to copy that into your actual vendor/etc/init folder and try if it works or not!"
 fi
 
 # nukes display refresh rate overrides on some video platforms.
@@ -443,10 +419,14 @@ fi
 
 # disable's DRC shit
 if $DISABLE_DYNAMIC_RANGE_COMPRESSION; then
+	console_print "Disabling Dynamic Range Compression..."
 	sed -i 's/speaker_drc_enabled="true"/speaker_drc_enabled="false"/' $(absolute_path --vendor)/etc/audio_policy_configuration.xml
 fi
 
 # let's extend audio offload buffer size to 256kb and plug some of our things.
+console_print "Running misc jobs..."
+default_language_configuration ${NEW_DEFAULT_LANGUAGE_ON_PRODUCT} ${NEW_DEFAULT_LANGUAGE_COUNTRY_ON_PRODUCT}
+change_xml_values "SEC_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE" "${TARGET_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE}"
 echo -e "\n# extends the audio offload buffer size to 256kb\nvendor.audio.offload.buffer.size.kb=256" >> $(absolute_path --vendor)/build.prop
 rm -rf $(absolute_path --system)/hidden $(absolute_path --system)/preload $(absolute_path --system)/recovery-from-boot.p $(absolute_path --system)/bin/install-recovery.sh
 cp -af ./misc/etc/ringtones_and_etc/media/audio/* $(absolute_path --system)/media/audio/
@@ -458,6 +438,14 @@ chmod 644 $(absolute_path --system)/etc/init/init.ishimiiiiiiiiiiiiiii.rc
 chown 0 $(absolute_path --system)/bin/ishimiiiiiiiiii.sh $(absolute_path --system)/etc/init/init.ishimiiiiiiiiiiiiiii.rc
 chgrp 0 $(absolute_path --system)/bin/ishimiiiiiiiiii.sh $(absolute_path --system)/etc/init/init.ishimiiiiiiiiiiiiiii.rc
 change_xml_values "SEC_FLOATING_FEATURE_COMMON_SUPPORT_SAMSUNG_MARKETING_INFO" "FALSE"
+# let's remove the flash recovery service on android 11, idk how to remove those in android 12+
+# i guess we can use diff for that.
+if [[ "$BUILD_TARGET_SDK_VERSION" == "30" ]] && grep -q "flash_recovery_sec" "$(absolute_path --system)/etc/init/uncrypt.rc"; then
+	grep -v "flash_recovery_sec" "$(absolute_path --system)/etc/init/uncrypt.rc" > ./tmp/uncrypt.rc
+	mv ./tmp/uncrypt.rc "$(absolute_path --system)/etc/init/uncrypt.rc"
+fi
+$TARGET_INCLUDE_CUSTOM_BRAND_NAME && change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_BRAND_NAME" "${BUILD_TARGET_CUSTOM_BRAND_NAME}"
+[ -f "$(absolute_path --system)$(fetch_rom_arch --libpath)/libhal.wsm.samsung.so" ] && touch $(absolute_path --system)$(fetch_rom_arch --libpath)/libhal.wsm.samsung.so
 
 # send off message.
 console_print " Check the /build folder for the items you have built."

@@ -8,17 +8,17 @@
 
 Shoutout to the real MVPs who made this project pop! Without you, it would just be a vibe with no substance. Thanks for making this happen:
 
-- [Salvo](https://github.com/salvogiangri) - The GOATTTTTTTTTTTTTTTTTTT!!!!!!!!
-- [Royna](https://github.com/Royna2544) - The code wizard :)
-- [Yanndroid](https://github.com/Yanndroid) - The creative genius :)
-- [Ratcoded](https://github.com/ratcoded) - The weird username guy :D
-- [Furiousdroid](https://github.com/furiousdroid) - self-proclaimed " profeshional adrod developar "
-- [Vedraj](https://github.com/gawasvedraj) - my buddy :D
-- [Razvan](https://github.com/corsicanu) - haha, pro samsung custom IoT dev.
-- [yzyhk904](https://github.com/yzyhk904) - Audiophile (i guess...)
-- [Nobletaro](https://t.me/GalaxyApksOfftopic/908527) - nobletaro.
-- [Ian Macdonald](https://github.com/ianmacd) - Silicon Valley survivor...
-- [BrotherBoard](https://github.com/BrotherBoard) - bro board🥰🥰🥰🥰
+- [Salvo](https://github.com/salvogiangri)
+- [Royna](https://github.com/Royna2544)
+- [Yanndroid](https://github.com/Yanndroid)
+- [Ratcoded](https://github.com/ratcoded)
+- [Furiousdroid](https://github.com/furiousdroid)
+- [Vedraj](https://github.com/gawasvedraj)
+- [Razvan](https://github.com/corsicanu) 
+- [yzyhk904](https://github.com/yzyhk904)
+- [Nobletaro](https://t.me/GalaxyApksOfftopic/908527)
+- [Ian Macdonald](https://github.com/ianmacd)
+- [BrotherBoard](https://github.com/BrotherBoard)
 
 You all are legends! 💖
 
@@ -31,8 +31,7 @@ You all are legends! 💖
 - **Contributing**: Want to join the fun? Hit me up! Here’s how you can contribute to this project:
   
   1. Fork the repo
-  2. Create a new branch
-  3. Make your changes
+  2. Make your changes
   4. Submit a pull request!
 
 - **License**: This project is licensed under the GNU GENERAL PUBLIC LICENSE (v3), so you can vibe freely!
