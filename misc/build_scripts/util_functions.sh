@@ -1,4 +1,4 @@
-# mango mango mango mango :Those who know💀: :shitty-trollface:
+# mako mako mako mako Those who know💀
 for i in system/product/priv-app system/product/etc system/product/overlay system/etc/permissions system/product/etc/permissions custom_recovery_with_fastbootd/ system/etc/init/; do
     mkdir -p ./build/$i
 done
@@ -10,6 +10,7 @@ SCRIPTS=(
     "./misc/rom_modifier_scripts/resolution_app_permissions_xml_conf.sh"
     "./misc/rom_modifier_scripts/bring_fastbootd_into_recovery.sh"
     "./misc/rom_modifier_scripts/github_at_luna__FLOSSPAPER.sh"
+    "./misc/rom_modifier_scripts/knox_patch.sh" #++ unstaged file, still waiting for Salvo's approval.
 )
 
 function setprop() {
@@ -44,8 +45,8 @@ function default_language_configuration() {
     [ -z $country ] && country=US
     
     # change the strings cases to prevent issues on the system.
-    language=$(echo $language | string_format -l)
-    country=$(echo $country | string_format -u)
+    language=$(string_format -l $language)
+    country=$(string_format -u $country)
     
     # capture and abort the op if the length is invalid.
     if [ "$(echo ${country} | wc -c)" -ge "4" ]; then
@@ -76,13 +77,18 @@ function build_and_sign() {
     local conventional_path="$3"
     local extracted_dir_path="$2"
     local type="$1"
-    local apkFileName=$(if [ -f "$extracted_dir_path/apktool.yml" ]; then grep apkFileName $extracted_dir_path/apktool.yml | cut -c 14-1000; else echo "/dev/null"; fi)
+    local apkFileName
+    if [ -f "$extracted_dir_path/apktool.yml" ]; then 
+        apkFileName=$(grep apkFileName $extracted_dir_path/apktool.yml | cut -c 14-1000)
+    else 
+        abort "Invalid Apkfile path.."
+    fi
     mkdir -p ./build/sign_applications/
     rm -rf ./build/sign_applications/*
     apktool build --api-level "${BUILD_TARGET_SDK_VERSION}" "${extracted_dir_path}" &>/dev/null
     mv ${extracted_dir_path}/dist/${apkFileName} ./build/sign_applications/
     java -jar ./dependencies/bin/signer.jar --apks ./build/sign_applications/${apkFileName}
-    case "$(echo $type | string_format -l)" in
+    case "$(string_format --lower $type)" in
         --overlay)
         mv ./build/sign_applications/$(ls | grep aligned-debugSigned.apk | head -n 1) ./build/system/product/overlay/
         ;;
@@ -140,7 +146,7 @@ function add_float_xml_values() {
     fi
     
     # Convert feature_code to uppercase
-    feature_code="$(echo "${feature_code}" | string_format -u)"
+    feature_code="$(string_format -u "${feature_code}")"
     
     # check if we have duplicates or not, uf we have anything extra, call the catch_duplicates_in_xml to do the job lol.
     if [ "$(catch_duplicates_in_xml "${feature_code}" "${TARGET_BUILD_FLOATING_FEATURE_PATH}")" == "0" ]; then
@@ -174,7 +180,7 @@ function add_csc_xml_values() {
     fi
     
     # Convert feature_code to uppercase
-    feature_code="$(echo "${feature_code}" | string_format -u)"
+    feature_code="$(string_format --lower "${feature_code}")"
     # check if we have duplicates or not, uf we have anything extra, call the catch_duplicates_in_xml to do the job lol.
     if [ "$(catch_duplicates_in_xml "${feature_code}" "${TARGET_BUILD_FLOATING_FEATURE_PATH}")" == "0" ]; then
         # Create a temporary file to hold the modified content
@@ -207,7 +213,7 @@ function change_xml_values() {
     fi
     
     # Convert feature_code to uppercase
-    feature_code="$(echo "${feature_code}" | string_format -u)"
+    feature_code="$(string_format --lower "${feature_code}")"
     # catch the duplicate values and warn the user lol.
     if [ "$(catch_duplicates_xml "${feature_code}" "${TARGET_BUILD_FLOATING_FEATURE_PATH}")" -ge "2" ]; then
         warns "${feature_code} named feature has duplicate values, please remove them to prevent conflicts."
@@ -226,7 +232,7 @@ function int() {
 
 function bool() {
     local variable_name="$1"
-    local value="$(echo "$2" | string_format -l)"
+    local value="$(string_format -l $2)"
     # Check if the value is either "true" or "false"
     if [ "$value" == "true" || "$value" == "false" || "$value" == "1" || "$value" == "0" ]; then
         eval "$variable_name=$value"
@@ -261,10 +267,10 @@ function omc() {
 
 function ask() {
     local question="$1"
-    local answer=""
+    local answer
     printf "[\e[0;35m$(date +%d-%m-%Y) \e[0;37m- \e[0;32m$(date +%H:%M%p)\e[0;37m] / [:\e[0;36mMESSAGE\e[0;37m:] / [:\e[0;32mJOB\e[0;37m:] -\e[0;33m $1\e[0;37m (y/n) : "
     read answer
-    answer="$(echo "${answer}" | string_format -l)"
+    answer="$(string_format -l "${answer}")"
     if [ "${answer}" == "y" ]; then
         return 0
     else
@@ -374,13 +380,13 @@ function switchprop() {
     # Check if the file exists
     if [[ ! -f "$filename" ]]; then
         echo " - Failed to open file for reading: $filename."
-        return
+        return 1
     fi
 
     # Create a temporary file
     touch "$temp_file" || {
         echo " - Failed to create temporary file for writing."
-        return
+        return 1
     }
 
     # Read the original file line by line
@@ -405,72 +411,33 @@ function switchprop() {
 
 function ADD_THE_WALLPAPER_METADATA() {
     local value="$1"
-    local the_type_of_wallpaper="$2"
-	[ -z "$index_score" ] && index_score=$3
-    the_type_of_wallpaper="$(echo "${the_type_of_wallpaper}" | string_format -l)"
-    
-    cat >> resources_info.json << EOF
-    {
-EOF
+    local the_type_of_wallpaper="$(string_format -l "$2")"
+    local index_score=$3
+    local which
+    local isDefault
 
-    case "$the_type_of_wallpaper" in
-        home)
-            cat >> resources_info.json << EOF
-        "isDefault": ${the_homescreen_wallpaper_has_been_set},
-        "index": ${index_score},
-        "which": 1,
-        "screen": 0,
-        "type": 0,
-        "filename": "wallpaper_${value}.png",
-        "frame_no": -1,
-        "cmf_info": [""]
-    }${special_symbol}
-EOF
-        ;;
-        
-        lock)
-            cat >> resources_info.json << EOF
-        "isDefault": ${the_lockscreen_wallpaper_has_been_set},
-        "index": ${index_score},
-        "which": 2,
-        "screen": 0,
-        "type": 0,
-        "filename": "wallpaper_${value}.png",
-        "frame_no": -1,
-        "cmf_info": [""]
-    }${special_symbol}
-EOF
-        ;;
-        
-        additionals)
-            cat >> resources_info.json << EOF
-        "isDefault": false,
-        "index": ${index_score},
-        "which": 1,
-        "screen": 0,
-        "type": 0,
-        "filename": "wallpaper_${value}.png",
-        "frame_no": -1,
-        "cmf_info": [""]
-    }${special_symbol}
-EOF
-        ;;
-    esac
+    # Determine the "which" value and the "isDefault" flag based on the wallpaper type
+    if [ "$the_type_of_wallpaper" == "home" ]; then
+        which=1
+        isDefault="true"
+    elif [ "$the_type_of_wallpaper" == "lock" ]; then
+        which=2
+        isDefault="true"
+    elif [ "$the_type_of_wallpaper" == "additionals" ]; then
+        which=1
+        isDefault="false"
+    fi
+    
+    # Append the JSON data to resources_info.json
+    echo -e "{\n\t\"isDefault\": \"$isDefault\",\n\t\"index\": $index_score,\n\t\"which\": $which,\n\t\"screen\": 0,\n\t\"type\": 0,\n\t\"filename\": \"wallpaper_${value}.png\",\n\t\"frame_no\": -1,\n\t\"cmf_info\": [\"\"]\n}${special_symbol}" >> resources_info.json
 }
 
 function json_header() {
-    cat >> resources_info.json << EOF
-{
-  "version": "0.0.1",
-  "phone": [
-EOF
+    echo -e "{\n\t\"version\": \"0.0.1\",\n\t\"phone\": [" > resources_info.json
 }
 
 function json_ending_stuffs() {
-    cat >> resources_info.json << EOF
-  ]
-}
-EOF
+    echo -e "  ]\n}" >> resources_info.json
 }
 
 HEX_PATCH() {
@@ -622,9 +589,9 @@ function fetch_rom_arch() {
         cat $jk | grep -q ro.product.cpu.abi && break;
     done
     nvm=$(grep_prop $jk)
-    if [[ "$(echo $nvm | string_format --lower)" == "arm64-v8a|armeabi-v7a" ]]; then
+    if [[ "$(string_format --lower $nvm)" == "arm64-v8a|armeabi-v7a" ]]; then
         if [ "$arg" == "--libpath" ]; then
-            case "$(echo $nvm | string_format --lower)"; in 
+            case "$(string_format --lower $nvm)"; in 
                 arm64-v8a)
                     echo "lib64"
                 ;;
@@ -633,7 +600,7 @@ function fetch_rom_arch() {
                 ;;
             done
         else
-            echo $nvm | string_format --lower
+            string_format --lower $nvm
         return 0
     else 
         abort "Unsupported architecture!!"

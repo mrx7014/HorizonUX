@@ -50,47 +50,8 @@ fi
 
 ################ boom
 if $TARGET_BUILD_IS_FOR_DEBUGGING; then
-	{
-		echo "
-############ WARNING, EXPERIMENTAL FLAGS AHEAD!
-logcat.live=enable
-sys.lpdumpd=1
-persist.debug.atrace.boottrace=1
-persist.device_config.global_settings.sys_traced=1
-persist.traced.enable=1
-log.tag.ConnectivityManager=V
-log.tag.ConnectivityService=V
-log.tag.NetworkLogger=V
-log.tag.IptablesRestoreController=V
-log.tag.ClatdController=V
-persist.sys.lmk.reportkills=false
-security.dsmsd.enable=true
-persist.log.ewlogd=1
-sys.config.freecess_monitor=true
-persist.heapprofd.enable=1
-traced.lazy.heapprofd=1
-debug.enable=true
-sys.wifitracing.started=1
-security.edmaudit=false
-ro.sys.dropdump.on=On
-persist.systemserver.sa_bindertracker=false
-############ WARNING, EXPERIMENTAL FLAGS AHEAD!"
-	} >> $(absolute_path --system)/build.prop
-	{
-		echo "
-############ WARNING, EXPERIMENTAL FLAGS AHEAD!
-setprop log.tag.snap_api::snpe VERBOSE
-setprop log.tag.snap_api::V3 VERBOSE
-setprop log.tag.snap_api::V2 VERBOSE
-setprop log.tag.snap_compute::V3 VERBOSE
-setprop log.tag.snap_compute::V2 VERBOSE
-setprop log.tag.snaplite_lib VERBOSE
-setprop log.tag.snap_api::snap_eden::V3 VERBOSE
-setprop log.tag.snap_api::snap_ofi::V1 VERBOSE
-setprop log.tag.snap_hidl_v3 VERBOSE
-setprop log.tag.snap_service@1.2 VERBOSE
-############ WARNING, EXPERIMENTAL FLAGS AHEAD!"
-	} > ./build/system/etc/init/init.debug_castleprops.rc
+	echo -e "\n############ WARNING, EXPERIMENTAL FLAGS AHEAD!\nlogcat.live=enable\nsys.lpdumpd=1\npersist.debug.atrace.boottrace=1\npersist.device_config.global_settings.sys_traced=1\npersist.traced.enable=1\nlog.tag.ConnectivityManager=V\nlog.tag.ConnectivityService=V\nlog.tag.NetworkLogger=V\nlog.tag.IptablesRestoreController=V\nlog.tag.ClatdController=V\npersist.sys.lmk.reportkills=false\nsecurity.dsmsd.enable=true\npersist.log.ewlogd=1\nsys.config.freecess_monitor=true\npersist.heapprofd.enable=1\ntraced.lazy.heapprofd=1\ndebug.enable=true\nsys.wifitracing.started=1\nsecurity.edmaudit=false\nro.sys.dropdump.on=On\npersist.systemserver.sa_bindertracker=false\n############ WARNING, EXPERIMENTAL FLAGS AHEAD!" >> $(absolute_path --system)/build.prop 
+	echo -e "\n############ WARNING, EXPERIMENTAL FLAGS AHEAD!\nsetprop log.tag.snap_api::snpe VERBOSE\nsetprop log.tag.snap_api::V3 VERBOSE\nsetprop log.tag.snap_api::V2 VERBOSE\nsetprop log.tag.snap_compute::V3 VERBOSE\nsetprop log.tag.snap_compute::V2 VERBOSE\nsetprop log.tag.snaplite_lib VERBOSE\nsetprop log.tag.snap_api::snap_eden::V3 VERBOSE\nsetprop log.tag.snap_api::snap_ofi::V1 VERBOSE\nsetprop log.tag.snap_hidl_v3 VERBOSE\nsetprop log.tag.snap_service@1.2 VERBOSE\n############ WARNING, EXPERIMENTAL FLAGS AHEAD!" > ./build/system/etc/init/init.debug_castleprops.rc
 	warns "Debugging stuffs are enabled in this build, please proceed with caution and do remember that your device will heat more due to debugging process running in the background.." "DEBUGGING_ENABLER"
 	# change the values to enable debugging without authorization.
 	switchprop "ro.adb.secure" "0" "$(absolute_path --system)/build.prop"
