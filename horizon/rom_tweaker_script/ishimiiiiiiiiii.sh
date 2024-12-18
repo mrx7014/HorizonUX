@@ -142,7 +142,7 @@ check_reset_prop() {
     local EXPECTED=$2
     local VALUE=$(resetprop $NAME)
     [ -z $VALUE ] || [ $VALUE = $EXPECTED ] || resetprop $NAME $EXPECTED
-}
+} 
 
 ########################################### effectless services #####################################
 

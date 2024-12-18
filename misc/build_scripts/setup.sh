@@ -366,8 +366,8 @@ if $TARGET_REMOVE_USELESS_VENDOR_STUFFS; then
 	console_print "Nuking useless vendor stuffs..."
 	mkdir -p ./build/vendor/etc/init/
     nuke_stuffs
-	console_print "• Finished removing stuffs from wifi.rc file, checkout patched_resources/vendor/etc/init/ folder"
-	console_print "  and yeah besure to copy that into your actual vendor/etc/init folder and try if it works or not!"
+	console_print "Finished removing stuffs from wifi.rc file, checkout patched_resources/vendor/etc/init/ folder"
+	console_print " and yeah besure to copy that into your actual vendor/etc/init folder and try if it works or not!"
 fi
 
 # nukes display refresh rate overrides on some video platforms.

@@ -598,8 +598,8 @@ function fetch_rom_arch() {
                 armeabi-v7a)
                     echo "lib"
                 ;;
-            done
-        else
+            esac
+        else 
             string_format --lower $nvm
         return 0
     else 
