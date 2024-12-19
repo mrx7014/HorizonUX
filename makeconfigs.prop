@@ -434,3 +434,18 @@ GOODLOOK_MODULES_FOR_35_APP_NAMES=(
   "Wonderland"
   "LockStar"
 )
+
+SCRIPTS=(
+    "./misc/rom_modifier_scripts/add_unlimited_backups.sh"
+    "./misc/rom_modifier_scripts/resolution_app_permissions_xml_conf.sh"
+    "./misc/rom_modifier_scripts/bring_fastbootd_into_recovery.sh"
+    "./misc/rom_modifier_scripts/github_at_luna__FLOSSPAPER.sh"
+    "./misc/rom_modifier_scripts/knox_patch.sh" # -- unstaged file, still waiting for Salvo's approval.
+)
+
+DIFF_UNIFED_PATCHES=(
+    "./diff_patches/system/etc/restart_radio_process_unified_29-33.patch"
+    "./diff_patches/vendor/etc/init/wifi_29.patch"
+    "./diff_patches/vendor/etc/init/wifi_unified_30-31.patch"
+    "./diff_patches/vendor/etc/init/wifi_33.patch"
+)

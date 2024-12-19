@@ -144,6 +144,21 @@ check_reset_prop() {
     [ -z $VALUE ] || [ $VALUE = $EXPECTED ] || resetprop $NAME $EXPECTED
 } 
 
+# let's cook an tmp file to save our logs because we have to save things on it
+# and after that we have to move it to the /data/horizonux/logs because we
+# still have no idea whether the device is freaking encrypted or not. You might say that
+# we can plug things but idc, im just gonna f'round with the temp file and fuckin' move
+# it to the directory.
+if is_boot_completed; then
+    the_logfile="/data/horizonux/logs/horizon_ishiiimi_logfile.log"; 
+    horizon_ishiiimi_logfile "ishimi" "The ROM decryped the storage, using the $the_logfile file to store logs..."
+else
+    the_logfile=$(mktemp)
+    horizon_ishiiimi_logfile "ishimi" "using the $the_logfile file to store logs because the storage haven't decryped yet!"
+fi
+dawn "/data/horizonux/logs/" && rm -rf /data/horizonux/logs/*
+# we are gonna remove everything inside the dir if uhhh... it takes up an megabyte(s) of space
+
 ########################################### effectless services #####################################
 
 # let's change the default theme to dark, Thanks to nobletaro for the idea!
@@ -188,21 +203,6 @@ horizon_ishiiimi_logfile "GMSDoze" "The logs of this commands can be seen below:
 ########################################### effectless services #####################################
 
 ############################################ late_start_services ############################################################
-
-# let's cook an tmp file to save our logs because we have to save things on it
-# and after that we have to move it to the /data/horizonux/logs because we
-# still have no idea whether the device is freaking encrypted or not. You might say that
-# we can plug things but idc, im just gonna f'round with the temp file and fuckin' move
-# it to the directory.
-if is_boot_completed; then
-    the_logfile="/data/horizonux/logs/horizon_ishiiimi_logfile.log"; 
-    horizon_ishiiimi_logfile "ishimi" "The ROM decryped the storage, using the $the_logfile file to store logs..."
-else
-    the_logfile=$(mktemp)
-    horizon_ishiiimi_logfile "ishimi" "using the $the_logfile file to store logs because the storage haven't decryped yet!"
-fi
-dawn "/data/horizonux/logs/" && rm -rf /data/horizonux/logs/*
-# we are gonna remove everything inside the dir if uhhh... it takes up an megabyte(s) of space
 
 # let's initialize the resampler thing.
 if horizon_features "persist.horizonux.audio.resampler"; then

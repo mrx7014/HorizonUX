@@ -407,6 +407,18 @@ if [[ "$BUILD_TARGET_SDK_VERSION" == "30" ]] && grep -q "flash_recovery_sec" "$(
 fi
 $TARGET_INCLUDE_CUSTOM_BRAND_NAME && change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_BRAND_NAME" "${BUILD_TARGET_CUSTOM_BRAND_NAME}"
 [ -f "$(absolute_path --system)$(fetch_rom_arch --libpath)/libhal.wsm.samsung.so" ] && touch $(absolute_path --system)$(fetch_rom_arch --libpath)/libhal.wsm.samsung.so
+# let's patch restart_radio_process for my own will. PLEASE LET THIS SLIDE OUTT!!!!
+if [ "${BUILD_TARGET_SDK_VERSION}" -ge "29" ] && [ "${BUILD_TARGET_SDK_VERSION}" -le "33" ]; then
+	apply_diff_patches "$(absolute_path --system)/etc/restart_radio_process.sh" "${DIFF_UNIFED_PATCHES[0]}"
+fi
+# again, let's patch wifi init files :/
+if [ "${BUILD_TARGET_SDK_VERSION}" -eq "29" ]; then
+	apply_diff_patches "$(absolute_path --vendor)/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[1]}"
+elif [ "${BUILD_TARGET_SDK_VERSION}" -eq "30" ] && [ "${BUILD_TARGET_SDK_VERSION}" -le "31" ]; then
+	apply_diff_patches "$(absolute_path --vendor)/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[2]}"
+elif [ "${BUILD_TARGET_SDK_VERSION}" -eq "33" ]; then
+	apply_diff_patches "$(absolute_path --vendor)/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[3]}"
+fi
 
 # send off message.
 console_print " Check the /build folder for the items you have built."

@@ -2,16 +2,6 @@
 for i in system/product/priv-app system/product/etc system/product/overlay system/etc/permissions system/product/etc/permissions custom_recovery_with_fastbootd/ system/etc/init/; do
     mkdir -p ./build/$i
 done
-unset i
-
-# uuhrm.
-SCRIPTS=(
-    "./misc/rom_modifier_scripts/add_unlimited_backups.sh"
-    "./misc/rom_modifier_scripts/resolution_app_permissions_xml_conf.sh"
-    "./misc/rom_modifier_scripts/bring_fastbootd_into_recovery.sh"
-    "./misc/rom_modifier_scripts/github_at_luna__FLOSSPAPER.sh"
-    "./misc/rom_modifier_scripts/knox_patch.sh" #++ unstaged file, still waiting for Salvo's approval.
-)
 
 function setprop() {
     awk -v pat="^$1=" -v value="$1=$2" '{ if ($0 ~ pat) print value; else print $0; }' $3 > $3.tmp
@@ -606,4 +596,21 @@ function fetch_rom_arch() {
         abort "Unsupported architecture!!"
         return 1
     fi
+}
+
+function apply_diff_patches() {
+    local DiffPatchFile="$1"
+    local TheFileToPatch="$2"
+
+    if [ "$#" == "0" ] || [ "$#" -lt "2" ] || [ "$#" -ge "3" ]; then
+        abort "kys."
+    fi
+
+    if [ ! -f "${DiffPatchFile}" ]; then
+        abort "kys (x2)"
+    elif [ ! -f "${TheFileToPatch}" ]; then
+        abort "kys (x3)"
+    fi
+
+    patch ${TheFileToPatch} < ${DiffPatchFile}
 }
