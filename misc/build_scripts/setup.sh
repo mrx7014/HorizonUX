@@ -1,3 +1,10 @@
+# cache these headaches
+HORIZON_SYSTEM_DIR=$(absolute_path --system)
+HORIZON_SYSTEM_EXT_DIR=$(absolute_path --system_ext)
+HORIZON_PRODUCT_DIR=$(absolute_path --product)
+HORIZON_PRISM_DIR=$(absolute_path --prism)
+HORIZON_VENDOR_DIR=$(absolute_path --vendor)
+
 # bomboclatt
 TARGET_BUILD_FLOATING_FEATURE_PATH="$(absolute_path --system)/etc/floating_feature.xml"
 if [ ! -f "$(absolute_path --system)/etc/floating_feature.xml" ]; then
@@ -73,6 +80,10 @@ if [ "$BUILD_TARGET_ANDROID_VERSION" == "14" ]; then
 	$(absolute_path --system)/lib64/libhal.wsm.samsung.so \
 	$(absolute_path --system)/lib64/vendor.samsung.hardware.security.wsm.service-V1-ndk.so \
 	$(absolute_path --system)/priv-app/KnoxGuard
+fi
+
+if $TARGET_REMOVE_USELESS_SAMSUNG_APPLICATIONS_STUFFS; then
+	. ${SCRIPTS[5]}
 fi
 
 if $TARGET_INCLUDE_UNLIMITED_BACKUP; then
@@ -416,7 +427,7 @@ if [ "${BUILD_TARGET_SDK_VERSION}" -eq "29" ]; then
 	apply_diff_patches "$(absolute_path --vendor)/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[1]}"
 elif [ "${BUILD_TARGET_SDK_VERSION}" -eq "30" ] && [ "${BUILD_TARGET_SDK_VERSION}" -le "31" ]; then
 	apply_diff_patches "$(absolute_path --vendor)/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[2]}"
-elif [ "${BUILD_TARGET_SDK_VERSION}" -eq "33" ]; then
+elif [ "${BUILD_TARGET_SDK_VERSION}" -eq "32" ] &&  [ "${BUILD_TARGET_SDK_VERSION}" -le "33" ]; then
 	apply_diff_patches "$(absolute_path --vendor)/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[3]}"
 fi
 

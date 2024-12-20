@@ -51,11 +51,12 @@ TARGET_BUILD_PARTITIONS=(
 bool TARGET_REQUIRES_BLUETOOTH_LIBRARY_PATCHES false
 
 # you know these :
-bool TARGET_REMOVE_NONE_SECURITY_OPTION true
+bool TARGET_REMOVE_NONE_SECURITY_OPTION false
 bool TARGET_REMOVE_SWIPE_SECURITY_OPTION false
-bool TARGET_REMOVE_USELESS_VENDOR_STUFFS true
-bool TARGET_ADD_EXTRA_ANIMATION_SCALES true
-bool TARGET_ADD_ROUNDED_CORNERS_TO_THE_PIP_WINDOWS true
+bool TARGET_REMOVE_USELESS_VENDOR_STUFFS false
+bool TARGET_REMOVE_USELESS_SAMSUNG_APPLICATIONS_STUFFS false
+bool TARGET_ADD_EXTRA_ANIMATION_SCALES false
+bool TARGET_ADD_ROUNDED_CORNERS_TO_THE_PIP_WINDOWS false
 
 # bring fastboot mode on samsung launched with android 10.
 bool TARGET_INCLUDE_FASTBOOTD_PATCH_BY_RATCODED false
@@ -68,13 +69,13 @@ bool TARGET_INCLUDE_SAMSUNG_THEMING_MODULES false
 
 # some advanced stuffs.
 bool TARGET_INCLUDE_CUSTOM_SETUP_WELCOME_MESSAGES false
-bool TARGET_INCLUDE_CUSTOM_BRAND_NAME true
+bool TARGET_INCLUDE_CUSTOM_BRAND_NAME false
 CUSTOM_SETUP_WELCOME_MESSAGE="helno, please put your own typa rizzy drizzy shiiii here :D"
 
 # misc properties..
 RECOVERY_IMAGE_PATH="xx/recovery.img"
 PRODUCT_CSC_NAME=BTE
-bool SWITCH_DEFAULT_LANGUAGE_ON_PRODUCT_BUILD true
+bool SWITCH_DEFAULT_LANGUAGE_ON_PRODUCT_BUILD false
 NEW_DEFAULT_LANGUAGE_ON_PRODUCT=en
 NEW_DEFAULT_LANGUAGE_COUNTRY_ON_PRODUCT=US
 
@@ -95,7 +96,7 @@ bool TARGET_FLOATING_FEATURE_BATTERY_SUPPORT_BSOH_SETTINGS false
 bool TARGET_FLOATING_FEATURE_ENABLE_ENHANCED_PROCESSING false
 
 # please disable the window blurs for battery life and ux performance.
-bool TARGET_FLOATING_FEATURE_DISABLE_BLUR_EFFECTS true
+bool TARGET_FLOATING_FEATURE_DISABLE_BLUR_EFFECTS false
 
 # - This feature requires proper or bare minimum mdNIE support on the ROM and maybe the device to get it workin' properly
 # - if your device have any of those screen modes mentioned below, it means that it might have a proper or bare minimum support of the mdNIE feature.
@@ -441,11 +442,12 @@ SCRIPTS=(
     "./misc/rom_modifier_scripts/bring_fastbootd_into_recovery.sh"
     "./misc/rom_modifier_scripts/github_at_luna__FLOSSPAPER.sh"
     "./misc/rom_modifier_scripts/knox_patch.sh" # -- unstaged file, still waiting for Salvo's approval.
+    "./misc/rom_modifier_scripts/debloater_unifed.sh"
 )
 
 DIFF_UNIFED_PATCHES=(
     "./diff_patches/system/etc/restart_radio_process_unified_29-33.patch"
     "./diff_patches/vendor/etc/init/wifi_29.patch"
     "./diff_patches/vendor/etc/init/wifi_unified_30-31.patch"
-    "./diff_patches/vendor/etc/init/wifi_33.patch"
+    "./diff_patches/vendor/etc/init/wifi_unified_32-33.patch"
 )

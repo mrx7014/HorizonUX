@@ -318,13 +318,12 @@ function remove_attributes() {
 function nuke_stuffs() {
     local service
     local line
-	local tlc
 	local shit
 	local stuffs2nukeinvintf=(
         "android.hardware.dumpstate*.xml"
         "engmode_manifest.xml"
 		"vaultkeeper_manifest.xml"
-        "vendor.samsung.hardware.tlc*.xml"
+        "dumpstate-default.xml"
         "wsm_manifest.xml"
     )
 	local stuffs2nukeininitdir=(
@@ -334,9 +333,8 @@ function nuke_stuffs() {
 		"$(absolute_path --vendor)/etc/init/vaultkeeper_common.rc"
 		"$(absolute_path --vendor)/etc/init/pa_daemon_teegris.rc"
 		"$(absolute_path --vendor)/etc/init/wsm-service.rc"
-		"$(absolute_path --vendor)/etc/init/vendor.samsung.hardware.tlc*.rc"
 	)
-    for service in "security.wsm" "security.proca"; do
+    for service in "security.wsm" "vendor.samsung.hardware.security.proca"; do
         console_print "Removing ${service} service from the system config files..."
 		remove_attributes "${service}"
         for line in "${stuffs2nukeinvintf[@]}"; do
@@ -345,20 +343,15 @@ function nuke_stuffs() {
 			    console_print "Deleting ${line}..."
 		    fi
 	    done
-        for tlc in "$(ls $(absolute_path --vendor)/etc/init/ | grep tlc.)"; do
-		    if [ -f "${tlc}" ]; then
-	    		rm -f ${tlc}
-    			console_print "Deleting ${tlc}..."
-		    fi
-	    done
         for shit in "${stuffs2nukeininitdir[@]}"; do
 		    if [ -f "${shit}" ]; then
 			    rm -f "${shit}"
 			    console_print "Deleting ${shit}...\e[0m"
 		    fi
 	    done
+        # idk man, it feels like it's useless because the vendor has the same codes on a init file.
+        rm -rf "$(absolute_path --vendor)/etc/wlan_common_rc $(absolute_path --vendor)/etc/wlan_vendor_rc"
     done
-	echo ""
 }
 
 function switchprop() {
@@ -529,39 +522,39 @@ function absolute_path() {
         case $parsed_argument in
             system)
                 if [ -f "${SYSTEM_DIR}/build.prop" ]; then
-                    echo "${SYSTEM_DIR}/"
+                    echo "${SYSTEM_DIR}"
                 elif [ -f "${SYSTEM_DIR}/system/build.prop" ]; then
-                    echo "${SYSTEM_DIR}/system/"
+                    echo "${SYSTEM_DIR}/system"
                 fi
             ;;
             system_ext)
                 # ive chose to find the etc because after android 11 i guess, the build.prop in system_ext was moved to /system_ext/etc/build.prop on newer versions
                 # the etc wont get changed that's why lol.
                 if [ -f "${SYSTEM_DIR}/system_ext/etc/" ]; then
-                    echo "${SYSTEM_DIR}/system_ext/"
+                    echo "${SYSTEM_DIR}/system_ext"
                 elif [ -f "${SYSTEM_DIR}/system_ext/etc/" ]; then
-                    echo "${SYSTEM_DIR}/system/"
+                    echo "${SYSTEM_DIR}/system"
                 fi
             ;;
             vendor)
                 if [ -f "${VENDOR_DIR}/build.prop" ]; then
-                    echo "${VENDOR_DIR}/"
+                    echo "${VENDOR_DIR}"
                 elif [ -f "${VENDOR_DIR}/vendor/build.prop" ]; then
-                    echo "${VENDOR_DIR}/vendor/"
+                    echo "${VENDOR_DIR}/vendor"
                 fi
             ;;
             product)
                 if [ -f "${PRODUCT_DIR}/build.prop" ]; then
-                    echo "${PRODUCT_DIR}/"
+                    echo "${PRODUCT_DIR}"
                 elif [ -f "${PRODUCT_DIR}/product/build.prop" ]; then
-                    echo "${PRODUCT_DIR}/product/"
+                    echo "${PRODUCT_DIR}/product"
                 fi
             ;;
             prism)
                 if [ -f "${PRISM_DIR}/build.prop" ]; then
-                    echo "${PRISM_DIR}/"
+                    echo "${PRISM_DIR}"
                 elif [ -f "${PRISM_DIR}/prism/build.prop" ]; then
-                    echo "${PRISM_DIR}/prism/"
+                    echo "${PRISM_DIR}/prism"
                 fi
             ;;
             *)
@@ -603,13 +596,13 @@ function apply_diff_patches() {
     local TheFileToPatch="$2"
 
     if [ "$#" == "0" ] || [ "$#" -lt "2" ] || [ "$#" -ge "3" ]; then
-        abort "kys."
+        abort "Usage: <diff .patch file> <the file to patch>"
     fi
 
     if [ ! -f "${DiffPatchFile}" ]; then
-        abort "kys (x2)"
+        abort "please provide a valid path or file."
     elif [ ! -f "${TheFileToPatch}" ]; then
-        abort "kys (x3)"
+        abort "please provide a valid path or file."
     fi
 
     patch ${TheFileToPatch} < ${DiffPatchFile}
