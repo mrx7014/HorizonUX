@@ -21,7 +21,7 @@ class HorizonUX {
         static std::pair<std::string, int> ExecuteCommandsInTheHorizonUXSystemConsole(const std::string& command) {
             FILE* pipe = popen(command.c_str(), "r");
             if (!pipe) {
-                cerr << "Error opening pipe!" << endl;
+                std::cerr << "Error opening pipe for command: " << command << std::endl;
                 return {"", -1};
             }
 
@@ -37,7 +37,7 @@ class HorizonUX {
 
         bool DoesThisFileEvenExist(const std::string& fileName) {
             std::ifstream file(fileName);
-            return !file.is_open();
+            return file.is_open();
         }
 
         bool iHaveIdentityCrisisManWTF() {
@@ -53,7 +53,7 @@ class HorizonUX {
                 baseArgumentStream << "setprop " << propertyVariableName << " " << propertyVariableValue;
             }
             std::string baseArgument = baseArgumentStream.str();
-            HorizonUX console = HorizonUX::parseTheArguments(baseArgumentStream);
+            HorizonUX console = HorizonUX::parseTheArguments(baseArgument);
             auto [output, exitCode] = HorizonUX::ExecuteCommandsInTheHorizonUXSystemConsole(console.command);
             return exitCode == 0;
         }
@@ -64,6 +64,31 @@ class HorizonUX {
             HorizonUX console = HorizonUX::parseTheArguments(baseArgumentStream);
             auto [output, exitCode] = HorizonUX::ExecuteCommandsInTheHorizonUXSystemConsole(console.command);
             return output;
+        }
+
+        std::pair<std::string, int> getSystemSettingsValues(const std::string& SystemTable, const std::string& propertyVariableName) {
+            std::ostringstream baseArgumentStream;
+            int exitCode = 0;
+            if (SystemTable == "system" || SystemTable == "global" || SystemTable == "secure") {
+                baseArgumentStream << "settings get " << SystemTable << " " << propertyVariableName;
+            }
+            HorizonUX console = HorizonUX::parseTheArguments(baseArgumentStream);
+            auto [output, commandExitCode] = HorizonUX::ExecuteCommandsInTheHorizonUXSystemConsole(console.command);
+            exitCode = commandExitCode;
+            return std::make_pair(output);
+        }
+
+        bool setSystemSettingsProperty(const std::string& SystemTable, const std::string& propertyVariableName, const std::string& propertyVariableValue) {
+            if (SystemTable != "system" && SystemTable != "global" && SystemTable != "secure") {
+                std::cerr << "Invalid SystemTable: " << SystemTable << std::endl;
+                return false;
+            }
+            std::ostringstream baseArgumentStream;
+            baseArgumentStream << "settings put " << SystemTable << " " << propertyVariableName << " " << propertyVariableValue;
+            std::string baseArgument = baseArgumentStream.str();
+            HorizonUX console = HorizonUX::parseTheArguments(baseArgument);
+            auto [output, exitCode] = HorizonUX::ExecuteCommandsInTheHorizonUXSystemConsole(console.command);
+            return exitCode == 0;
         }
 
         void ThrowLogsToATextFile(const std::string& service, const std::string& message, const std::string& the_logfile) {

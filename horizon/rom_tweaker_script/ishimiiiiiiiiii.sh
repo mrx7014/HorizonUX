@@ -258,20 +258,6 @@ if boot_completed; then
     for idkmanwtfdowhateveridcyouarebomblikebeambfrfr in $(pm list packages | cut -d':' -f2); do
         cmd package log-visibility --disable $idkmanwtfdowhateveridcyouarebomblikebeambfrfr || horizon_ishiiimi_logfile "ishimi" "Can't disable logs for this application: ${idkmanwtfdowhateveridcyouarebomblikebeambfrfr}..."
     done
-    # fx kernelSU image size lmao
-    if [ -f "/data/adb/ksu/modules_update.img" ]; then
-        horizon_ishiiimi_logfile "Fixing userdata block size...."
-        if [ -z "$(resetprop persist.horizonux.kernelsu_imgfixerrantime)" ]; then
-            resetprop persist.horizonux.kernelsu_imgfixerrantime $(date +%U)
-        elif [ "$(resetprop persist.horizonux.kernelsu_imgfixerrantime)" == "$(date +%U)" ]; then
-            horizon_ishiiimi_logfile "horizonux_kernelsu_fix" "Not touching the kernel image, fam, 'cause it can only get touched in the $(($(date +%U) + 1))th week of this year. So, it ain't running this week—it's already been fixed, no cap."
-        elif [ "$(resetprop persist.horizonux.kernelsu_imgfixerrantime)" -ge "$(($(date +%U) + 1))" ]; then
-            e2fsck -f /data/adb/ksu/modules_update.img
-            resize2fs /data/adb/ksu/modules_update.img 500M
-            resetprop persist.horizonux.kernelsu_image_size_fix_ran true
-            horizon_ishiiimi_logfile "horizonux_kernelsu_fix" "The kernelSU image has been resized fam! it might fix the issue xD"
-        fi
-    fi
 fi
 
 ############################################ late_start_services ############################################################

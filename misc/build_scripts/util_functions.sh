@@ -605,5 +605,7 @@ function apply_diff_patches() {
         abort "please provide a valid path or file."
     fi
 
-    patch ${TheFileToPatch} < ${DiffPatchFile}
+    if ! patch ${TheFileToPatch} < ${DiffPatchFile} &>/dev/null; then
+        warns "Couldn't patch the requested file, please try again" "DIFF_PATCHER"
+    fi
 }
