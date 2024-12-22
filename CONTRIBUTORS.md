@@ -2,9 +2,7 @@
   <img src="https://github.com/selimdoyranli/selimdoyranli/blob/master/preview.gif" width="400" alt="Project HorizonUX" />
 </p>
 
-# HorizonUX 🚀✨
-
-## Contributors Squad 🥰
+# HorizonUX Contributors Squad 🥰
 
 Shoutout to the real MVPs who made this project pop! Without you, it would just be a vibe with no substance. Thanks for making this happen:
 
@@ -16,13 +14,9 @@ Shoutout to the real MVPs who made this project pop! Without you, it would just 
 - [Vedraj](https://github.com/gawasvedraj)
 - [Razvan](https://github.com/corsicanu) 
 - [yzyhk904](https://github.com/yzyhk904)
-- [Nobletaro](https://t.me/GalaxyApksOfftopic/908527)
+- [Nobletaro](https://t.me/nobletaro)
 - [Ian Macdonald](https://github.com/ianmacd)
 - [BrotherBoard](https://github.com/BrotherBoard)
-
-You all are legends! 💖
-
----
 
 ### Let’s Make This Project Lit 🔥
 
@@ -32,6 +26,6 @@ You all are legends! 💖
   
   1. Fork the repo
   2. Make your changes
-  4. Submit a pull request!
+  3. Submit a pull request!
 
 - **License**: This project is licensed under the GNU GENERAL PUBLIC LICENSE (v3), so you can vibe freely!
