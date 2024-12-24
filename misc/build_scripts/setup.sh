@@ -6,9 +6,9 @@ HORIZON_PRISM_DIR=$(absolute_path --prism)
 HORIZON_VENDOR_DIR=$(absolute_path --vendor)
 
 # bomboclatt
-TARGET_BUILD_FLOATING_FEATURE_PATH="$(absolute_path --system)/etc/floating_feature.xml"
-if [ ! -f "$(absolute_path --system)/etc/floating_feature.xml" ]; then
-	TARGET_BUILD_FLOATING_FEATURE_PATH="$(absolute_path --vendor)/etc/floating_feature.xml"
+TARGET_BUILD_FLOATING_FEATURE_PATH="$HORIZON_SYSTEM_DIR/etc/floating_feature.xml"
+if [ ! -f "$HORIZON_SYSTEM_DIR/etc/floating_feature.xml" ]; then
+	TARGET_BUILD_FLOATING_FEATURE_PATH="$HORIZON_VENDOR_DIR/etc/floating_feature.xml"
 fi
 
 # bomb.
@@ -57,29 +57,29 @@ fi
 
 ################ boom
 if $TARGET_BUILD_IS_FOR_DEBUGGING; then
-	echo -e "\n############ WARNING, EXPERIMENTAL FLAGS AHEAD!\nlogcat.live=enable\nsys.lpdumpd=1\npersist.debug.atrace.boottrace=1\npersist.device_config.global_settings.sys_traced=1\npersist.traced.enable=1\nlog.tag.ConnectivityManager=V\nlog.tag.ConnectivityService=V\nlog.tag.NetworkLogger=V\nlog.tag.IptablesRestoreController=V\nlog.tag.ClatdController=V\npersist.sys.lmk.reportkills=false\nsecurity.dsmsd.enable=true\npersist.log.ewlogd=1\nsys.config.freecess_monitor=true\npersist.heapprofd.enable=1\ntraced.lazy.heapprofd=1\ndebug.enable=true\nsys.wifitracing.started=1\nsecurity.edmaudit=false\nro.sys.dropdump.on=On\npersist.systemserver.sa_bindertracker=false\n############ WARNING, EXPERIMENTAL FLAGS AHEAD!" >> $(absolute_path --system)/build.prop 
+	echo -e "\n############ WARNING, EXPERIMENTAL FLAGS AHEAD!\nlogcat.live=enable\nsys.lpdumpd=1\npersist.debug.atrace.boottrace=1\npersist.device_config.global_settings.sys_traced=1\npersist.traced.enable=1\nlog.tag.ConnectivityManager=V\nlog.tag.ConnectivityService=V\nlog.tag.NetworkLogger=V\nlog.tag.IptablesRestoreController=V\nlog.tag.ClatdController=V\npersist.sys.lmk.reportkills=false\nsecurity.dsmsd.enable=true\npersist.log.ewlogd=1\nsys.config.freecess_monitor=true\npersist.heapprofd.enable=1\ntraced.lazy.heapprofd=1\ndebug.enable=true\nsys.wifitracing.started=1\nsecurity.edmaudit=false\nro.sys.dropdump.on=On\npersist.systemserver.sa_bindertracker=false\n############ WARNING, EXPERIMENTAL FLAGS AHEAD!" >> $HORIZON_SYSTEM_DIR/build.prop 
 	echo -e "\n############ WARNING, EXPERIMENTAL FLAGS AHEAD!\nsetprop log.tag.snap_api::snpe VERBOSE\nsetprop log.tag.snap_api::V3 VERBOSE\nsetprop log.tag.snap_api::V2 VERBOSE\nsetprop log.tag.snap_compute::V3 VERBOSE\nsetprop log.tag.snap_compute::V2 VERBOSE\nsetprop log.tag.snaplite_lib VERBOSE\nsetprop log.tag.snap_api::snap_eden::V3 VERBOSE\nsetprop log.tag.snap_api::snap_ofi::V1 VERBOSE\nsetprop log.tag.snap_hidl_v3 VERBOSE\nsetprop log.tag.snap_service@1.2 VERBOSE\n############ WARNING, EXPERIMENTAL FLAGS AHEAD!" > ./build/system/etc/init/init.debug_castleprops.rc
 	warns "Debugging stuffs are enabled in this build, please proceed with caution and do remember that your device will heat more due to debugging process running in the background.." "DEBUGGING_ENABLER"
 	# change the values to enable debugging without authorization.
-	switchprop "ro.adb.secure" "0" "$(absolute_path --system)/build.prop"
-	switchprop "ro.debuggable" "1" "$(absolute_path --system)/build.prop"
+	switchprop "ro.adb.secure" "0" "$HORIZON_SYSTEM_DIR/build.prop"
+	switchprop "ro.debuggable" "1" "$HORIZON_SYSTEM_DIR/build.prop"
 	if ! cat ${PRODUCT_PROP} | grep -q persist.sys.usb.config; then
-		PRODUCT_PROP=$(absolute_path --system)/product/build.prop
-		switchprop "persist.sys.usb.config" "mtp,adb" "$(absolute_path --system)/product/build.prop"
+		PRODUCT_PROP=$HORIZON_SYSTEM_DIR/product/build.prop
+		switchprop "persist.sys.usb.config" "mtp,adb" "$HORIZON_SYSTEM_DIR/product/build.prop"
 	else
-		switchprop "persist.sys.usb.config" "mtp,adb" "$(absolute_path --product)/build.prop" 
+		switchprop "persist.sys.usb.config" "mtp,adb" "$HORIZON_PRODUCT_DIR/build.prop" 
 	fi
 fi
 
 if [ "$BUILD_TARGET_ANDROID_VERSION" == "14" ]; then
 	console_print "removing some bloats, thnx Salvo!"
-	rm -rf $(absolute_path --system)/etc/permissions/privapp-permissions-com.samsung.android.kgclient.xml \
-	$(absolute_path --system)/etc/public.libraries-wsm.samsung.txt \
-	$(absolute_path --system)/lib/libhal.wsm.samsung.so \
-	$(absolute_path --system)/lib/vendor.samsung.hardware.security.wsm.service-V1-ndk.so \
-	$(absolute_path --system)/lib64/libhal.wsm.samsung.so \
-	$(absolute_path --system)/lib64/vendor.samsung.hardware.security.wsm.service-V1-ndk.so \
-	$(absolute_path --system)/priv-app/KnoxGuard
+	rm -rf $HORIZON_SYSTEM_DIR/etc/permissions/privapp-permissions-com.samsung.android.kgclient.xml \
+	$HORIZON_SYSTEM_DIR/etc/public.libraries-wsm.samsung.txt \
+	$HORIZON_SYSTEM_DIR/lib/libhal.wsm.samsung.so \
+	$HORIZON_SYSTEM_DIR/lib/vendor.samsung.hardware.security.wsm.service-V1-ndk.so \
+	$HORIZON_SYSTEM_DIR/lib64/libhal.wsm.samsung.so \
+	$HORIZON_SYSTEM_DIR/lib64/vendor.samsung.hardware.security.wsm.service-V1-ndk.so \
+	$HORIZON_SYSTEM_DIR/priv-app/KnoxGuard
 fi
 
 if $TARGET_REMOVE_USELESS_SAMSUNG_APPLICATIONS_STUFFS; then
@@ -90,17 +90,17 @@ if $TARGET_INCLUDE_UNLIMITED_BACKUP; then
 	console_print "Adding unlimited backup feature...."
 	mkdir -p ./build/system/product/etc/sysconfig/
 	. ${SCRIPTS[0]}
-	mv ./build/system/product/etc/sysconfig/* $(absolute_path --system)/etc/sysconfig/
+	mv ./build/system/product/etc/sysconfig/* $HORIZON_SYSTEM_DIR/etc/sysconfig/
 fi
 
 if $TARGET_REQUIRES_BLUETOOTH_LIBRARY_PATCHES; then
 	console_print "Patching bluetooth...."
 	# initial checks.
-	if [ ! -f "$(absolute_path --system)/lib64/libbluetooth_jni.so" ]; then
+	if [ ! -f "$HORIZON_SYSTEM_DIR/lib64/libbluetooth_jni.so" ]; then
 		abort "The \"libbluetooth_jni.so\" file from the system/lib64 wasn't found, copy and put them in a random directory and try again.."
 	fi
 	# patch this weird device lib.
-	HEX_PATCH "$(absolute_path --system)/lib64/libbluetooth_jni.so" "6804003528008052" "2b00001428008052"
+	HEX_PATCH "$HORIZON_SYSTEM_DIR/lib64/libbluetooth_jni.so" "6804003528008052" "2b00001428008052"
 fi
 
 if $TARGET_INCLUDE_FASTBOOTD_PATCH_BY_RATCODED; then
@@ -147,7 +147,7 @@ fi
 if $TARGET_FLOATING_FEATURE_INCLUDE_GAMELAUNCHER_IN_THE_HOMESCREEN; then
 	console_print "Enabling Game Launcher..."
 	change_xml_values "SEC_FLOATING_FEATURE_GRAPHICS_SUPPORT_DEFAULT_GAMELAUNCHER_ENABLE" "TRUE"
-elif $TARGET_FLOATING_FEATURE_INCLUDE_GAMELAUNCHER_IN_THE_HOMESCREEN; then
+elif ! $TARGET_FLOATING_FEATURE_INCLUDE_GAMELAUNCHER_IN_THE_HOMESCREEN; then
 	warns "Disabling Game Launcher..." "TARGET_FEATURE_CONFIGURATION"
 	change_xml_values "SEC_FLOATING_FEATURE_GRAPHICS_SUPPORT_DEFAULT_GAMELAUNCHER_ENABLE" "FALSE"
 fi
@@ -175,7 +175,7 @@ fi
 if $TARGET_FLOATING_FEATURE_INCLUDE_CLOCK_LIVE_ICON; then
 	console_print "Disabling the live clock icon from the launcher, great move!"
 	change_xml_values "SEC_FLOATING_FEATURE_LAUNCHER_SUPPORT_CLOCK_LIVE_ICON" "TRUE"
-elif $TARGET_FLOATING_FEATURE_INCLUDE_CLOCK_LIVE_ICON; then
+elif ! $TARGET_FLOATING_FEATURE_INCLUDE_CLOCK_LIVE_ICON; then
 	console_print "Enabling the live clock icon from the launcher, bad move!"
 	change_xml_values "SEC_FLOATING_FEATURE_LAUNCHER_SUPPORT_CLOCK_LIVE_ICON" "FALSE"
 fi
@@ -340,24 +340,24 @@ fi
 # installs audio resampler.
 if $TARGET_INCLUDE_HORIZON_AUDIO_RESAMPLER; then
 	console_print "Enabling HorizonUX audio resampler..."
-	echo -e "\n# HorizonUX Audio resampler manager prop\npersist.horizonux.audio.resampler=available\n" >> $(absolute_path --system)/build.prop 
+	echo -e "\n# HorizonUX Audio resampler manager prop\npersist.horizonux.audio.resampler=available\n" >> $HORIZON_SYSTEM_DIR/build.prop 
 else
 	console_print "Disabling HorizonUX audio resampler..."
-	echo -e "\n# HorizonUX Audio resampler manager prop\npersist.horizonux.audio.resampler=unavailable\n" >> $(absolute_path --system)/build.prop 
+	echo -e "\n# HorizonUX Audio resampler manager prop\npersist.horizonux.audio.resampler=unavailable\n" >> $HORIZON_SYSTEM_DIR/build.prop 
 fi
 
 if $TARGET_INCLUDE_HORIZON_TOUCH_FIX; then
 	console_print "Adding brotherboard's GSI touch fix..."
-	echo -e "persist.horizonux.brotherboard.touch_fix=available\n" >> $(absolute_path --system)/build.prop
-	cp -af ./horizon/rom_tweaker_script/brotherboard_touch_fix.sh $(absolute_path --system)/bin/
-	chmod 755 $(absolute_path --system)/bin/brotherboard_touch_fix.sh
-	chown 0 $(absolute_path --system)/bin/brotherboard_touch_fix.sh
-	chgrp 0 $(absolute_path --system)/bin/brotherboard_touch_fix.sh
+	echo -e "persist.horizonux.brotherboard.touch_fix=available\n" >> $HORIZON_SYSTEM_DIR/build.prop
+	cp -af ./horizon/rom_tweaker_script/brotherboard_touch_fix.sh $HORIZON_SYSTEM_DIR/bin/
+	chmod 755 $HORIZON_SYSTEM_DIR/bin/brotherboard_touch_fix.sh
+	chown 0 $HORIZON_SYSTEM_DIR/bin/brotherboard_touch_fix.sh
+	chgrp 0 $HORIZON_SYSTEM_DIR/bin/brotherboard_touch_fix.sh
 fi
 
 # L, see the dawn makeconfigs.prop file :\
 if $TARGET_INCLUDE_HORIZON_OEMCRYPTO_DISABLER_PLUGIN; then
-	for part in $(absolute_path --system) $(absolute_path --vendor); do
+	for part in $HORIZON_SYSTEM_DIR $HORIZON_VENDOR_DIR; do
 		for libdir in $part/lib $part/lib64; Do
 			if [ -f $part/$libdir/liboemcrypto.so ]; then
 				touch $part/$libdir/liboemcrypto.so
@@ -386,53 +386,58 @@ if $DISABLE_DISPLAY_REFRESH_RATE_OVERRIDE; then
 	console_print "Disabling Refresh rate override from surfaceflinger..."
 	sed -i \
 		"/max_frame_buffer_acquired_buffers/a ro.surface_flinger.enable_frame_rate_override=false" \
-		"$(absolute_path --vendor)/default.prop"	
+		"$HORIZON_VENDOR_DIR/default.prop"	
 fi
 
 # disable's DRC shit
 if $DISABLE_DYNAMIC_RANGE_COMPRESSION; then
 	console_print "Disabling Dynamic Range Compression..."
-	sed -i 's/speaker_drc_enabled="true"/speaker_drc_enabled="false"/' $(absolute_path --vendor)/etc/audio_policy_configuration.xml
+	sed -i 's/speaker_drc_enabled="true"/speaker_drc_enabled="false"/' $HORIZON_VENDOR_DIR/etc/audio_policy_configuration.xml
 fi
 
 # let's extend audio offload buffer size to 256kb and plug some of our things.
 console_print "Running misc jobs..."
 default_language_configuration ${NEW_DEFAULT_LANGUAGE_ON_PRODUCT} ${NEW_DEFAULT_LANGUAGE_COUNTRY_ON_PRODUCT}
 change_xml_values "SEC_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE" "${TARGET_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE}"
-echo -e "\n# extends the audio offload buffer size to 256kb\nvendor.audio.offload.buffer.size.kb=256" >> $(absolute_path --vendor)/build.prop
-rm -rf $(absolute_path --system)/hidden $(absolute_path --system)/preload $(absolute_path --system)/recovery-from-boot.p $(absolute_path --system)/bin/install-recovery.sh
-cp -af ./misc/etc/ringtones_and_etc/media/audio/* $(absolute_path --system)/media/audio/
-cp -af ./horizon/rom_tweaker_script/init.ishimiiiiiiiiiiiiiii.rc $(absolute_path --system)/etc/init/
-cp -af ./horizon/rom_tweaker_script/ishimiiiiiiiiii.sh $(absolute_path --system)/bin/
-echo -e "\nservice brotherboard_touch_fix /system/bin/sh -c /system/bin/brotherboard_touch_fix.sh\n\tuser root\n\tgroup root\n\toneshot" >> $(absolute_path --system)/etc/init/init.ishimiiiiiiiiiiiiiii.rc
-chmod 755 $(absolute_path --system)/bin/ishimiiiiiiiiii.sh
-chmod 644 $(absolute_path --system)/etc/init/init.ishimiiiiiiiiiiiiiii.rc
-chown 0 $(absolute_path --system)/bin/ishimiiiiiiiiii.sh $(absolute_path --system)/etc/init/init.ishimiiiiiiiiiiiiiii.rc
-chgrp 0 $(absolute_path --system)/bin/ishimiiiiiiiiii.sh $(absolute_path --system)/etc/init/init.ishimiiiiiiiiiiiiiii.rc
+echo -e "\n# extends the audio offload buffer size to 256kb\nvendor.audio.offload.buffer.size.kb=256" >> $HORIZON_VENDOR_DIR/build.prop
+rm -rf $HORIZON_SYSTEM_DIR/hidden $HORIZON_SYSTEM_DIR/preload $HORIZON_SYSTEM_DIR/recovery-from-boot.p $HORIZON_SYSTEM_DIR/bin/install-recovery.sh
+cp -af ./misc/etc/ringtones_and_etc/media/audio/* $HORIZON_SYSTEM_DIR/media/audio/
+cp -af ./horizon/rom_tweaker_script/init.ishimiiiiiiiiiiiiiii.rc $HORIZON_SYSTEM_DIR/etc/init/
+cp -af ./horizon/rom_tweaker_script/ishimiiiiiiiiii.sh $HORIZON_SYSTEM_DIR/bin/
+echo -e "\nservice brotherboard_touch_fix /system/bin/sh -c /system/bin/brotherboard_touch_fix.sh\n\tuser root\n\tgroup root\n\toneshot" >> $HORIZON_SYSTEM_DIR/etc/init/init.ishimiiiiiiiiiiiiiii.rc
+chmod 755 $HORIZON_SYSTEM_DIR/bin/ishimiiiiiiiiii.sh
+chmod 644 $HORIZON_SYSTEM_DIR/etc/init/init.ishimiiiiiiiiiiiiiii.rc
+chown 0 $HORIZON_SYSTEM_DIR/bin/ishimiiiiiiiiii.sh $HORIZON_SYSTEM_DIR/etc/init/init.ishimiiiiiiiiiiiiiii.rc
+chgrp 0 $HORIZON_SYSTEM_DIR/bin/ishimiiiiiiiiii.sh $HORIZON_SYSTEM_DIR/etc/init/init.ishimiiiiiiiiiiiiiii.rc
 change_xml_values "SEC_FLOATING_FEATURE_COMMON_SUPPORT_SAMSUNG_MARKETING_INFO" "FALSE"
 # let's remove the flash recovery service on android 11, idk how to remove those in android 12+
 # i guess we can use diff for that.
-if [[ "$BUILD_TARGET_SDK_VERSION" == "30" ]] && grep -q "flash_recovery_sec" "$(absolute_path --system)/etc/init/uncrypt.rc"; then
-	grep -v "flash_recovery_sec" "$(absolute_path --system)/etc/init/uncrypt.rc" > ./tmp/uncrypt.rc
-	mv ./tmp/uncrypt.rc "$(absolute_path --system)/etc/init/uncrypt.rc"
+if [[ "$BUILD_TARGET_SDK_VERSION" == "30" ]] && grep -q "flash_recovery_sec" "$HORIZON_SYSTEM_DIR/etc/init/uncrypt.rc"; then
+	grep -v "flash_recovery_sec" "$HORIZON_SYSTEM_DIR/etc/init/uncrypt.rc" > ./tmp/uncrypt.rc
+	mv ./tmp/uncrypt.rc "$HORIZON_SYSTEM_DIR/etc/init/uncrypt.rc"
 fi
 $TARGET_INCLUDE_CUSTOM_BRAND_NAME && change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_BRAND_NAME" "${BUILD_TARGET_CUSTOM_BRAND_NAME}"
-[ -f "$(absolute_path --system)$(fetch_rom_arch --libpath)/libhal.wsm.samsung.so" ] && touch $(absolute_path --system)$(fetch_rom_arch --libpath)/libhal.wsm.samsung.so
+[ -f "$HORIZON_SYSTEM_DIR$(fetch_rom_arch --libpath)/libhal.wsm.samsung.so" ] && touch $HORIZON_SYSTEM_DIR$(fetch_rom_arch --libpath)/libhal.wsm.samsung.so
 # let's patch restart_radio_process for my own will. PLEASE LET THIS SLIDE OUTT!!!!
 if [ "${BUILD_TARGET_SDK_VERSION}" -ge "29" ] && [ "${BUILD_TARGET_SDK_VERSION}" -le "33" ]; then
-	apply_diff_patches "$(absolute_path --system)/etc/restart_radio_process.sh" "${DIFF_UNIFED_PATCHES[0]}"
+	apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/restart_radio_process.sh" "${DIFF_UNIFED_PATCHES[0]}"
 fi
 # again, let's patch wifi init files :/
 if [ "${BUILD_TARGET_SDK_VERSION}" -eq "29" ]; then
-	apply_diff_patches "$(absolute_path --vendor)/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[1]}"
+	apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[1]}"
 elif [ "${BUILD_TARGET_SDK_VERSION}" -eq "30" ] && [ "${BUILD_TARGET_SDK_VERSION}" -le "31" ]; then
-	apply_diff_patches "$(absolute_path --vendor)/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[2]}"
+	apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[2]}"
 elif [ "${BUILD_TARGET_SDK_VERSION}" -eq "32" ] &&  [ "${BUILD_TARGET_SDK_VERSION}" -le "33" ]; then
-	apply_diff_patches "$(absolute_path --vendor)/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[3]}"
+	apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[3]}"
 fi
 
 # send off message.
-console_print " Check the /build folder for the items you have built."
-console_print " Please sign the built overlay or application packages manually with your own private keys;"
-console_print " Do not use any public keys provided by any application building software. "
-console_print " script errors are moved to the ./error_ring.log file, please consider checking it out! "
+console_print "Check the /build folder for the items you have built."
+console_print "Please sign the built overlay or application packages manually with your own private keys;"
+console_print "Do not use any public keys provided by any application building software. "
+console_print "script errors are moved to the ./error_ring.log file, please consider checking it out! "
+if [ "${BATTLEMAGE_BUILD}" == "true" ]; then
+	console_print "Please review the image for the changes, if the changes aren't applied you can always extract and mod them"
+    umount $HASH_KEY_FOR_SUPER_BLOCK_PATH &>/dev/null
+    rmdir $HASH_KEY_FOR_SUPER_BLOCK_PATH &>/dev/null
+fi

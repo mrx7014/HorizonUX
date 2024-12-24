@@ -13,7 +13,7 @@ function abort() {
     sleep 0.5
     if [ "${BATTLEMAGE_BUILD}" == "true" ]; then
         umount $HASH_KEY_FOR_SUPER_BLOCK_PATH &>/dev/null
-        rm -rf $HASH_KEY_FOR_SUPER_BLOCK_PATH &>/dev/null
+        rmdir $HASH_KEY_FOR_SUPER_BLOCK_PATH &>/dev/null
     fi
     exit 1
 }

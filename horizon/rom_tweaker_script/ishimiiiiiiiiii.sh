@@ -88,7 +88,7 @@ function string_case() {
 
 function horizon_ishiiimi_logfile() {
     local message="$2"
-    local service="$(echo "$1" | string_case -u)"
+    local service="$(string_case -u "$1")"
     if [ -z "${message}" ]; then
         echo " - missing arguments, can't process anything..."
     else
@@ -110,7 +110,7 @@ function maybe_kill_daemons() {
 
 function dawn() {
     local dir=$1
-    local the_fifty_jeez=$(du -h $dir | head -n 1 | cut -c 4-4 | string_case -l)
+    local the_fifty_jeez=$(string_case -l $(du -h $dir | head -n 1 | cut -c 4-4))
     if [ "$(echo $the_fifty_jeez | grep -q m)" ] || [ "$(echo $the_fifty_jeez | grep -q g)" ]; then
         return 0
     else

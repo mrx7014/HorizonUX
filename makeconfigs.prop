@@ -29,8 +29,15 @@ CODENAME_VERSION_REFERENCE_ID=0.0
 # Build Target properties..
 int BUILD_TARGET_ANDROID_VERSION "$(grep "ro.build.version.release" "$(absolute_path --system)/build.prop" | head -n 1 | cut -c 26-28)"
 int BUILD_TARGET_SDK_VERSION "$(grep "ro.build.version.sdk" "$(absolute_path --system)/build.prop" | cut -c 22-23)"
-BUILD_TARGET_CUSTOM_BRAND_NAME="HorizonUX - ${CODENAME} (v${CODENAME_VERSION_REFERENCE_ID})"
 BUILD_TARGET_MODEL=$(grep "ro.product.system.model" "$(absolute_path --system)/build.prop" | cut -c 25-33)
+
+# dang
+bool TARGET_INCLUDE_CUSTOM_BRAND_NAME false
+BUILD_TARGET_CUSTOM_BRAND_NAME="HorizonUX - ${CODENAME} (v${CODENAME_VERSION_REFERENCE_ID})"
+
+# custom setup wizard welcome text.
+bool TARGET_INCLUDE_CUSTOM_SETUP_WELCOME_MESSAGES false
+CUSTOM_SETUP_WELCOME_MESSAGE="helno, please put your own typa rizzy drizzy shiiii here :D"
 
 #  60 or 90 or 120 maybe 144 if it exists (lmao it doesnt ik it) - put a single value, dont put multiple values here lol
 int BUILD_TARGET_DEFAULT_SCREEN_REFRESH_RATE 60
@@ -66,11 +73,6 @@ bool TARGET_INCLUDE_UNLIMITED_BACKUP false
 
 # include goodlock or whatever samsung theming modules into the rom.
 bool TARGET_INCLUDE_SAMSUNG_THEMING_MODULES false
-
-# some advanced stuffs.
-bool TARGET_INCLUDE_CUSTOM_SETUP_WELCOME_MESSAGES false
-bool TARGET_INCLUDE_CUSTOM_BRAND_NAME false
-CUSTOM_SETUP_WELCOME_MESSAGE="helno, please put your own typa rizzy drizzy shiiii here :D"
 
 # misc properties..
 RECOVERY_IMAGE_PATH="xx/recovery.img"
@@ -120,7 +122,7 @@ bool TARGET_FLOATING_FEATURE_DISABLE_SMART_SWITCH false
 bool TARGET_FLOATING_FEATURE_SUPPORTS_DOLBY_IN_GAMES false
 
 ############################################# Exclusive HorizonUX Features #############################################
-# this feature includes an resampler that is used to avoid smoky distortion specifically to those LDAC Bluetooth earphones and DAC's under $30 (probably), this sets special re-sampling tweaks in the system level.
+# this feature includes an prop level workaround that is used to avoid smoky distortion specifically to those LDAC Bluetooth earphones and DAC's under $30 (probably), this sets special re-sampling tweaks in the system level.
 bool TARGET_INCLUDE_HORIZON_AUDIO_RESAMPLER false
 
 # this feature removes a file that is necessary for drm / ott platforms, please note that the widevine level will fallback to L3
