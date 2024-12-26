@@ -1,10 +1,3 @@
-# cache these headaches
-HORIZON_SYSTEM_DIR=$(absolute_path --system)
-HORIZON_SYSTEM_EXT_DIR=$(absolute_path --system_ext)
-HORIZON_PRODUCT_DIR=$(absolute_path --product)
-HORIZON_PRISM_DIR=$(absolute_path --prism)
-HORIZON_VENDOR_DIR=$(absolute_path --vendor)
-
 # bomboclatt
 TARGET_BUILD_FLOATING_FEATURE_PATH="$HORIZON_SYSTEM_DIR/etc/floating_feature.xml"
 if [ ! -f "$HORIZON_SYSTEM_DIR/etc/floating_feature.xml" ]; then
@@ -395,6 +388,11 @@ if $DISABLE_DYNAMIC_RANGE_COMPRESSION; then
 	sed -i 's/speaker_drc_enabled="true"/speaker_drc_enabled="false"/' $HORIZON_VENDOR_DIR/etc/audio_policy_configuration.xml
 fi
 
+if $DISABLE_SAMSUNG_ASKS_SIGNATURE_VERFICATION; then
+	console_print "Disabling Samsung's ASKS..."
+	check_existence_of_property "ro.build.official.release" > $TMPFILE && setprop "ro.build.official.release" $(absolute_path --$(cat $TMPFILE))
+fi
+
 # let's extend audio offload buffer size to 256kb and plug some of our things.
 console_print "Running misc jobs..."
 default_language_configuration ${NEW_DEFAULT_LANGUAGE_ON_PRODUCT} ${NEW_DEFAULT_LANGUAGE_COUNTRY_ON_PRODUCT}
@@ -427,7 +425,7 @@ if [ "${BUILD_TARGET_SDK_VERSION}" -eq "29" ]; then
 	apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[1]}"
 elif [ "${BUILD_TARGET_SDK_VERSION}" -eq "30" ] && [ "${BUILD_TARGET_SDK_VERSION}" -le "31" ]; then
 	apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[2]}"
-elif [ "${BUILD_TARGET_SDK_VERSION}" -eq "32" ] &&  [ "${BUILD_TARGET_SDK_VERSION}" -le "33" ]; then
+elif [ "${BUILD_TARGET_SDK_VERSION}" -eq "32" ] && [ "${BUILD_TARGET_SDK_VERSION}" -le "33" ]; then
 	apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[3]}"
 fi
 

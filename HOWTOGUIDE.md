@@ -2,7 +2,7 @@
 - If you haven’t read the linked guide, your ROM mod might not work properly.
 
 # After updating `makeconfigs`
-- Run ```build.sh``` from the cloned repo directory. If using WSL, run this first: ```curl https://github.com/forsaken-heart24/HorizonXOneUI-HorizonUX/blob/main/conv2unix.sh | bash```
+- Run ```build.sh``` from the cloned repo directory. If using WSL, run this first: ```curl https://raw.githubusercontent.com/forsaken-heart24/HorizonXOneUI-HorizonUX/refs/heads/main/conv2unix.sh | bash```
 - Ignore errors and let the script finish.
 
 # Building the ROM

@@ -497,7 +497,6 @@ function generate_random_hash() {
         abort "Not enough arguments..."
     fi
     timeout 0.1 cat /dev/urandom | xxd -p | head -n 1 | cut -c 1-${how_much}
-    unset how_much
 }
 
 function execute_scripts() {
@@ -521,44 +520,41 @@ function absolute_path() {
     else
         case $parsed_argument in
             system)
-                if [ -f "${SYSTEM_DIR}/build.prop" ]; then
-                    echo "${SYSTEM_DIR}"
-                elif [ -f "${SYSTEM_DIR}/system/build.prop" ]; then
-                    echo "${SYSTEM_DIR}/system"
+                if [ -f "${HORIZON_SYSTEM_DIR}/build.prop" ]; then
+                    echo "${HORIZON_SYSTEM_DIR}"
+                elif [ -f "${HORIZON_SYSTEM_DIR}/system/build.prop" ]; then
+                    echo "${HORIZON_SYSTEM_DIR}/system"
                 fi
             ;;
             system_ext)
                 # ive chose to find the etc because after android 11 i guess, the build.prop in system_ext was moved to /system_ext/etc/build.prop on newer versions
                 # the etc wont get changed that's why lol.
-                if [ -f "${SYSTEM_DIR}/system_ext/etc/" ]; then
-                    echo "${SYSTEM_DIR}/system_ext"
-                elif [ -f "${SYSTEM_DIR}/system_ext/etc/" ]; then
-                    echo "${SYSTEM_DIR}/system"
+                if [ -f "$HORIZON_SYSTEM_DIR/system_ext/etc" ]; then
+                    echo "$HORIZON_SYSTEM_DIR/system_ext"
+                else
+                    echo "$HORIZON_SYSTEM_EXT_DIR"
                 fi
             ;;
             vendor)
-                if [ -f "${VENDOR_DIR}/build.prop" ]; then
-                    echo "${VENDOR_DIR}"
-                elif [ -f "${VENDOR_DIR}/vendor/build.prop" ]; then
-                    echo "${VENDOR_DIR}/vendor"
+                if [ -f "${HORIZON_VENDOR_DIR}/build.prop" ]; then
+                    echo "${HORIZON_VENDOR_DIR}"
+                elif [ -f "${HORIZON_VENDOR_DIR}/vendor/build.prop" ]; then
+                    echo "${HORIZON_VENDOR_DIR}/vendor"
                 fi
             ;;
             product)
-                if [ -f "${PRODUCT_DIR}/build.prop" ]; then
-                    echo "${PRODUCT_DIR}"
-                elif [ -f "${PRODUCT_DIR}/product/build.prop" ]; then
-                    echo "${PRODUCT_DIR}/product"
+                if [ -f "${HORIZON_PRODUCT_DIR}/build.prop" ]; then
+                    echo "${HORIZON_PRODUCT_DIR}"
+                elif [ -f "${HORIZON_PRODUCT_DIR}/product/build.prop" ]; then
+                    echo "${HORIZON_PRODUCT_DIR}/product"
                 fi
             ;;
             prism)
-                if [ -f "${PRISM_DIR}/build.prop" ]; then
-                    echo "${PRISM_DIR}"
-                elif [ -f "${PRISM_DIR}/prism/build.prop" ]; then
-                    echo "${PRISM_DIR}/prism"
+                if [ -f "${HORIZON_PRISM_DIR}/build.prop" ]; then
+                    echo "${HORIZON_PRISM_DIR}"
+                elif [ -f "${HORIZON_PRISM_DIR}/prism/build.prop" ]; then
+                    echo "${HORIZON_PRISM_DIR}/prism"
                 fi
-            ;;
-            *)
-                echo "/dev/null"
             ;;
         esac
     fi
@@ -594,18 +590,109 @@ function fetch_rom_arch() {
 function apply_diff_patches() {
     local DiffPatchFile="$1"
     local TheFileToPatch="$2"
-
     if [ "$#" == "0" ] || [ "$#" -lt "2" ] || [ "$#" -ge "3" ]; then
         abort "Usage: <diff .patch file> <the file to patch>"
     fi
-
     if [ ! -f "${DiffPatchFile}" ]; then
         abort "please provide a valid path or file."
     elif [ ! -f "${TheFileToPatch}" ]; then
         abort "please provide a valid path or file."
     fi
-
     if ! patch ${TheFileToPatch} < ${DiffPatchFile} &>/dev/null; then
         warns "Couldn't patch the requested file, please try again" "DIFF_PATCHER"
     fi
+}
+
+function stack_build_properties() {
+    local unforgettable
+    local i
+    local stacked_temp_properties="${TMPDIR}/$(generate_random_hash 100)___stacked__properties"
+    for i in $HORIZON_HORIZON_PRISM_DIR; $HORIZON_HORIZON_PRODUCT_DIR; $HORIZON_HORIZON_SYSTEM_DIR; $HORIZON_SYSTEM_EXT_DIR; $HORIZON_HORIZON_VENDOR_DIR; do
+        if [ -f "${i}/build.prop" ]; then
+            for unforgettable in "$(cat "${i}/build.prop")"; do
+                echo "${unforgettable} - ${i}" >> ${stacked_temp_properties}
+            done
+        else
+            for unforgettable in "$(cat "${i}/etc/build.prop")"; do
+                echo "${unforgettable} - ${i}/etc/build.prop" >> ${stacked_temp_properties}
+            done
+        fi
+    done
+}
+
+function check_existence_of_property() {
+    local property="$1"
+    local stacked_properties_file
+    stacked_properties_file=$(ls ${TMPDIR} | grep ___stacked__properties)
+    if [ -z "$stacked_properties_file" ]; then
+        echo "Error: No stacked properties file found in TMPDIR."
+        return 1
+    fi
+    if grep -q "$property" "${TMPDIR}/$stacked_properties_file"; then
+        if grep -q "system/" <<< "$property"; then
+            echo "system"
+        elif grep -q "system_ext/" <<< "$property"; then
+            echo "system_ext"
+        elif grep -q "vendor/" <<< "$property"; then
+            echo "vendor"
+        elif grep -q "product/" <<< "$property"; then
+            echo "product"
+        elif grep -q "prism/" <<< "$property"; then
+            echo "prism"
+        fi
+    else
+        return 1
+    fi
+}
+
+function find_partition_property_file() {
+    local i
+    local thatthang=$1
+    if [ "$thatthang" == "system|product|prism|vendor|system_ext" ]; then
+        if [ -f "$(kang_dir "$thatthang")/build.prop" ]; then
+            echo "$(kang_dir "$thatthang")/build.prop"
+        elif [ -f "$(kang_dir "$thatthang")/etc/build.prop" ]; then
+            echo "$(kang_dir "$thatthang")/etc/build.prop"
+        fi
+    fi
+}
+
+function kang_dir() {
+    local dir="$1"
+    if [ -f "$katarenai/$dir/etc" ]; then
+        echo "$katarenai/$dir"
+    elif [ -f "$katarenai/$dir/$dir/etc" ]; then
+        echo "$katarenai/$dir/$dir"
+    fi
+}
+
+function check_build_prop() {
+    local dir="$1"
+    if [ -f "$dir/build.prop" ] || [ -f "$dir/$dir/build.prop" ]; then
+        return 0
+    fi
+    return 1
+}
+
+function check_partition_in_target() {
+    local partition="$1"
+    if ! echo "${TARGET_BUILD_PARTITIONS[@]}" | grep -q "$partition"; then
+        abort "The $partition block is not mentioned in the TARGET_BUILD_PARTITIONS variable. Please add it and try again."
+    fi
+}
+
+function set_partition_flag() {
+    local partition="$1"
+    local flag_name="BATTLEMAGE_HAS_$(echo $partition | tr 'a-z' 'A-Z')"
+    bool $flag_name=true
+}
+
+function mount_super_image() {
+    local super_image="$1"
+    HASH_KEY_FOR_SUPER_BLOCK_PATH=./tmp/$(generate_random_hash 100)
+    mkdir -p "$HASH_KEY_FOR_SUPER_BLOCK_PATH"
+    sudo mount -o loop "$super_image" "$HASH_KEY_FOR_SUPER_BLOCK_PATH" || abort "Failed to mount $super_image."
+    console_print "The image was mounted on: ${HASH_KEY_FOR_SUPER_BLOCK_PATH}"
+    console_print "The given image path: ${super_image}"
+    katarenai=$(ls "$HASH_KEY_FOR_SUPER_BLOCK_PATH/")
 }
