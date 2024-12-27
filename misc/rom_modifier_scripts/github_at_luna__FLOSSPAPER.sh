@@ -21,7 +21,7 @@ function main () {
     if $continue_the_thing; then
         rm -rf resources_info.json
         touch resources_info.json
-        json_header
+        echo -e "{\n\t\"version\": \"0.0.1\",\n\t\"phone\": [" > resources_info.json
         echo -e " - Adding requested number of wallpapers to the list..\n"
 
         # Loop through each wallpaper
@@ -88,7 +88,7 @@ function main () {
             echo ""
         done
         
-        json_ending_stuffs
+        echo -e "  ]\n}" >> resources_info.json
 
         # Warning messages if default wallpapers were not set
         if ! $the_homescreen_wallpaper_has_been_set; then

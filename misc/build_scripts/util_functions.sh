@@ -4,8 +4,22 @@ for i in system/product/priv-app system/product/etc system/product/overlay syste
 done
 
 function setprop() {
-    awk -v pat="^$1=" -v value="$1=$2" '{ if ($0 ~ pat) print value; else print $0; }' $3 > $3.tmp
-    mv $3.tmp $3
+    local propFile
+    local propVariableName="$2"
+    local propValue="$3"
+    if string_format --lower "$1" | grep -q "prism"; then
+        propFile=$(check_build_prop "${HORIZON_PRISM_DIR}")
+    elif string_format --lower "$1" | grep -q "product"; then
+        propFile=$(check_build_prop "${HORIZON_PRODUCT_DIR}")
+    elif string_format --lower "$1" | grep -q "system"; then
+        propFile=$(check_build_prop "${HORIZON_SYSTEM_DIR}")
+    elif string_format --lower "$1" | grep -q "system_ext"; then
+        propFile=$(check_build_prop "${HORIZON_SYSTEM_EXT_DIR}")
+    elif string_format --lower "$1" | grep -q "vendor"; then
+        propFile=$(check_build_prop "${HORIZON_VENDOR_DIR}")
+    fi
+    awk -v pat="^${propVariableName}=" -v value="${propVariableName}=${propValue}" '{ if ($0 ~ pat) print value; else print $0; }' ${propFile} > ${propFile}.tmp
+    mv ${propFile}.tmp ${propFile}
 }
 
 function abort() {
@@ -415,14 +429,6 @@ function ADD_THE_WALLPAPER_METADATA() {
     echo -e "{\n\t\"isDefault\": \"$isDefault\",\n\t\"index\": $index_score,\n\t\"which\": $which,\n\t\"screen\": 0,\n\t\"type\": 0,\n\t\"filename\": \"wallpaper_${value}.png\",\n\t\"frame_no\": -1,\n\t\"cmf_info\": [\"\"]\n}${special_symbol}" >> resources_info.json
 }
 
-function json_header() {
-    echo -e "{\n\t\"version\": \"0.0.1\",\n\t\"phone\": [" > resources_info.json
-}
-
-function json_ending_stuffs() {
-    echo -e "  ]\n}" >> resources_info.json
-}
-
 HEX_PATCH() {
     local FILE="$1"
     local FROM="$2"
@@ -668,7 +674,11 @@ function kang_dir() {
 
 function check_build_prop() {
     local dir="$1"
-    if [ -f "$dir/build.prop" ] || [ -f "$dir/$dir/build.prop" ]; then
+    if [ -f "$dir/build.prop" ]; then
+        echo "$dir/build.prop"
+        return 0
+    elif [ -f "$dir/etc/build.prop" ]; then
+        echo "$dir/etc/build.prop"
         return 0
     fi
     return 1

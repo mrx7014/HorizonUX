@@ -189,8 +189,9 @@ if $TARGET_FLOATING_FEATURE_DISABLE_BLUR_EFFECTS; then
 fi
 
 if $TARGET_FLOATING_FEATURE_ENABLE_ENHANCED_PROCESSING; then
+	console_print "Enabling Enhanced Processing.."
 	for enhanced_gaming in SEC_FLOATING_FEATURE_SYSTEM_SUPPORT_LOW_HEAT_MODE SEC_FLOATING_FEATURE_COMMON_SUPPORT_HIGH_PERFORMANCE_MODE SEC_FLOATING_FEATURE_SYSTEM_SUPPORT_ENHANCED_CPU_RESPONSIVENESS; do
-		change_xml_values "$enhanced_gaming" "FALSE"
+		change_xml_values "$enhanced_gaming" "TRUE"
 	done
 fi
 
@@ -390,14 +391,23 @@ fi
 
 if $DISABLE_SAMSUNG_ASKS_SIGNATURE_VERFICATION; then
 	console_print "Disabling Samsung's ASKS..."
-	check_existence_of_property "ro.build.official.release" > $TMPFILE && setprop "ro.build.official.release" $(absolute_path --$(cat $TMPFILE))
+	check_existence_of_property "ro.build.official.release" > $TMPFILE && setprop --$(absolute_path --$(cat $TMPFILE)) "ro.build.official.release" "false"
+fi
+
+if $FORCE_HARDWARE_ACCELERATION; then
+	warns "Enabling hardware acceleration..." "MISC"
+	for i in "debug.hwui.renderer skiagl" "video.accelerate.hw 1" "debug.sf.hw 1" \
+	"debug.performance.tuning 0" "debug.egl.hw 1" "debug.composition.type gpu"; do
+		# use echo to null-terminate the var value.
+		setprop --system "$(echo "${i}" | awk '{printf $1}')" "$(echo "${i}" | awk '{printf $2}')"
+	done
 fi
 
 # let's extend audio offload buffer size to 256kb and plug some of our things.
 console_print "Running misc jobs..."
 default_language_configuration ${NEW_DEFAULT_LANGUAGE_ON_PRODUCT} ${NEW_DEFAULT_LANGUAGE_COUNTRY_ON_PRODUCT}
 change_xml_values "SEC_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE" "${TARGET_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE}"
-echo -e "\n# extends the audio offload buffer size to 256kb\nvendor.audio.offload.buffer.size.kb=256" >> $HORIZON_VENDOR_DIR/build.prop
+setprop --vendor "vendor.audio.offload.buffer.size.kb" "256"
 rm -rf $HORIZON_SYSTEM_DIR/hidden $HORIZON_SYSTEM_DIR/preload $HORIZON_SYSTEM_DIR/recovery-from-boot.p $HORIZON_SYSTEM_DIR/bin/install-recovery.sh
 cp -af ./misc/etc/ringtones_and_etc/media/audio/* $HORIZON_SYSTEM_DIR/media/audio/
 cp -af ./horizon/rom_tweaker_script/init.ishimiiiiiiiiiiiiiii.rc $HORIZON_SYSTEM_DIR/etc/init/
@@ -428,6 +438,14 @@ elif [ "${BUILD_TARGET_SDK_VERSION}" -eq "30" ] && [ "${BUILD_TARGET_SDK_VERSION
 elif [ "${BUILD_TARGET_SDK_VERSION}" -eq "32" ] && [ "${BUILD_TARGET_SDK_VERSION}" -le "33" ]; then
 	apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[3]}"
 fi
+
+for i in "logcat.live disable" "sys.dropdump.on Off" "profiler.force_disable_err_rpt 1" "profiler.force_disable_ulog 1" \
+		 "sys.lpdumpd 0" "persist.device_config.global_settings.sys_traced 0" "persist.traced.enable 0" "persist.sys.lmk.reportkills false" \
+		 "log.tag.ConnectivityManager S" "log.tag.ConnectivityService S" "log.tag.NetworkLogger S" \
+		 "log.tag.IptablesRestoreController S" "log.tag.ClatdController S"; do
+			# use echo to null-terminate the var value.
+			setprop --system "$(echo "${i}" | awk '{printf $1}')" "$(echo "${i}" | awk '{printf $2}')"
+done
 
 # send off message.
 console_print "Check the /build folder for the items you have built."
