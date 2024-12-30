@@ -6,7 +6,7 @@
 - Ignore errors and let the script finish.
 
 # Building the ROM
-- After that, run ``` . build.sh``` to start building the ROM.
+- After that, run ```build.sh``` to start modifying the ROM.
 
 # Final Steps
 - Boot the ROM, and if you encounter any issues, reach out to me via the socials in my GitHub profile.

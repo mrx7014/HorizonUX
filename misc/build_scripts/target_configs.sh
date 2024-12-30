@@ -6,10 +6,10 @@ if ask "Type \"yes\" to mount the super image..."; then
         abort "Invalid image path: $super_image_path. Ensure the correct path is provided."
     fi
     mount_super_image "$super_image_path"
-    bool BATTLEMAGE_BUILD=true
+    bool BATTLEMAGE_BUILD true
     execute_scripts "./misc/build_scripts/setup.sh"
 else
-    bool BATTLEMAGE_BUILD=false
+    bool BATTLEMAGE_BUILD false
     execute_scripts "./misc/build_scripts/setup.sh"
 fi
 
@@ -67,3 +67,28 @@ if command -v mktemp; then
 else
 	TMPFILE=$(touch $TMPDIR/bomboclattt; echo "$TMPDIR/bomboclattt")
 fi
+
+# make a variable to route to the build.prop files directly
+HORIZON_PRISM_PROPERTY_FILE=$(find_partition_property_file "prism")
+HORIZON_PRODUCT_PROPERTY_FILE=$(find_partition_property_file "product")
+HORIZON_SYSTEM_PROPERTY_FILE=$(find_partition_property_file "system")
+HORIZON_SYSTEM_EXT_PROPERTY_FILE=$(find_partition_property_file "system_ext")
+HORIZON_VENDOR_PROPERTY_FILE=$(find_partition_property_file "vendor")
+
+# boom
+if ! $testEnv; then
+	if [ ! -d "${SCRIPTS[1]}" ]; then
+		abort "Script files are missing, exiting..."
+	elif [ -z "$(command -v zip)" ]; then
+		abort "zip is not installed. Please install it to proceed."
+	elif [ ! -d "$(command -v python3)" ]; then
+		warns "python3 is not installed. It's not required unless you want to patch your recovery image." "$(echo "DEPENDENCIES_ERRORS" | tr '[:lower:]' '[:upper:]')"
+	elif [ -z "${JAVA_HOME}" ]; then
+		abort "Please install the latest openjdk to proceed."
+	fi
+fi
+
+# bomboclatt
+for i in $HORIZON_SYSTEM_DIR/etc/floating_feature.xml $HORIZON_VENDOR_DIR/etc/floating_feature.xml; do
+    [ -f "${i}" ] && TARGET_BUILD_FLOATING_FEATURE_PATH="${i}"
+done

@@ -1,16 +1,3 @@
-# bomboclatt
-TARGET_BUILD_FLOATING_FEATURE_PATH="$HORIZON_SYSTEM_DIR/etc/floating_feature.xml"
-if [ ! -f "$HORIZON_SYSTEM_DIR/etc/floating_feature.xml" ]; then
-	TARGET_BUILD_FLOATING_FEATURE_PATH="$HORIZON_VENDOR_DIR/etc/floating_feature.xml"
-fi
-
-# bomb.
-if [ "${TARGET_BUILD_IS_FOR_DEBUGGING}" == "true" ]; then 
-	bool TARGET_BUILD_REMOVE_ADB_AUTHORIZATION true
-else
-	bool TARGET_BUILD_REMOVE_ADB_AUTHORIZATION false
-fi
-
 # ok, fbans dropped!
 echo -e "'\033[0;31m'########################################################################"
 echo -e "   _  _     _   _            _                _   ___  __"
@@ -35,33 +22,21 @@ console_print "L2 Cache Memory Size : $(lscpu | grep L2 | awk '{print $3}')"
 console_print "Available RAM Memory : $(free -h | grep Mem | awk '{print $7}')B"
 console_print "The Computer is turned on since : $(uptime --pretty | awk '{print substr($0, 4)}')"
 
-# boom
-if ! $testEnv; then
-	if [ ! -d "${SCRIPTS[1]}" ]; then
-		abort "Script files are missing, exiting..."
-	elif [ ! -d "${PREFIX}/bin/zip" ]; then
-		abort "zip is not installed. Please install it to proceed."
-	elif [ ! -d "${PREFIX}/bin/python3" ]; then
-		warns "python3 is not installed. It's not required unless you want to patch your recovery image." "$(echo "DEPENDENCIES_ERRORS" | tr '[:lower:]' '[:upper:]')"
-	elif [ -z "${JAVA_HOME}" ]; then
-		abort "Please install the latest openjdk to proceed."
-	fi
-fi
-
 ################ boom
 if $TARGET_BUILD_IS_FOR_DEBUGGING; then
-	echo -e "\n############ WARNING, EXPERIMENTAL FLAGS AHEAD!\nlogcat.live=enable\nsys.lpdumpd=1\npersist.debug.atrace.boottrace=1\npersist.device_config.global_settings.sys_traced=1\npersist.traced.enable=1\nlog.tag.ConnectivityManager=V\nlog.tag.ConnectivityService=V\nlog.tag.NetworkLogger=V\nlog.tag.IptablesRestoreController=V\nlog.tag.ClatdController=V\npersist.sys.lmk.reportkills=false\nsecurity.dsmsd.enable=true\npersist.log.ewlogd=1\nsys.config.freecess_monitor=true\npersist.heapprofd.enable=1\ntraced.lazy.heapprofd=1\ndebug.enable=true\nsys.wifitracing.started=1\nsecurity.edmaudit=false\nro.sys.dropdump.on=On\npersist.systemserver.sa_bindertracker=false\n############ WARNING, EXPERIMENTAL FLAGS AHEAD!" >> $HORIZON_SYSTEM_DIR/build.prop 
-	echo -e "\n############ WARNING, EXPERIMENTAL FLAGS AHEAD!\nsetprop log.tag.snap_api::snpe VERBOSE\nsetprop log.tag.snap_api::V3 VERBOSE\nsetprop log.tag.snap_api::V2 VERBOSE\nsetprop log.tag.snap_compute::V3 VERBOSE\nsetprop log.tag.snap_compute::V2 VERBOSE\nsetprop log.tag.snaplite_lib VERBOSE\nsetprop log.tag.snap_api::snap_eden::V3 VERBOSE\nsetprop log.tag.snap_api::snap_ofi::V1 VERBOSE\nsetprop log.tag.snap_hidl_v3 VERBOSE\nsetprop log.tag.snap_service@1.2 VERBOSE\n############ WARNING, EXPERIMENTAL FLAGS AHEAD!" > ./build/system/etc/init/init.debug_castleprops.rc
+	echo -e "\n############ WARNING, EXPERIMENTAL FLAGS AHEAD!\nlogcat.live=enable\nsys.lpdumpd=1\npersist.debug.atrace.boottrace=1\npersist.device_config.global_settings.sys_traced=1\npersist.traced.enable=1\nlog.tag.ConnectivityManager=V\nlog.tag.ConnectivityService=V\nlog.tag.NetworkLogger=V\nlog.tag.IptablesRestoreController=V\nlog.tag.ClatdController=V\npersist.sys.lmk.reportkills=false\nsecurity.dsmsd.enable=true\npersist.log.ewlogd=1\nsys.config.freecess_monitor=true\npersist.heapprofd.enable=1\ntraced.lazy.heapprofd=1\ndebug.enable=true\nsys.wifitracing.started=1\nsecurity.edmaudit=false\nro.sys.dropdump.on=On\npersist.systemserver.sa_bindertracker=false\n############ WARNING, EXPERIMENTAL FLAGS AHEAD!" >> $HORIZON_SYSTEM_PROPERTY_FILE 
+	echo -e "\n############ WARNING, EXPERIMENTAL FLAGS AHEAD!\nsetprop log.tag.snap_api::snpe VERBOSE\nsetprop log.tag.snap_api::V3 VERBOSE\nsetprop log.tag.snap_api::V2 VERBOSE\nsetprop log.tag.snap_compute::V3 VERBOSE\nsetprop log.tag.snap_compute::V2 VERBOSE\nsetprop log.tag.snaplite_lib VERBOSE\nsetprop log.tag.snap_api::snap_eden::V3 VERBOSE\nsetprop log.tag.snap_api::snap_ofi::V1 VERBOSE\nsetprop log.tag.snap_hidl_v3 VERBOSE\nsetprop log.tag.snap_service@1.2 VERBOSE\n############ WARNING, EXPERIMENTAL FLAGS AHEAD!" > $HORIZON_HORIZON_SYSTEM_DIR/etc/init/init.debug_castleprops.rc
 	warns "Debugging stuffs are enabled in this build, please proceed with caution and do remember that your device will heat more due to debugging process running in the background.." "DEBUGGING_ENABLER"
 	# change the values to enable debugging without authorization.
-	switchprop "ro.adb.secure" "0" "$HORIZON_SYSTEM_DIR/build.prop"
-	switchprop "ro.debuggable" "1" "$HORIZON_SYSTEM_DIR/build.prop"
-	if ! cat ${PRODUCT_PROP} | grep -q persist.sys.usb.config; then
-		PRODUCT_PROP=$HORIZON_SYSTEM_DIR/product/build.prop
-		switchprop "persist.sys.usb.config" "mtp,adb" "$HORIZON_SYSTEM_DIR/product/build.prop"
-	else
-		switchprop "persist.sys.usb.config" "mtp,adb" "$HORIZON_PRODUCT_DIR/build.prop" 
-	fi
+	for i in "ro.debuggable 1" "ro.adb.secure 0"; do 
+		setprop --system "$(echo $i | awk '{print $1}')" "$(echo $i | awk '{print $2}')"
+	done
+	for i in $HORIZON_PRODUCT_PROPERTY_FILE $HORIZON_HORIZON_SYSTEM_DIR/product/*/build.prop;
+		[ -f "${i}" ] && setprop --product "persist.sys.usb.config" "mtp,adb"
+	done
+	chmod 644 $HORIZON_HORIZON_SYSTEM_DIR/etc/init/init.debug_castleprops.rc
+	chown 0 $HORIZON_HORIZON_SYSTEM_DIR/etc/init/init.debug_castleprops.rc
+	chgrp 0 $HORIZON_HORIZON_SYSTEM_DIR/etc/init/init.debug_castleprops.rc
 fi
 
 if [ "$BUILD_TARGET_ANDROID_VERSION" == "14" ]; then
@@ -228,121 +203,20 @@ if $TARGET_FLOATING_FEATURE_SUPPORTS_DOLBY_IN_GAMES; then
 fi
 
 # let's download goodlook modules from corsicanu's repo.
-if [[ "${BUILD_TARGET_SDK_VERSION}" -le "28" ]] && [[ "${TARGET_INCLUDE_SAMSUNG_THEMING_MODULES}" == "true" ]]; then
-	console_print "Goodlook is not supported in android 9.0 or lower"
-elif [[ "${BUILD_TARGET_SDK_VERSION}" -ge "29" ]] && [[ "${TARGET_INCLUDE_SAMSUNG_THEMING_MODULES}" == "true" ]]; then
-	console_print "Checking internet connection...."
-	timeout 3 ping supl.google.com &>/dev/null && {
-    case "${BUILD_TARGET_SDK_VERSION}" in
-		28)
-			for i in $(seq 13); do
-				if ask "Do you want to download ${GOODLOOK_MODULES_FOR_28_APP_NAMES[${i}]}"; then
-					mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_28_APP_NAMES[${i}]}/
-					download_stuffs https://github.com/corsicanu/goodlock_dump/releases/download/28/${GOODLOOK_MODULES_FOR_28[${i}]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_28_APP_NAMES[${i}]}/
-				else 
-					rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_28_APP_NAMES[${i}]}/ &>/dev/null
-				fi
-			done
-		;;
-	
-		29)
-			for i in $(seq 15); do
-				if ask "Do you want to download ${GOODLOOK_MODULES_FOR_29_APP_NAMES[${i}]}"; then
-					mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_29_APP_NAMES[${i}]}/
-					download_stuffs https://github.com/corsicanu/goodlock_dump/releases/download/29/${GOODLOOK_MODULES_FOR_29[${i}]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_29_APP_NAMES[${i}]}/
-				else 
-					rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_29_APP_NAMES[${i}]}/ &>/dev/null
-				fi
-			done
-		;;
-	
-		30)
-			for i in $(seq 14); do
-				if ask "Do you want to download ${GOODLOOK_MODULES_FOR_30_APP_NAMES[${i}]}"; then
-					mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_30_APP_NAMES[${i}]}/
-					download_stuffs https://github.com/corsicanu/goodlock_dump/releases/download/30/${GOODLOOK_MODULES_FOR_30[${i}]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_30_APP_NAMES[${i}]}/
-				else 
-					rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_30_APP_NAMES[${i}]}/ &>/dev/null
-				fi
-			done
-		;;
-	
-		31)
-			for i in $(seq 14); do
-				if ask "Do you want to download ${GOODLOOK_MODULES_FOR_31_APP_NAMES[${i}]}"; then
-					mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_31_APP_NAMES[${i}]}/
-					download_stuffs https://github.com/corsicanu/goodlock_dump/releases/download/31/${GOODLOOK_MODULES_FOR_31[${i}]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_31_APP_NAMES[${i}]}/
-				else 
-					rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_31_APP_NAMES[${i}]}/ &>/dev/null
-				fi
-			done
-		;;
-	
-		32)
-			for i in $(seq 14); do
-				if ask "Do you want to download ${GOODLOOK_MODULES_FOR_32_APP_NAMES[${i}]}"; then
-					mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_32_APP_NAMES[${i}]}/
-					download_stuffs https://github.com/corsicanu/goodlock_dump/releases/download/32/${GOODLOOK_MODULES_FOR_32[${i}]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_32_APP_NAMES[${i}]}/
-				else 
-					rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_32_APP_NAMES[${i}]}/ &>/dev/null
-				fi
-			done
-		;;
-	
-		33)
-			for i in $(seq 15); do
-				if ask "Do you want to download ${GOODLOOK_MODULES_FOR_33_APP_NAMES[${i}]}"; then
-					mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_33_APP_NAMES[${i}]}/
-					download_stuffs https://github.com/corsicanu/goodlock_dump/releases/download/33/${GOODLOOK_MODULES_FOR_33[${i}]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_33_APP_NAMES[${i}]}/
-				else 
-					rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_33_APP_NAMES[${i}]}/ &>/dev/null
-				fi
-			done
-		;;
-	
-		34)
-			for i in $(seq 16); do
-				if ask "Do you want to download ${GOODLOOK_MODULES_FOR_34_APP_NAMES[${i}]}"; then
-					mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_34_APP_NAMES[${i}]}/
-					download_stuffs https://github.com/corsicanu/goodlock_dump/releases/download/34/${GOODLOOK_MODULES_FOR_34[${i}]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_34_APP_NAMES[${i}]}/
-				else 
-					rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_34_APP_NAMES[${i}]}/ &>/dev/null
-				fi
-			done
-		;;
-	
-		35)
-			for i in $(seq 15); do
-				if ask "Do you want to download ${GOODLOOK_MODULES_FOR_35_APP_NAMES[${i}]}"; then
-					mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_35_APP_NAMES[${i}]}/
-					download_stuffs https://github.com/corsicanu/goodlock_dump/releases/download/35/${GOODLOOK_MODULES_FOR_35[${i}]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_35_APP_NAMES[${i}]}/
-				else 
-					rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_35_APP_NAMES[${i}]}/ &>/dev/null
-				fi
-			done
-		;;
-	
-		*)
-			warns "Unsupported SDK version, skipping the installation of goodlook modules..." "GOODLOCK_INSTALLER"
-		;;
-		esac
-} || {
-	warns "Please connect the computer to a wifi or an ethernet connection to download good look modules." "GOODLOCK_INSTALLER"
-}
-fi
+[ "${TARGET_INCLUDE_SAMSUNG_THEMING_MODULES}" == "true" ] && check_internet_connection "GOODLOCK_MODULES" && download_glmodules
 
 # installs audio resampler.
 if $TARGET_INCLUDE_HORIZON_AUDIO_RESAMPLER; then
 	console_print "Enabling HorizonUX audio resampler..."
-	echo -e "\n# HorizonUX Audio resampler manager prop\npersist.horizonux.audio.resampler=available\n" >> $HORIZON_SYSTEM_DIR/build.prop 
+	echo -e "\n# HorizonUX Audio resampler manager prop\npersist.horizonux.audio.resampler=available\n" >> $HORIZON_SYSTEM_PROPERTY_FILE
 else
 	console_print "Disabling HorizonUX audio resampler..."
-	echo -e "\n# HorizonUX Audio resampler manager prop\npersist.horizonux.audio.resampler=unavailable\n" >> $HORIZON_SYSTEM_DIR/build.prop 
+	echo -e "\n# HorizonUX Audio resampler manager prop\npersist.horizonux.audio.resampler=unavailable\n" >> $HORIZON_SYSTEM_PROPERTY_FILE
 fi
 
 if $TARGET_INCLUDE_HORIZON_TOUCH_FIX; then
 	console_print "Adding brotherboard's GSI touch fix..."
-	echo -e "persist.horizonux.brotherboard.touch_fix=available\n" >> $HORIZON_SYSTEM_DIR/build.prop
+	echo -e "persist.horizonux.brotherboard.touch_fix=available\n" >> $HORIZON_SYSTEM_PROPERTY_FILE
 	cp -af ./horizon/rom_tweaker_script/brotherboard_touch_fix.sh $HORIZON_SYSTEM_DIR/bin/
 	chmod 755 $HORIZON_SYSTEM_DIR/bin/brotherboard_touch_fix.sh
 	chown 0 $HORIZON_SYSTEM_DIR/bin/brotherboard_touch_fix.sh
@@ -412,7 +286,7 @@ rm -rf $HORIZON_SYSTEM_DIR/hidden $HORIZON_SYSTEM_DIR/preload $HORIZON_SYSTEM_DI
 cp -af ./misc/etc/ringtones_and_etc/media/audio/* $HORIZON_SYSTEM_DIR/media/audio/
 cp -af ./horizon/rom_tweaker_script/init.ishimiiiiiiiiiiiiiii.rc $HORIZON_SYSTEM_DIR/etc/init/
 cp -af ./horizon/rom_tweaker_script/ishimiiiiiiiiii.sh $HORIZON_SYSTEM_DIR/bin/
-echo -e "\nservice brotherboard_touch_fix /system/bin/sh -c /system/bin/brotherboard_touch_fix.sh\n\tuser root\n\tgroup root\n\toneshot" >> $HORIZON_SYSTEM_DIR/etc/init/init.ishimiiiiiiiiiiiiiii.rc
+$TARGET_INCLUDE_HORIZON_TOUCH_FIX && echo -e "\nservice brotherboard_touch_fix /system/bin/sh -c /system/bin/brotherboard_touch_fix.sh\n\tuser root\n\tgroup root\n\toneshot" >> $HORIZON_SYSTEM_DIR/etc/init/init.ishimiiiiiiiiiiiiiii.rc
 chmod 755 $HORIZON_SYSTEM_DIR/bin/ishimiiiiiiiiii.sh
 chmod 644 $HORIZON_SYSTEM_DIR/etc/init/init.ishimiiiiiiiiiiiiiii.rc
 chown 0 $HORIZON_SYSTEM_DIR/bin/ishimiiiiiiiiii.sh $HORIZON_SYSTEM_DIR/etc/init/init.ishimiiiiiiiiiiiiiii.rc
@@ -420,12 +294,12 @@ chgrp 0 $HORIZON_SYSTEM_DIR/bin/ishimiiiiiiiiii.sh $HORIZON_SYSTEM_DIR/etc/init/
 change_xml_values "SEC_FLOATING_FEATURE_COMMON_SUPPORT_SAMSUNG_MARKETING_INFO" "FALSE"
 # let's remove the flash recovery service on android 11, idk how to remove those in android 12+
 # i guess we can use diff for that.
-if [[ "$BUILD_TARGET_SDK_VERSION" == "30" ]] && grep -q "flash_recovery_sec" "$HORIZON_SYSTEM_DIR/etc/init/uncrypt.rc"; then
-	grep -v "flash_recovery_sec" "$HORIZON_SYSTEM_DIR/etc/init/uncrypt.rc" > ./tmp/uncrypt.rc
-	mv ./tmp/uncrypt.rc "$HORIZON_SYSTEM_DIR/etc/init/uncrypt.rc"
-fi
+#if [ "$BUILD_TARGET_SDK_VERSION" == "30" ] && grep -q "flash_recovery_sec" "$HORIZON_SYSTEM_DIR/etc/init/uncrypt.rc"; then
+	#grep -v "flash_recovery_sec" "$HORIZON_SYSTEM_DIR/etc/init/uncrypt.rc" > ./tmp/uncrypt.rc
+	#mv ./tmp/uncrypt.rc "$HORIZON_SYSTEM_DIR/etc/init/uncrypt.rc"
+#fi
 $TARGET_INCLUDE_CUSTOM_BRAND_NAME && change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_BRAND_NAME" "${BUILD_TARGET_CUSTOM_BRAND_NAME}"
-[ -f "$HORIZON_SYSTEM_DIR$(fetch_rom_arch --libpath)/libhal.wsm.samsung.so" ] && touch $HORIZON_SYSTEM_DIR$(fetch_rom_arch --libpath)/libhal.wsm.samsung.so
+[ -f "$HORIZON_SYSTEM_DIR/$(fetch_rom_arch --libpath)/libhal.wsm.samsung.so" ] && touch $HORIZON_SYSTEM_DIR/$(fetch_rom_arch --libpath)/libhal.wsm.samsung.so
 # let's patch restart_radio_process for my own will. PLEASE LET THIS SLIDE OUTT!!!!
 if [ "${BUILD_TARGET_SDK_VERSION}" -ge "29" ] && [ "${BUILD_TARGET_SDK_VERSION}" -le "33" ]; then
 	apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/restart_radio_process.sh" "${DIFF_UNIFED_PATCHES[0]}"
@@ -438,7 +312,6 @@ elif [ "${BUILD_TARGET_SDK_VERSION}" -eq "30" ] && [ "${BUILD_TARGET_SDK_VERSION
 elif [ "${BUILD_TARGET_SDK_VERSION}" -eq "32" ] && [ "${BUILD_TARGET_SDK_VERSION}" -le "33" ]; then
 	apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[3]}"
 fi
-
 for i in "logcat.live disable" "sys.dropdump.on Off" "profiler.force_disable_err_rpt 1" "profiler.force_disable_ulog 1" \
 		 "sys.lpdumpd 0" "persist.device_config.global_settings.sys_traced 0" "persist.traced.enable 0" "persist.sys.lmk.reportkills false" \
 		 "log.tag.ConnectivityManager S" "log.tag.ConnectivityService S" "log.tag.NetworkLogger S" \
@@ -446,7 +319,6 @@ for i in "logcat.live disable" "sys.dropdump.on Off" "profiler.force_disable_err
 			# use echo to null-terminate the var value.
 			setprop --system "$(echo "${i}" | awk '{printf $1}')" "$(echo "${i}" | awk '{printf $2}')"
 done
-
 # send off message.
 console_print "Check the /build folder for the items you have built."
 console_print "Please sign the built overlay or application packages manually with your own private keys;"
