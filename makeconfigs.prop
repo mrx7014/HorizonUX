@@ -147,15 +147,6 @@ bool DISABLE_DYNAMIC_RANGE_COMPRESSION false
 # ASKS works as an another layer in the signature verification which checks if the public key certificate from the SEC-INF (present in the samsung apps) matches the actual application signature
 # this doesn't disable the google's app signature verification
 bool DISABLE_SAMSUNG_ASKS_SIGNATURE_VERFICATION false
-
-# Enables Hardware video acceleration, might improve playback performance.
-bool FORCE_HARDWARE_ACCELERATION false
-
-# yk, da thang.
-bool ENABLE_CALL_RECORDING_ON_SAMSUNG_DIALER false
-
-# self-explanatory.
-bool DISABLE_WIFI_CALLING false
 ############################################# Misc Configs #############################################
 
 # miscs for goodlock modules

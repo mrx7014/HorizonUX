@@ -1,3 +1,5 @@
+#!/usr/bin/bash
+
 function main () {
     local i
     local wallpaper_count

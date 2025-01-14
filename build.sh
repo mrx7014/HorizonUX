@@ -1,3 +1,5 @@
+#!/usr/bin/bash
+
 # nuke the old log file.
 rm -rf ./error_ring.log
 TMPDIR=$(mktemp --tmpdir=. || mkdir -p .tmp; echo .tmp)

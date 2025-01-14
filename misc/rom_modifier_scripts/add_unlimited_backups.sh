@@ -1,3 +1,5 @@
+#!/usr/bin/bash
+
 # Don't change anything in the auto-generated XMLs.
 
 cat >> ./build/system/product/etc/sysconfig/pixel_2016_exclusive.xml << EOF
