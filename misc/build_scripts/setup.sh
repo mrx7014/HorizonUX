@@ -294,12 +294,6 @@ chmod 644 $HORIZON_SYSTEM_DIR/etc/init/init.ishimiiiiiiiiiiiiiii.rc
 chown 0 $HORIZON_SYSTEM_DIR/bin/ishimiiiiiiiiii.sh $HORIZON_SYSTEM_DIR/etc/init/init.ishimiiiiiiiiiiiiiii.rc
 chgrp 0 $HORIZON_SYSTEM_DIR/bin/ishimiiiiiiiiii.sh $HORIZON_SYSTEM_DIR/etc/init/init.ishimiiiiiiiiiiiiiii.rc
 change_xml_values "SEC_FLOATING_FEATURE_COMMON_SUPPORT_SAMSUNG_MARKETING_INFO" "FALSE"
-# let's remove the flash recovery service on android 11, idk how to remove those in android 12+
-# i guess we can use diff for that.
-#if [ "$BUILD_TARGET_SDK_VERSION" == "30" ] && grep -q "flash_recovery_sec" "$HORIZON_SYSTEM_DIR/etc/init/uncrypt.rc"; then
-	#grep -v "flash_recovery_sec" "$HORIZON_SYSTEM_DIR/etc/init/uncrypt.rc" > ./tmp/uncrypt.rc
-	#mv ./tmp/uncrypt.rc "$HORIZON_SYSTEM_DIR/etc/init/uncrypt.rc"
-#fi
 $TARGET_INCLUDE_CUSTOM_BRAND_NAME && change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_BRAND_NAME" "${BUILD_TARGET_CUSTOM_BRAND_NAME}"
 [ -f "$HORIZON_SYSTEM_DIR/$(fetch_rom_arch --libpath)/libhal.wsm.samsung.so" ] && touch $HORIZON_SYSTEM_DIR/$(fetch_rom_arch --libpath)/libhal.wsm.samsung.so
 # let's patch restart_radio_process for my own will. PLEASE LET THIS SLIDE OUTT!!!!
@@ -314,6 +308,7 @@ elif [ "${BUILD_TARGET_SDK_VERSION}" -eq "30" ] && [ "${BUILD_TARGET_SDK_VERSION
 elif [ "${BUILD_TARGET_SDK_VERSION}" -eq "32" ] && [ "${BUILD_TARGET_SDK_VERSION}" -le "33" ]; then
 	apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[3]}"
 fi
+[ "${BUILD_TARGET_SDK_VERSION}" -eq "30" ] && apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/init/uncrypt.rc" "${DIFF_UNIFED_PATCHES[4]}"
 for i in "logcat.live disable" "sys.dropdump.on Off" "profiler.force_disable_err_rpt 1" "profiler.force_disable_ulog 1" \
 		 "sys.lpdumpd 0" "persist.device_config.global_settings.sys_traced 0" "persist.traced.enable 0" "persist.sys.lmk.reportkills false" \
 		 "log.tag.ConnectivityManager S" "log.tag.ConnectivityService S" "log.tag.NetworkLogger S" \

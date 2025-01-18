@@ -9,4 +9,6 @@ while true; do
             new="$old"
         fi
     fi
-done
+done &
+
+pm list packages | grep -q bellavita.toast && am start -a android.intent.action.MAIN -e toasttext "Be gone, touch issues! Thanks to the brotherboard." -n bellavita.toast/.MainActivity

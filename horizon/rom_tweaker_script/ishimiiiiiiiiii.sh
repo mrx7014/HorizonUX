@@ -89,10 +89,14 @@ function string_case() {
 function horizon_ishiiimi_logfile() {
     local message="$2"
     local service="$(string_case -u "$1")"
-    if [ -z "${message}" ]; then
-        echo " - missing arguments, can't process anything..."
+    if is_boot_completed; then
+        pm list packages | grep -q bellavita.toast && am start -a android.intent.action.MAIN -e toasttext "$service: $message" -n bellavita.toast/.MainActivity
     else
-        echo "/ [$(date +%H:%M%p)]-[$(date +%d-%m-%Y)] / $service / ${message} /" >> ${the_logfile}
+        if [ -z "${message}" ]; then
+            echo " - missing arguments, can't process anything..."
+        else
+            echo "/ [$(date +%H:%M%p)]-[$(date +%d-%m-%Y)] / $service / ${message} /" >> ${the_logfile}
+        fi
     fi
 }
 
