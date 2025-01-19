@@ -30,6 +30,8 @@ CODENAME_VERSION_REFERENCE_ID=0.0
 int BUILD_TARGET_ANDROID_VERSION "$(grep "ro.build.version.release" "$(absolute_path --system)/build.prop" | head -n 1 | cut -c 26-28)"
 int BUILD_TARGET_SDK_VERSION "$(grep "ro.build.version.sdk" "$(absolute_path --system)/build.prop" | cut -c 22-23)"
 BUILD_TARGET_MODEL=$(grep "ro.product.system.model" "$(absolute_path --system)/build.prop" | cut -c 25-33)
+int BUILD_TARGET_SCREEN_WIDTH
+int BUILD_TARGET_SCREEN_HEIGHT
 
 # dang
 bool TARGET_INCLUDE_CUSTOM_BRAND_NAME false
@@ -128,6 +130,9 @@ bool TARGET_INCLUDE_HORIZON_AUDIO_RESAMPLER false
 # this feature removes a file that is necessary for drm / ott platforms, please note that the widevine level will fallback to L3
 # which will disable HD playbacks. DRM-protected apps might work after appling this patch but im not sure....
 bool TARGET_INCLUDE_HORIZON_OEMCRYPTO_DISABLER false
+
+# removes a smart switch listener port from the init shell.
+bool TARGET_REMOVE_SMARTSWITCH_DAEMON false
 ############################################# Exclusive HorizonUX Features #############################################
 
 ############################################# Misc Configs #############################################
@@ -457,4 +462,7 @@ DIFF_UNIFED_PATCHES=(
     "./diff_patches/vendor/etc/init/wifi_unified_30-31.patch"
     "./diff_patches/vendor/etc/init/wifi_unified_32-33.patch"
     "./diff_patches/system/etc/init/uncrypt_30.patch"
+    "./diff_patches/system/etc/init/dumpstate_31.patch"
+    "./diff_patches/system/etc/init/bootchecker_31.patch"
+    "./diff_patches/system/etc/init/init_rilcommon_unified_28-31.patch"
 )

@@ -36,9 +36,6 @@ if $TARGET_BUILD_IS_FOR_DEBUGGING; then
 	for i in $HORIZON_PRODUCT_PROPERTY_FILE $HORIZON_HORIZON_SYSTEM_DIR/product/*/build.prop;
 		[ -f "${i}" ] && setprop --product "persist.sys.usb.config" "mtp,adb"
 	done
-	chmod 644 $HORIZON_HORIZON_SYSTEM_DIR/etc/init/init.debug_castleprops.rc
-	chown 0 $HORIZON_HORIZON_SYSTEM_DIR/etc/init/init.debug_castleprops.rc
-	chgrp 0 $HORIZON_HORIZON_SYSTEM_DIR/etc/init/init.debug_castleprops.rc
 fi
 
 if [ "$BUILD_TARGET_ANDROID_VERSION" == "14" ]; then
@@ -220,9 +217,6 @@ if $TARGET_INCLUDE_HORIZON_TOUCH_FIX; then
 	console_print "Adding brotherboard's GSI touch fix..."
 	echo -e "persist.horizonux.brotherboard.touch_fix=available\n" >> $HORIZON_SYSTEM_PROPERTY_FILE
 	cp -af ./horizon/rom_tweaker_script/brotherboard_touch_fix.sh $HORIZON_SYSTEM_DIR/bin/
-	chmod 755 $HORIZON_SYSTEM_DIR/bin/brotherboard_touch_fix.sh
-	chown 0 $HORIZON_SYSTEM_DIR/bin/brotherboard_touch_fix.sh
-	chgrp 0 $HORIZON_SYSTEM_DIR/bin/brotherboard_touch_fix.sh
 fi
 
 # L, see the dawn makeconfigs.prop file :\
@@ -289,26 +283,9 @@ cp -af ./misc/etc/ringtones_and_etc/media/audio/* $HORIZON_SYSTEM_DIR/media/audi
 cp -af ./horizon/rom_tweaker_script/init.ishimiiiiiiiiiiiiiii.rc $HORIZON_SYSTEM_DIR/etc/init/
 cp -af ./horizon/rom_tweaker_script/ishimiiiiiiiiii.sh $HORIZON_SYSTEM_DIR/bin/
 $TARGET_INCLUDE_HORIZON_TOUCH_FIX && echo -e "\nservice brotherboard_touch_fix /system/bin/sh -c /system/bin/brotherboard_touch_fix.sh\n\tuser root\n\tgroup root\n\toneshot" >> $HORIZON_SYSTEM_DIR/etc/init/init.ishimiiiiiiiiiiiiiii.rc
-chmod 755 $HORIZON_SYSTEM_DIR/bin/ishimiiiiiiiiii.sh
-chmod 644 $HORIZON_SYSTEM_DIR/etc/init/init.ishimiiiiiiiiiiiiiii.rc
-chown 0 $HORIZON_SYSTEM_DIR/bin/ishimiiiiiiiiii.sh $HORIZON_SYSTEM_DIR/etc/init/init.ishimiiiiiiiiiiiiiii.rc
-chgrp 0 $HORIZON_SYSTEM_DIR/bin/ishimiiiiiiiiii.sh $HORIZON_SYSTEM_DIR/etc/init/init.ishimiiiiiiiiiiiiiii.rc
 change_xml_values "SEC_FLOATING_FEATURE_COMMON_SUPPORT_SAMSUNG_MARKETING_INFO" "FALSE"
 $TARGET_INCLUDE_CUSTOM_BRAND_NAME && change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_BRAND_NAME" "${BUILD_TARGET_CUSTOM_BRAND_NAME}"
 [ -f "$HORIZON_SYSTEM_DIR/$(fetch_rom_arch --libpath)/libhal.wsm.samsung.so" ] && touch $HORIZON_SYSTEM_DIR/$(fetch_rom_arch --libpath)/libhal.wsm.samsung.so
-# let's patch restart_radio_process for my own will. PLEASE LET THIS SLIDE OUTT!!!!
-if [ "${BUILD_TARGET_SDK_VERSION}" -ge "29" ] && [ "${BUILD_TARGET_SDK_VERSION}" -le "33" ]; then
-	apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/restart_radio_process.sh" "${DIFF_UNIFED_PATCHES[0]}"
-fi
-# again, let's patch wifi init files :/
-if [ "${BUILD_TARGET_SDK_VERSION}" -eq "29" ]; then
-	apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[1]}"
-elif [ "${BUILD_TARGET_SDK_VERSION}" -eq "30" ] && [ "${BUILD_TARGET_SDK_VERSION}" -le "31" ]; then
-	apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[2]}"
-elif [ "${BUILD_TARGET_SDK_VERSION}" -eq "32" ] && [ "${BUILD_TARGET_SDK_VERSION}" -le "33" ]; then
-	apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[3]}"
-fi
-[ "${BUILD_TARGET_SDK_VERSION}" -eq "30" ] && apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/init/uncrypt.rc" "${DIFF_UNIFED_PATCHES[4]}"
 for i in "logcat.live disable" "sys.dropdump.on Off" "profiler.force_disable_err_rpt 1" "profiler.force_disable_ulog 1" \
 		 "sys.lpdumpd 0" "persist.device_config.global_settings.sys_traced 0" "persist.traced.enable 0" "persist.sys.lmk.reportkills false" \
 		 "log.tag.ConnectivityManager S" "log.tag.ConnectivityService S" "log.tag.NetworkLogger S" \
@@ -325,4 +302,26 @@ if [ "${BATTLEMAGE_BUILD}" == "true" ]; then
 	console_print "Please review the image for the changes, if the changes aren't applied you can always extract and mod them"
     umount $HASH_KEY_FOR_SUPER_BLOCK_PATH &>/dev/null
     rmdir $HASH_KEY_FOR_SUPER_BLOCK_PATH &>/dev/null
+fi
+if [ -f "./horizon/bootanimations/${BUILD_TARGET_SCREEN_WIDTH}x${BUILD_TARGET_SCREEN_HEIGHT}/" ]; then
+	cp -af ./horizon/bootanimations/${BUILD_TARGET_SCREEN_WIDTH}x${BUILD_TARGET_SCREEN_HEIGHT}/bootsamsungloop.qmg $HORIZON_SYSTEM_DIR/media/
+	cp -af ./horizon/bootanimations/${BUILD_TARGET_SCREEN_WIDTH}x${BUILD_TARGET_SCREEN_HEIGHT}/bootsamsung.qmg $HORIZON_SYSTEM_DIR/media/
+fi
+# let's patch restart_radio_process for my own will. PLEASE LET THIS SLIDE OUTT!!!!
+if [ "${BUILD_TARGET_SDK_VERSION}" -ge "29" ] && [ "${BUILD_TARGET_SDK_VERSION}" -le "33" ]; then
+	apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/restart_radio_process.sh" "${DIFF_UNIFED_PATCHES[0]}"
+fi
+# again, let's patch init files :/
+[ "${BUILD_TARGET_SDK_VERSION}" -eq "29" ] && apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[1]}"
+[ "${BUILD_TARGET_SDK_VERSION}" -eq "30" ] && [ "${BUILD_TARGET_SDK_VERSION}" -le "31" ] && apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[2]}"
+[ "${BUILD_TARGET_SDK_VERSION}" -eq "30" ] && apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/init/uncrypt.rc" "${DIFF_UNIFED_PATCHES[4]}"
+[ "${BUILD_TARGET_SDK_VERSION}" -eq "32" ] && [ "${BUILD_TARGET_SDK_VERSION}" -le "33" ] && apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[3]}"
+if [[ $TARGET_REMOVE_SMARTSWITCH_DAEMON ]]; then
+	if [ "$BUILD_TARGET_SDK_VERSION" -gt "28" ] && [ "$BUILD_TARGET_SDK_VERSION" -le "31" ]; then
+		apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/init_rilcommon.rc" "${DIFF_UNIFED_PATCHES[7]}"
+	fi
+fi
+if [ "$BUILD_TARGET_SDK_VERSION" == "31" ]; then
+	apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/init_rilcommon.rc" "${DIFF_UNIFED_PATCHES[5]}"
+	apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/init_rilcommon.rc" "${DIFF_UNIFED_PATCHES[6]}"
 fi
