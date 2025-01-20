@@ -77,6 +77,23 @@ HORIZON_SYSTEM_PROPERTY_FILE=$(find_partition_property_file "system")
 HORIZON_SYSTEM_EXT_PROPERTY_FILE=$(find_partition_property_file "system_ext")
 HORIZON_VENDOR_PROPERTY_FILE=$(find_partition_property_file "vendor")
 
+# make a variable to route to the overlay directly
+HORIZON_PRODUCT_OVERLAY=$(
+    if [ -f "$HORIZON_PRODUCT_DIR/overlay" ]; then
+        echo "$HORIZON_PRODUCT_DIR/overlay"
+    elif [ -f "$HORIZON_SYSTEM_DIR/product/overlay" ]; then
+        echo "$HORIZON_SYSTEM_DIR/product/overlay"
+    fi
+)
+HORIZON_VENDOR_OVERLAY=$HORIZON_HORIZON_VENDOR_DIR/overlay
+HORIZON_FALLBACK_OVERLAY_PATH=$(
+    if [ ! -f "$HORIZON_PRODUCT_OVERLAY" ] || [ -z "$HORIZON_PRODUCT_OVERLAY" ]; then
+        echo "$HORIZON_VENDOR_OVERLAY"
+    else 
+        echo "$HORIZON_PRODUCT_OVERLAY"
+    fi
+)
+
 # boom
 if ! $testEnv; then
 	if [ ! -d "${SCRIPTS[1]}" ]; then
@@ -92,5 +109,8 @@ fi
 
 # bomboclatt
 for i in $HORIZON_SYSTEM_DIR/etc/floating_feature.xml $HORIZON_VENDOR_DIR/etc/floating_feature.xml; do
-    [ -f "${i}" ] && TARGET_BUILD_FLOATING_FEATURE_PATH="${i}"
+    if [ -f "${i}" ]; then
+        TARGET_BUILD_FLOATING_FEATURE_PATH="${i}"
+        break
+    fi
 done

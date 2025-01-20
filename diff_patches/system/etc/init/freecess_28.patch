@@ -1,0 +1,13 @@
+--- freecess.rc	2025-01-20 06:50:49.643371800 -0800
++++ freecess_edited.rc	2025-01-20 06:51:35.600041900 -0800
+@@ -5,7 +5,5 @@
+     disabled
+ 
+ on property:sys.config.freecess_monitor=true
+-    start freecessmonitor
+-
+-on property:sys.config.freecess_monitor=false
+-    stop freecessmonitor
++    setprop sys.config.freecess_monitor false
++    stop freecessmonitor
+\ No newline at end of file

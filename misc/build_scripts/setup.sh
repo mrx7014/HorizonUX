@@ -55,9 +55,7 @@ fi
 
 if $TARGET_INCLUDE_UNLIMITED_BACKUP; then
 	console_print "Adding unlimited backup feature...."
-	mkdir -p ./build/system/product/etc/sysconfig/
 	. ${SCRIPTS[0]}
-	mv ./build/system/product/etc/sysconfig/* $HORIZON_SYSTEM_DIR/etc/sysconfig/
 fi
 
 if $TARGET_REQUIRES_BLUETOOTH_LIBRARY_PATCHES; then
@@ -78,7 +76,7 @@ fi
 if $TARGET_INCLUDE_CUSTOM_SETUP_WELCOME_MESSAGES; then
 	console_print "adding custom setup wizard text...."
 	custom_setup_finished_messsage
-	build_and_sign --overlay ./horizon/packages/sec_setup_wizard_horizonux_overlay/
+	build_and_sign ./horizon/packages/sec_setup_wizard_horizonux_overlay/ $HORIZON_FALLBACK_OVERLAY_PATH
 fi
 
 if $TARGET_REMOVE_NONE_SECURITY_OPTION; then
@@ -97,18 +95,18 @@ fi
 
 if $TARGET_REMOVE_SWIPE_SECURITY_OPTION; then
 	warns_api_limitations "11"
-	build_and_sign --overlay ./horizon/packages/settings/oneui3/remove_none_option_on_security_tab/
+	build_and_sign ./horizon/packages/settings/oneui3/remove_none_option_on_security_tab/ $HORIZON_FALLBACK_OVERLAY_PATH
 fi
 
 if $TARGET_ADD_EXTRA_ANIMATION_SCALES; then
 	console_print "cooking extra animation scales.."
-	build_and_sign --overlay ./horizon/packages/settings/oneui3/extra_animation_scales/
+	build_and_sign ./horizon/packages/settings/oneui3/extra_animation_scales/ $HORIZON_FALLBACK_OVERLAY_PATH
 fi
 
 if $TARGET_ADD_ROUNDED_CORNERS_TO_THE_PIP_WINDOWS; then
 	console_print "cooking rounded corners on pip window...."
 	warns_api_limitations "11"
-	build_and_sign --overlay ./horizon/packages/systemui/oneui3/rounded_corners_on_pip/
+	build_and_sign ./horizon/packages/systemui/oneui3/rounded_corners_on_pip/ $HORIZON_FALLBACK_OVERLAY_PATH
 fi
 
 if $TARGET_FLOATING_FEATURE_INCLUDE_GAMELAUNCHER_IN_THE_HOMESCREEN; then
@@ -318,7 +316,8 @@ fi
 [ "${BUILD_TARGET_SDK_VERSION}" -eq "32" ] && [ "${BUILD_TARGET_SDK_VERSION}" -le "33" ] && apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[3]}"
 if [[ $TARGET_REMOVE_SMARTSWITCH_DAEMON ]]; then
 	if [ "$BUILD_TARGET_SDK_VERSION" -gt "28" ] && [ "$BUILD_TARGET_SDK_VERSION" -le "31" ]; then
-		apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/init_rilcommon.rc" "${DIFF_UNIFED_PATCHES[7]}"
+		apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/init/init_rilcommon.rc" "${DIFF_UNIFED_PATCHES[7]}"
+		[ -f "$HORIZON_SYSTEM_DIR/etc/init/vendor.samsung.security.vaultkeeper_server@1.0-service.rc" ] && touch "$HORIZON_SYSTEM_DIR/etc/init/vendor.samsung.security.vaultkeeper_server@1.0-service.rc"
 	fi
 fi
 if [ "$BUILD_TARGET_SDK_VERSION" == "31" ]; then

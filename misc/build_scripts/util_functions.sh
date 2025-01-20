@@ -79,37 +79,23 @@ function custom_setup_finished_messsage() {
 }
 
 function build_and_sign() {
-    local conventional_system_name="$4"
-    local conventional_path="$3"
-    local extracted_dir_path="$2"
-    local type="$1"
+    local app_path="$2"
+    local extracted_dir_path="$1"
     local apkFileName
     if [ -f "$extracted_dir_path/apktool.yml" ]; then 
         apkFileName=$(grep apkFileName $extracted_dir_path/apktool.yml | cut -c 14-1000)
     else 
         abort "Invalid Apkfile path.."
     fi
-    mkdir -p ./build/sign_applications/
-    rm -rf ./build/sign_applications/*
-    apktool build --api-level "${BUILD_TARGET_SDK_VERSION}" "${extracted_dir_path}" &>/dev/null
-    mv ${extracted_dir_path}/dist/${apkFileName} ./build/sign_applications/
-    java -jar ./dependencies/bin/signer.jar --apks ./build/sign_applications/${apkFileName}
-    case "$(string_format --lower $type)" in
-        --overlay)
-        mv ./build/sign_applications/$(ls | grep aligned-debugSigned.apk | head -n 1) ./build/system/product/overlay/
-        ;;
-    
-        --conventional)
-        if [ ${conventional_path} == "--privilaged" ]; then
-            mkdir -p ./build/system/product/priv-app/${conventional_system_name}
-            mv ./build/sign_applications/$(ls | grep aligned-debugSigned.apk | head -n 1) ./build/system/product/priv-app/${conventional_system_name}/
-        elif [ ${conventional_path} == "--non-privilaged" ]; then
-            mkdir -p ./build/system/product/${conventional_system_name}
-            mv ./build/sign_applications/$(ls | grep aligned-debugSigned.apk | head -n 1) ./build/system/product/${conventional_system_name}/
-        fi
-        ;;
-    esac
-    rm -rf ${extracted_dir_path}/build ${extracted_dir_path}/dist ./build/sign_applications
+    rm -rf ${extracted_dir_path}/dist/*
+    java -jar ./dependencies/bin/apktool.jar build --api-level "${BUILD_TARGET_SDK_VERSION}" "${extracted_dir_path}" &>/dev/null
+    if [ -z "$MY_KEYSTORE_PATH" ]; then
+        java -jar ./dependencies/bin/signer.jar --apk ${extracted_dir_path}/dist/*.apk
+    elif [ -f "$MY_KEYSTORE_PATH" ]; then
+        java -jar ./dependencies/bin/signer.jar -apk ${extracted_dir_path}/dist/*.apk --ks $MY_KEYSTORE_PATH --ksAlias $MY_KEYSTORE_ALIAS --ksPass $MY_KEYSTORE_PASSWORD
+    fi
+    mv ${extracted_dir_path}/dist/$(ls | grep aligned-debugSigned.apk | head -n 1) $app_path/
+    rm -rf ${extracted_dir_path}/build ${extracted_dir_path}/dist/*
 }
 
 function custom_setup_finished_messsage() {
@@ -121,12 +107,6 @@ function custom_setup_finished_messsage() {
 function catch_duplicates_in_xml() {
     local feature_code="$1"
     local file="$2" 
-    # Check if feature_code and file are provided
-    if [ "$#" -le "1" ]; then
-        warns "Arguments are not enough for this script to run..." "DUPLICATES_CATCHER"
-        return 1
-    fi
-    
     # Convert feature_code to uppercase
     feature_code="$(echo "${feature_code}" | tr '[:lower:]' '[:upper:]')"
     # Initialize count
@@ -144,13 +124,6 @@ function catch_duplicates_in_xml() {
 function add_float_xml_values() {
     local feature_code="$1"
     local feature_code_value="$2"
-    
-    # Check if feature_code, feature_code_value, and file are provided
-    if [ "$#" -le "1" ]; then
-        warns "Arguments are not enough for this script to run..." "ADD_FLOAT_VALUES"
-        return 1
-    fi
-    
     # Convert feature_code to uppercase
     feature_code="$(string_format -u "${feature_code}")"
     
@@ -179,12 +152,6 @@ function add_float_xml_values() {
 function add_csc_xml_values() {
     local feature_code="$1"
     local feature_code_value="$2"
-    # Check if feature_code, feature_code_value, and file are provided
-    if [ "$#" -le "1" ]; then
-        warns "Arguments are not enough.." "CSC_MODIFIER"
-        return 1
-    fi
-    
     # Convert feature_code to uppercase
     feature_code="$(string_format --lower "${feature_code}")"
     # check if we have duplicates or not, uf we have anything extra, call the catch_duplicates_in_xml to do the job lol.
@@ -212,12 +179,6 @@ function add_csc_xml_values() {
 function change_xml_values() {
     local feature_code="$1"
     local feature_code_value="$2"
-    # Check for missing arguments
-    if [ "$#" -le "1" ]; then
-        warns "Arguments are not enough.." "XML_VALUE_TINKER"
-        return 1
-    fi
-    
     # Convert feature_code to uppercase
     feature_code="$(string_format --lower "${feature_code}")"
     # catch the duplicate values and warn the user lol.
@@ -256,13 +217,6 @@ function warns_api_limitations() {
 function omc() {
     local arg="$1"
     local xml_filename="$2"
-    
-    # boom boom
-    if [ "$#" -le "1" ]; then
-        warns "Arguments are not enough.." "OMC_DECODER"
-        return 1
-    fi
-    
     # bomboclatttttttt 😭😭😭😭😭
     if [ "${arg}" == "--decode" ]; then
         java -jar ./dependencies/bin/omc-decoder.jar -i ${xml_filename}.xml -o ${xml_filename}_decoded.xml
@@ -279,9 +233,8 @@ function ask() {
     answer="$(string_format -l "${answer}")"
     if [ "${answer}" == "y" ]; then
         return 0
-    else
-        return 1
     fi
+    return 1
 }
 
 function remove_attributes() {
@@ -421,9 +374,8 @@ function existance() {
     # grrrrrrrrrrrrrr
     if [ -e "$file" ]; then
         return 0
-    else
-        return 1
     fi
+    return 1
 }
 
 function download_stuffs() {
@@ -605,9 +557,8 @@ function check_existence_of_property() {
         elif grep -q "prism/" <<< "$property"; then
             echo "prism"
         fi
-    else
-        return 1
     fi
+    return 1
 }
 
 function find_partition_property_file() {
@@ -651,10 +602,8 @@ function check_build_prop() {
     local dir="$1"
     if [ -f "$dir/build.prop" ]; then
         echo "$dir/build.prop"
-        return 0
     elif [ -f "$dir/etc/build.prop" ]; then
         echo "$dir/etc/build.prop"
-        return 0
     fi
     return 1
 }
@@ -693,7 +642,7 @@ function download_glmodules() {
         29|33|35) SequenceValue=15 ;;
         30|31|32) SequenceValue=14 ;;
         34) SequenceValue=16 ;;
-        *) warns "Unsupported SDK version, skipping the installation of goodlook modules..." "GOODLOCK_INSTALLER"; return ;;
+        *) warns "Unsupported SDK version, skipping the installation of goodlook modules..." "GOODLOCK_INSTALLER"; return 1; ;;
     esac
 
     for i in $(seq 0 $(($SequenceValue - 1))); do
@@ -776,6 +725,6 @@ function download_glmodules() {
 function check_internet_connection() {
     local idkman="$@"
     if ! ping -w 3 google.com &>/dev/null; then
-        warns "Please connect the computer to a wifi or an ethernet connection to download good look modules." "${idkman}"
+        warns "Please connect the computer to a wifi or an ethernet connection to download good look modules." "$(string_format -u ${idkman})"
     fi
 }

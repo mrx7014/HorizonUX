@@ -17,6 +17,7 @@ Shoutout to the real MVPs who made this project pop! Without you, it would just 
 - [Nobletaro](https://t.me/nobletaro)
 - [Ian Macdonald](https://github.com/ianmacd)
 - [BrotherBoard](https://github.com/BrotherBoard)
+- [Ishan](https://github.com/meizishandev)
 
 ### Let’s Make This Project Lit 🔥
 

@@ -2,7 +2,6 @@ on boot
 	start ishimi
 
 on property:sys.boot_completed=1
-	write /dev/cpuset/background/cpus 0-1
 	start ishimi
 	
 # let's spoof the device.

@@ -40,25 +40,18 @@ function restart_audioserver() {
             done
         fi
         return 0
-    else
-        return 1
     fi
+    return 1
 }
 
 function is_boot_completed() {
-	if [ "$(getprop sys.boot_completed)" == "1" ]; then
-		return 0
-	else 
-		return 1
-	fi
+	[ "$(getprop sys.boot_completed)" == "1" ] && return 0 
+	return 1
 }
 
 function is_bootanimation_exited() {
-	if [ "$(getprop service.bootanim.exit)" == "1" ]; then
-		return 0
-	else 
-		return 1
-	fi
+	[ "$(getprop service.bootanim.exit)" == "1" ] && return 0 
+	return 1
 }
 
 function maybe_set_prop() {
@@ -117,9 +110,8 @@ function dawn() {
     local the_fifty_jeez=$(string_case -l $(du -h $dir | head -n 1 | cut -c 4-4))
     if [ "$(echo $the_fifty_jeez | grep -q m)" ] || [ "$(echo $the_fifty_jeez | grep -q g)" ]; then
         return 0
-    else
-        return 1
     fi
+    return 1
 }
 
 function horizon_features() {
@@ -127,9 +119,8 @@ function horizon_features() {
     local kamg_it="$(grep_prop "$feature_name" "/system/bin/hw/linker_binary")"
     if [[ "$kamg_it" == "available" || "$kamg_it" == "true" ]]; then
         return 0
-    else
-        return 1
     fi
+    return 1
 }
 
 function maybe_nuke_prop() {
