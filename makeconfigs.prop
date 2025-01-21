@@ -1,7 +1,7 @@
 ###########################
 ##              N O T E
 
-# change values to your needs and re-run the script.
+# change values to your needs and run the script.
 
 # true means it's enabled, false means it's disabled.
 
@@ -23,11 +23,11 @@ MY_KEYSTORE_PASSWORD=
 MY_KEYSTORE_PATH=
 
 # replace these with your dir
-SYSTEM_DIR="xxx/system"
-SYSTEM_EXT_DIR="xxx/system_ext"
-VENDOR_DIR="xxx/vendor"
-PRODUCT_DIR="xxx/product"
-PRISM_DIR="xxx/prism"
+SYSTEM_DIR=
+SYSTEM_EXT_DIR=
+VENDOR_DIR=
+PRODUCT_DIR=
+PRISM_DIR=
 
 # Horizon codename and etc..
 CODENAME="Birds"
@@ -37,8 +37,8 @@ CODENAME_VERSION_REFERENCE_ID=0.0
 int BUILD_TARGET_ANDROID_VERSION "$(grep "ro.build.version.release" "$(absolute_path --system)/build.prop" | head -n 1 | cut -c 26-28)"
 int BUILD_TARGET_SDK_VERSION "$(grep "ro.build.version.sdk" "$(absolute_path --system)/build.prop" | cut -c 22-23)"
 BUILD_TARGET_MODEL=$(grep "ro.product.system.model" "$(absolute_path --system)/build.prop" | cut -c 25-33)
-int BUILD_TARGET_SCREEN_WIDTH
-int BUILD_TARGET_SCREEN_HEIGHT
+int BUILD_TARGET_SCREEN_WIDTH 
+int BUILD_TARGET_SCREEN_HEIGHT 
 
 # dang
 bool TARGET_INCLUDE_CUSTOM_BRAND_NAME false
@@ -55,6 +55,7 @@ bool BUILD_TARGET_HAS_HIGH_REFRESH_RATE_MODES false
 # Target properties.
 # this variable will enable some debugging features and this thing will make your phone overheat and hang alot, do with pre-caution!s
 bool TARGET_BUILD_IS_FOR_DEBUGGING false
+
 # replace those empty quotes with system , vendor and etc etc.
 TARGET_BUILD_PARTITIONS=(
     ""
@@ -84,7 +85,7 @@ bool TARGET_INCLUDE_UNLIMITED_BACKUP false
 bool TARGET_INCLUDE_SAMSUNG_THEMING_MODULES false
 
 # misc properties..
-RECOVERY_IMAGE_PATH="xx/recovery.img"
+RECOVERY_IMAGE_PATH=
 PRODUCT_CSC_NAME=BTE
 bool SWITCH_DEFAULT_LANGUAGE_ON_PRODUCT_BUILD false
 NEW_DEFAULT_LANGUAGE_ON_PRODUCT=en
@@ -98,7 +99,7 @@ bool TARGET_FLOATING_FEATURE_INCLUDE_CLOCK_LIVE_ICON false
 
 # This thing is used to adjust the animation type of the device
 # This can be : LowEnd , LowestEnd , LowEndFast , Mass (mid-rangers, not available after 3.1) , HighEnd , CHNHighEND & HighEnd_Tablet
-TARGET_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE=HighEnd
+TARGET_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE=
 
 # The dawn battery health level thing, like the one from iPhone thnx to UN1CA!
 bool TARGET_FLOATING_FEATURE_BATTERY_SUPPORT_BSOH_SETTINGS false
@@ -160,316 +161,3 @@ bool DISABLE_DYNAMIC_RANGE_COMPRESSION false
 # this doesn't disable the google's app signature verification
 bool DISABLE_SAMSUNG_ASKS_SIGNATURE_VERFICATION false
 ############################################# Misc Configs #############################################
-
-# miscs for goodlock modules
-GOODLOOK_MODULES_FOR_28=(
-  "com.samsung.android.app.captureplugin.apk"
-  "com.samsung.android.app.clockface.apk"
-  "com.samsung.android.app.edgetouch.apk"
-  "com.samsung.android.app.goodcatch.apk"
-  "com.samsung.android.app.homestar.apk"
-  "com.samsung.android.app.routine2.apk"
-  "com.samsung.android.edgelightingeffectunit.apk"
-  "com.samsung.android.multistar.apk"
-  "com.samsung.android.pluginrecents.apk"
-  "com.samsung.android.qstuner.apk"
-  "com.samsung.android.sidegesturepad.apk"
-  "com.samsung.android.soundassistant.apk"
-  "com.samsung.android.themedesigner.apk"
-  "com.samsung.systemui.lockstar.apk"
-)
-
-GOODLOOK_MODULES_FOR_28_APP_NAMES=(
-  "ClockFace"
-  "EdgeTouch"
-  "NiceCatch"
-  "HomeStar"
-  "Routines"
-  "Edgelighting_Effects"
-  "MultiStar"
-  "Recents Plugins"
-  "QSTuner"
-  "Side_Gesture_Pad"
-  "SoundAssistant"
-  "ThemePark"
-  "LockStar"
-)
-
-GOODLOOK_MODULES_FOR_29=(
-  "com.samsung.android.app.clockface.apk"
-  "com.samsung.android.app.edgetouch.apk"
-  "com.samsung.android.app.goodcatch.apk"
-  "com.samsung.android.app.homestar.apk"
-  "com.samsung.android.app.routineplus.apk"
-  "com.samsung.android.edgelightingeffectunit.apk"
-  "com.samsung.android.keyscafe.apk"
-  "com.samsung.android.multistar.apk"
-  "com.samsung.android.pentastic.apk"
-  "com.samsung.android.pluginrecents.apk"
-  "com.samsung.android.qstuner.apk"
-  "com.samsung.android.sidegesturepad.apk"
-  "com.samsung.android.soundassistant.apk"
-  "com.samsung.android.themedesigner.apk"
-  "com.samsung.android.wonderland.wallpaper.apk"
-  "com.samsung.systemui.lockstar.apk"
-)
-
-GOODLOOK_MODULES_FOR_29_APP_NAMES=(
-  "ClockFace"
-  "EdgeTouch"
-  "NiceCatch"
-  "HomeStar"
-  "Routines"
-  "Edgelighting_Effects"
-  "KeysCafe"
-  "MultiStar"
-  "Pentastic!"
-  "Recents Plugins"
-  "QSTuner"
-  "Side_Gesture_Pad"
-  "SoundAssistant"
-  "ThemePark"
-  "Wonderland"
-  "LockStar"
-)
-
-GOODLOOK_MODULES_FOR_30=(
-  "com.samsung.android.app.clockface.apk"
-  "com.samsung.android.app.edgetouch.apk"
-  "com.samsung.android.app.goodcatch.apk"
-  "com.samsung.android.app.homestar.apk"
-  "com.samsung.android.app.routineplus.apk"
-  "com.samsung.android.keyscafe.apk"
-  "com.samsung.android.multistar.apk"
-  "com.samsung.android.pentastic.apk"
-  "com.samsung.android.pluginrecents.apk"
-  "com.samsung.android.qstuner.apk"
-  "com.samsung.android.sidegesturepad.apk"
-  "com.samsung.android.soundassistant.apk"
-  "com.samsung.android.themedesigner.apk"
-  "com.samsung.android.wonderland.wallpaper.apk"
-  "com.samsung.systemui.lockstar.apk"
-)
-
-GOODLOOK_MODULES_FOR_30_APP_NAMES=(
-  "ClockFace"
-  "EdgeTouch"
-  "NiceCatch"
-  "HomeStar"
-  "Routines"
-  "KeysCafe"
-  "MultiStar"
-  "Pentastic!"
-  "Recents Plugins"
-  "QSTuner"
-  "Side_Gesture_Pad"
-  "SoundAssistant"
-  "ThemePark"
-  "Wonderland"
-  "LockStar"
-)
-
-GOODLOOK_MODULES_FOR_31=(
-  "com.samsung.android.app.captureplugin.apk"
-  "com.samsung.android.app.clockface.apk"
-  "com.samsung.android.app.edgetouch.apk"
-  "com.samsung.android.app.goodcatch.apk"
-  "com.samsung.android.app.homestar.apk"
-  "com.samsung.android.app.routineplus.apk"
-  "com.samsung.android.keyscafe.apk"
-  "com.samsung.android.multistar.apk"
-  "com.samsung.android.pentastic.apk"
-  "com.samsung.android.qstuner.apk"
-  "com.samsung.android.sidegesturepad.apk"
-  "com.samsung.android.soundassistant.apk"
-  "com.samsung.android.themedesigner.apk"
-  "com.samsung.android.wonderland.wallpaper.apk"
-  "com.samsung.systemui.lockstar.apk"
-)
-
-GOODLOOK_MODULES_FOR_31_APP_NAMES=(
-  "Capture Plugin"
-  "ClockFace"
-  "EdgeTouch"
-  "NiceCatch"
-  "HomeStar"
-  "Routines"
-  "KeysCafe"
-  "MultiStar"
-  "Pentastic!"
-  "QSTuner"
-  "Side_Gesture_Pad"
-  "SoundAssistant"
-  "ThemePark"
-  "Wonderland"
-  "LockStar"
-)
-
-GOODLOOK_MODULES_FOR_32=(
-    "com.samsung.android.app.captureplugin.apk"
-    "com.samsung.android.app.clockface.apk"
-    "com.samsung.android.app.goodcatch.apk"
-    "com.samsung.android.app.homestar.apk"
-    "com.samsung.android.app.routineplus.apk"
-    "com.samsung.android.keyscafe.apk"
-    "com.samsung.android.multistar.apk"
-    "com.samsung.android.pentastic.apk"
-    "com.samsung.android.qstuner.apk"
-    "com.samsung.android.sidegesturepad.apk"
-    "com.samsung.android.soundassistant.apk"
-    "com.samsung.android.themedesigner.apk"
-    "com.samsung.android.wonderland.wallpaper.apk"
-    "com.samsung.systemui.lockstar.apk"
-)
-
-GOODLOOK_MODULES_FOR_32_APP_NAMES=(
-  "Capture Plugin"
-  "ClockFace"
-  "NiceCatch"
-  "HomeStar"
-  "Routines"
-  "KeysCafe"
-  "MultiStar"
-  "Pentastic!"
-  "QSTuner"
-  "Side_Gesture_Pad"
-  "SoundAssistant"
-  "ThemePark"
-  "Wonderland"
-  "LockStar"
-)
-
-GOODLOOK_MODULES_FOR_33=(
-    "com.samsung.android.app.cameraassistant.apk"
-    "com.samsung.android.app.captureplugin.apk"
-    "com.samsung.android.app.clockface.apk"
-    "com.samsung.android.app.goodcatch.apk"
-    "com.samsung.android.app.homestar.apk"
-    "com.samsung.android.app.routineplus.apk"
-    "com.samsung.android.edgelightingplus.apk"
-    "com.samsung.android.keyscafe.apk"
-    "com.samsung.android.multistar.apk"
-    "com.samsung.android.pentastic.apk"
-    "com.samsung.android.qstuner.apk"
-    "com.samsung.android.sidegesturepad.apk"
-    "com.samsung.android.soundassistant.apk"
-    "com.samsung.android.themedesigner.apk"
-    "com.samsung.android.wonderland.wallpaper.apk"
-    "com.samsung.systemui.lockstar.apk"
-)
-
-GOODLOOK_MODULES_FOR_33_APP_NAMES=(
-  "CameraAssistant"
-  "CapturePlugin"
-  "ClockFace"
-  "NiceCatch"
-  "HomeStar"
-  "Routines"
-  "Edge_Lighting_Plus"
-  "KeysCafe"
-  "MultiStar"
-  "Pentastic!"
-  "QSTuner"
-  "Side_Gesture_Pad"
-  "SoundAssistant"
-  "ThemePark"
-  "Wonderland"
-  "LockStar"
-)
-
-GOODLOOK_MODULES_FOR_34=(
-    "com.samsung.android.app.cameraassistant.apk"
-    "com.samsung.android.app.captureplugin.apk"
-    "com.samsung.android.app.clockface.apk"
-    "com.samsung.android.app.edgetouch.apk"
-    "com.samsung.android.app.goodcatch.apk"
-    "com.samsung.android.app.homestar.apk"
-    "com.samsung.android.app.routineplus.apk"
-    "com.samsung.android.edgelightingplus.apk"
-    "com.samsung.android.keyscafe.apk"
-    "com.samsung.android.multistar.apk"
-    "com.samsung.android.pentastic.apk"
-    "com.samsung.android.qstuner.apk"
-    "com.samsung.android.sidegesturepad.apk"
-    "com.samsung.android.soundassistant.apk"
-    "com.samsung.android.themedesigner.apk"
-    "com.samsung.android.wonderland.wallpaper.apk"
-    "com.samsung.systemui.lockstar.apk"
-)
-
-GOODLOOK_MODULES_FOR_34_APP_NAMES=(
-  "CameraAssistant"
-  "CapturePlugin"
-  "ClockFace"
-  "NiceCatch"
-  "HomeStar"
-  "Routines"
-  "Edge_Lighting_Plus"
-  "KeysCafe"
-  "MultiStar"
-  "Pentastic!"
-  "QSTuner"
-  "Side_Gesture_Pad"
-  "SoundAssistant"
-  "ThemePark"
-  "Wonderland"
-  "LockStar"
-)
-
-GOODLOOK_MODULES_FOR_35=(
-    "com.samsung.android.app.cameraassistant.apk"
-    "com.samsung.android.app.captureplugin.apk"
-    "com.samsung.android.app.edgetouch.apk"
-    "com.samsung.android.app.goodcatch.apk"
-    "com.samsung.android.app.homestar.apk"
-    "com.samsung.android.app.routineplus.apk"
-    "com.samsung.android.edgelightingplus.apk"
-    "com.samsung.android.keyscafe.apk"
-    "com.samsung.android.multistar.apk"
-    "com.samsung.android.pentastic.apk"
-    "com.samsung.android.qstuner.apk"
-    "com.samsung.android.sidegesturepad.apk"
-    "com.samsung.android.soundassistant.apk"
-    "com.samsung.android.themedesigner.apk"
-    "com.samsung.android.wonderland.wallpaper.apk"
-    "com.samsung.systemui.lockstar.apk"
-)
-
-GOODLOOK_MODULES_FOR_35_APP_NAMES=(
-  "CameraAssistant"
-  "CapturePlugin"
-  "ClockFace"
-  "NiceCatch"
-  "HomeStar"
-  "Routines"
-  "Edge_Lighting_Plus"
-  "KeysCafe"
-  "MultiStar"
-  "Pentastic!"
-  "QSTuner"
-  "Side_Gesture_Pad"
-  "SoundAssistant"
-  "ThemePark"
-  "Wonderland"
-  "LockStar"
-)
-
-SCRIPTS=(
-    "./misc/rom_modifier_scripts/add_unlimited_backups.sh"
-    "./misc/rom_modifier_scripts/resolution_app_permissions_xml_conf.sh"
-    "./misc/rom_modifier_scripts/bring_fastbootd_into_recovery.sh"
-    "./misc/rom_modifier_scripts/github_at_luna__FLOSSPAPER.sh"
-    "./misc/rom_modifier_scripts/knox_patch.sh" # -- unstaged file, still waiting for Salvo's approval. (he never responded, it's never going to get added)
-    "./misc/rom_modifier_scripts/debloater_unifed.sh"
-)
-
-DIFF_UNIFED_PATCHES=(
-    "./diff_patches/system/etc/restart_radio_process_unified_29-33.patch"
-    "./diff_patches/vendor/etc/init/wifi_29.patch"
-    "./diff_patches/vendor/etc/init/wifi_unified_30-31.patch"
-    "./diff_patches/vendor/etc/init/wifi_unified_32-33.patch"
-    "./diff_patches/system/etc/init/uncrypt_30.patch"
-    "./diff_patches/system/etc/init/dumpstate_31.patch"
-    "./diff_patches/system/etc/init/bootchecker_31.patch"
-    "./diff_patches/system/etc/init/init_rilcommon_unified_28-31.patch"
-)

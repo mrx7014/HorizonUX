@@ -66,6 +66,16 @@ SCRIPTS=(
     "./diff_patches/vendor/etc/init/wifi_29.patch"
     "./diff_patches/vendor/etc/init/wifi_unified_30-31.patch"
     "./diff_patches/vendor/etc/init/wifi_unified_32-33.patch"
+    "./diff_patches/system/etc/init/uncrypt_30.patch"
+    "./diff_patches/system/etc/init/dumpstate_31.patch"
+    "./diff_patches/system/etc/init/bootchecker_31.patch"
+    "./diff_patches/system/etc/init/init_rilcommon_unified_28-31.patch"
+    "./diff_patches/system/etc/init/atrace_28.patch"
+    "./diff_patches/system/etc/init/atrace_29.patch"
+    "./diff_patches/system/etc/init/atrace_30.patch"
+    "./diff_patches/system/etc/init/atrace_31.patch"
+    "./diff_patches/system/etc/init/vold_30.patch"
+    "./diff_patches/vendor/etc/init/wifi_28.patch"
 )
 
 # let's convert these script files.

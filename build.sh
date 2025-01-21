@@ -22,6 +22,15 @@ else
 	source ./makeconfigs.prop
 fi
 
+# check do we have the monika.conf file and include it if it's found else exit the terminal section.
+if [ ! -f "./monika.conf" ]; then
+	echo -e "[\e[0;35m$(date +%d-%m-%Y) \e[0;37m- \e[0;32m$(date +%H:%M%p)] [:\e[0;36mABORT\e[0;37m:] -\e[0;31m Can't find monika file, please try again later...\e[0;37m"
+	sleep 0.5
+	exit 1
+else 
+	source ./monika.conf
+fi
+
 if [ ! -f "./misc/build_scripts/target_configs.sh" ]; then
 	echo -e "[\e[0;35m$(date +%d-%m-%Y) \e[0;37m- \e[0;32m$(date +%H:%M%p)] [:\e[0;36mABORT\e[0;37m:] -\e[0;31m Can't find target_configs file, please try again later...\e[0;37m"
 	sleep 0.5

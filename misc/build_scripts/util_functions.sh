@@ -231,7 +231,7 @@ function ask() {
     printf "[\e[0;35m$(date +%d-%m-%Y) \e[0;37m- \e[0;32m$(date +%H:%M%p)\e[0;37m] / [:\e[0;36mMESSAGE\e[0;37m:] / [:\e[0;32mJOB\e[0;37m:] -\e[0;33m $1\e[0;37m (y/n) : "
     read answer
     answer="$(string_format -l "${answer}")"
-    if [ "${answer}" == "y" ]; then
+    if [[ "${answer}" == "y" || "${answer}" == "yes" ]]; then
         return 0
     fi
     return 1

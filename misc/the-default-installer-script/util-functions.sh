@@ -1,43 +1,43 @@
 # Check if the dependency exists inside the ZIP file
-function ___check__if__dependencies__exist() {
+function check_if_dependencies_exist() {
     local file="$1"
     unzip -l "${ZIPFILE}" | grep -q "${file}"
     return $?
 }
 
 # Unpack the file from the ZIP archive
-function ___unpack__the__dependencies() {
+function unpack_the_dependencies() {
     local file="$1"
-    if ___check__if__dependencies__exist "$file"; then
-        unzip -o "$ZIPFILE" "$file" -d "${INSTALLER}/" || ___abort "- Failed to unpack the dependency: $file."
+    if check_if_dependencies_exist "$file"; then
+        unzip -o "$ZIPFILE" "$file" -d "${INSTALLER}/" || abort "- Failed to unpack the dependency: $file."
         return 0
     else
-        ___abort "- The system file in the zip archive is missing. Please re-download the ROM package and try again."
+        abort "- The system file in the zip archive is missing. Please re-download the ROM package and try again."
     fi
 }
 
 # Print a message to the recovery log
-function ___print() {
+function print() {
     local text="$1"
     echo -e "ui_print $text\nui_print" >> /proc/self/fd/$OUTFD
 }
 
 # Check if a file or directory is mounted
-function ___they__are__mounted__or__not() {
+function they_are_mounted_or_not() {
     grep -q " $(readlink -f "$1") " /proc/mounts 2>/dev/null
     return $?
 }
 
 # Abort with an error message, clean up, and exit
-function ___abort() {
+function abort() {
     local text="$1"
-    ___print "$text"
+    print "$text"
     rm -rf "$TMPDIR" "$INSTALLER"
     exit 1    
 }
 
 # Find the real block device (either a device or a kernel block)
-function ___find__real__block() {
+function find_real_block() {
     local arguments="$(echo $1 | string_case --lower)"
     local block_name="$2"
     local linked_block real_block
@@ -56,8 +56,8 @@ function ___find__real__block() {
     esac
 
     if [[ -z "$linked_block" ]]; then
-        ___print "- Weird device. Please report this to the developer..."
-        ___abort ""
+        print "- Weird device. Please report this to the developer..."
+        abort ""
     fi
 
     real_block=$(readlink -f "$linked_block")
@@ -65,50 +65,50 @@ function ___find__real__block() {
 }
 
 # Install a disk image on a specific block
-function ___install__the__disk__image() {
+function install_the_disk_image() {
     local image_name="$1"
     local block_name="$2"
     local image_name_blah="${image_name%%.*}"
 
     if [[ -z "$image_name" || -z "$block_name" ]]; then
-        ___print "- Insufficient information. The zip might be corrupted."
-        ___abort "  Error code: 0x696d6167655f6e616d65206e6f7420736574"
+        print "- Insufficient information. The zip might be corrupted."
+        abort "  Error code: 0x696d6167655f6e616d65206e6f7420736574"
     fi
 
-    ___unpack__the__dependencies "$image_name" || ___abort " - The file wasn't properly extracted, please re-install or reboot into recovery and try again."
+    unpack_the_dependencies "$image_name" || abort " - The file wasn't properly extracted, please re-install or reboot into recovery and try again."
 
-    local real_block=$(___find__real__block --device "$block_name")
+    local real_block=$(find_real_block --device "$block_name")
     if [[ -z "$real_block" ]]; then
-        ___print "- Failed to gather sufficient information. An unknown error occurred."
-        ___abort "  Error code: 0x7265616c5f626c6f636b206e6f7420736574"
+        print "- Failed to gather sufficient information. An unknown error occurred."
+        abort "  Error code: 0x7265616c5f626c6f636b206e6f7420736574"
     fi
 
-    case "$(___get__rom__prop SHIPPED_AS_WHAT)" in
+    case "$(get_rom_prop SHIPPED_AS_WHAT)" in
         "tar")
-            tar -xf "${INSTALLER}/${image_name}" -C "${INSTALLER}/" || ___abort "- Failed to extract tar image."
+            tar -xf "${INSTALLER}/${image_name}" -C "${INSTALLER}/" || abort "- Failed to extract tar image."
             ;;
         "sparse")
-            simg2img "${INSTALLER}/${image_name}" "${real_block}" || ___abort "- Failed to convert sparse image."
+            simg2img "${INSTALLER}/${image_name}" "${real_block}" || abort "- Failed to convert sparse image."
             ;;
         "raw")
-            cp "${INSTALLER}/${image_name}" "${real_block}" || ___abort "- Failed to copy raw image."
+            cp "${INSTALLER}/${image_name}" "${real_block}" || abort "- Failed to copy raw image."
             ;;
         *)
-            ___abort " - Unknown image type detected, exiting..."
+            abort " - Unknown image type detected, exiting..."
             ;;
     esac
 }
 
 # Get ROM property value
-function ___get__rom__prop() {
+function get_rom_prop() {
     local variable_name="$1"
     local value=$(grep "$variable_name" "${INSTALLER}/rom.prop" | cut -d '=' -f 2)
     if [[ -z "$variable_name" ]]; then
-        ___print " - Missing argument for property query."
+        print " - Missing argument for property query."
         return 1
     fi
     if [[ -z "$value" || "$value" == "NULL" ]]; then
-        ___print " - No value found for '$variable_name' or it is NULL."
+        print " - No value found for '$variable_name' or it is NULL."
         return 2
     fi
     case "$(echo "${value}" | tr '[:upper:]' '[:lower:]')" in 
@@ -118,12 +118,12 @@ function ___get__rom__prop() {
     esac
 }
 
-function ___install__low__level__images() {
+function install_low_level_images() {
     local image_name="$1"
     local md_five_hash="$2"
     local image_name_blah=${image_name%%.*}
-    local real_block=$(___find__real__block --device "$image_name_blah")
-    ___unpack__the__dependencies "$image_name" || ___abort " - The file wasn't properly extracted, please re-install or reboot into recovery and try again."
+    local real_block=$(find_real_block --device "$image_name_blah")
+    unpack_the_dependencies "$image_name" || abort " - The file wasn't properly extracted, please re-install or reboot into recovery and try again."
     local the_dawn_of_the_west=$(echo "$image_name" | wc -c)
     local the_dawn_of_the_east=$(($image_name_blah_zap_zap - $the_dawn_of_the_west))
     local image_name_zap_zap=$(md5sum $image_name | xargs | wc -c)
@@ -131,15 +131,15 @@ function ___install__low__level__images() {
     # let's backup the current blob to avoid bricks as possible.
     cp $real_block $LOW_LEVEL_PARTITIONS_BACKUP_VOID_AREA
     if [[ -z "$real_block" ]]; then
-        ___print "- Failed to gather sufficient information. An unknown error occurred."
-        ___abort "  Error code: 0x7265616c5f626c6f636b206e6f7420736574"
+        print "- Failed to gather sufficient information. An unknown error occurred."
+        abort "  Error code: 0x7265616c5f626c6f636b206e6f7420736574"
     fi
     if [ "${md_five_hash}" == "${image_name_blah_blah}" ]; then
         if ! cp ${INSTALLER}/${image_name} ${real_block}; then
-            ___abort " - Failed to flash low-level parts of your phone, please re-download the zip again."
+            abort " - Failed to flash low-level parts of your phone, please re-download the zip again."
         fi
     else
-        ___abort " - Aborting the installation of $image_name_blah because the given verification hash doesn't seem to be the same..."
+        abort " - Aborting the installation of $image_name_blah because the given verification hash doesn't seem to be the same..."
     fi
 }
 
@@ -159,7 +159,7 @@ function string_case() {
     esac
 }
 
-function ___manage__mounts() {
+function manage_mounts() {
     if echo $1 | grep -q where; then
         [ -z "$2" ] || mount | grep $2 | head -n 1 | awk '{print $3}'
     elif echo $1 | grep -q alive?; then
@@ -177,7 +177,7 @@ function ___manage__mounts() {
     fi
 }
 
-function ___setup__recovery__command__file() {
+function setup_recovery_command_file() {
     if ! $hosts_were_backed_up; then
         echo "--data_resizing" > /cache/recovery/command
     else

@@ -34,7 +34,7 @@ if $TARGET_BUILD_IS_FOR_DEBUGGING; then
 		setprop --system "$(echo $i | awk '{print $1}')" "$(echo $i | awk '{print $2}')"
 	done
 	for i in $HORIZON_PRODUCT_PROPERTY_FILE $HORIZON_HORIZON_SYSTEM_DIR/product/*/build.prop;
-		[ -f "${i}" ] && setprop --product "persist.sys.usb.config" "mtp,adb"
+		existance "${i}" && setprop --product "persist.sys.usb.config" "mtp,adb"
 	done
 fi
 
@@ -60,10 +60,7 @@ fi
 
 if $TARGET_REQUIRES_BLUETOOTH_LIBRARY_PATCHES; then
 	console_print "Patching bluetooth...."
-	# initial checks.
-	if [ ! -f "$HORIZON_SYSTEM_DIR/lib64/libbluetooth_jni.so" ]; then
-		abort "The \"libbluetooth_jni.so\" file from the system/lib64 wasn't found, copy and put them in a random directory and try again.."
-	fi
+	existance "$HORIZON_SYSTEM_DIR/lib64/libbluetooth_jni.so" || abort "The \"libbluetooth_jni.so\" file from the system/lib64 wasn't found, copy and put them in a random directory and try again.."
 	# patch this weird device lib.
 	HEX_PATCH "$HORIZON_SYSTEM_DIR/lib64/libbluetooth_jni.so" "6804003528008052" "2b00001428008052"
 fi
@@ -221,9 +218,9 @@ fi
 if $TARGET_INCLUDE_HORIZON_OEMCRYPTO_DISABLER_PLUGIN; then
 	for part in $HORIZON_SYSTEM_DIR $HORIZON_VENDOR_DIR; do
 		for libdir in $part/lib $part/lib64; Do
-			if [ -f $part/$libdir/liboemcrypto.so ]; then
-				touch $part/$libdir/liboemcrypto.so
-			fi
+			if existance "$part/$libdir/liboemcrypto.so"; then
+				touch "$part/$libdir/liboemcrypto.so"
+			fi 
 		done
 	done
 fi
@@ -283,7 +280,7 @@ cp -af ./horizon/rom_tweaker_script/ishimiiiiiiiiii.sh $HORIZON_SYSTEM_DIR/bin/
 $TARGET_INCLUDE_HORIZON_TOUCH_FIX && echo -e "\nservice brotherboard_touch_fix /system/bin/sh -c /system/bin/brotherboard_touch_fix.sh\n\tuser root\n\tgroup root\n\toneshot" >> $HORIZON_SYSTEM_DIR/etc/init/init.ishimiiiiiiiiiiiiiii.rc
 change_xml_values "SEC_FLOATING_FEATURE_COMMON_SUPPORT_SAMSUNG_MARKETING_INFO" "FALSE"
 $TARGET_INCLUDE_CUSTOM_BRAND_NAME && change_xml_values "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_BRAND_NAME" "${BUILD_TARGET_CUSTOM_BRAND_NAME}"
-[ -f "$HORIZON_SYSTEM_DIR/$(fetch_rom_arch --libpath)/libhal.wsm.samsung.so" ] && touch $HORIZON_SYSTEM_DIR/$(fetch_rom_arch --libpath)/libhal.wsm.samsung.so
+existance "$HORIZON_SYSTEM_DIR/$(fetch_rom_arch --libpath)/libhal.wsm.samsung.so" && touch $HORIZON_SYSTEM_DIR/$(fetch_rom_arch --libpath)/libhal.wsm.samsung.so
 for i in "logcat.live disable" "sys.dropdump.on Off" "profiler.force_disable_err_rpt 1" "profiler.force_disable_ulog 1" \
 		 "sys.lpdumpd 0" "persist.device_config.global_settings.sys_traced 0" "persist.traced.enable 0" "persist.sys.lmk.reportkills false" \
 		 "log.tag.ConnectivityManager S" "log.tag.ConnectivityService S" "log.tag.NetworkLogger S" \
@@ -291,6 +288,43 @@ for i in "logcat.live disable" "sys.dropdump.on Off" "profiler.force_disable_err
 			# use echo to null-terminate the var value.
 			setprop --system "$(echo "${i}" | awk '{printf $1}')" "$(echo "${i}" | awk '{printf $2}')"
 done
+if existance "./horizon/bootanimations/${BUILD_TARGET_SCREEN_WIDTH}x${BUILD_TARGET_SCREEN_HEIGHT}/"; then
+	cp -af ./horizon/bootanimations/${BUILD_TARGET_SCREEN_WIDTH}x${BUILD_TARGET_SCREEN_HEIGHT}/bootsamsungloop.qmg $HORIZON_SYSTEM_DIR/media/
+	cp -af ./horizon/bootanimations/${BUILD_TARGET_SCREEN_WIDTH}x${BUILD_TARGET_SCREEN_HEIGHT}/bootsamsung.qmg $HORIZON_SYSTEM_DIR/media/
+fi
+if [[ "${BUILD_TARGET_SDK_VERSION}" -ge "28" && "${BUILD_TARGET_SDK_VERSION}" -le "33" ]]; then
+	if [[ "$BUILD_TARGET_SDK_VERSION" -eq "28" ]]; then
+		apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/init/atrace.rc" "${DIFF_UNIFIED_PATCHES[8]}"
+		apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFIED_PATCHES[13]}"
+	fi
+    # let's patch restart_radio_process for my own will. PLEASE LET THIS SLIDE OUTT!!!!
+    if [[ "${BUILD_TARGET_SDK_VERSION}" -eq "29" || "${BUILD_TARGET_SDK_VERSION}" -le "33" ]]; then
+        apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/restart_radio_process.sh" "${DIFF_UNIFIED_PATCHES[0]}"
+    fi
+    if [[ "${BUILD_TARGET_SDK_VERSION}" -eq "29" ]]; then
+        apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFIED_PATCHES[1]}"
+		apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/init/atrace.rc" "${DIFF_UNIFIED_PATCHES[9]}"
+    elif [[ "${BUILD_TARGET_SDK_VERSION}" -eq "30" || "${BUILD_TARGET_SDK_VERSION}" -eq "31" ]]; then
+        apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFIED_PATCHES[2]}"
+    elif [[ "${BUILD_TARGET_SDK_VERSION}" -eq "32" || "${BUILD_TARGET_SDK_VERSION}" -eq "33" ]]; then
+        apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFIED_PATCHES[3]}"
+    fi
+    if [[ "${BUILD_TARGET_SDK_VERSION}" -eq "30" ]]; then
+        apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/uncrypt.rc" "${DIFF_UNIFIED_PATCHES[4]}"
+		apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/init/atrace.rc" "${DIFF_UNIFIED_PATCHES[10]}"
+		apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/init/vold.rc" "${DIFF_UNIFIED_PATCHES[12]}"
+    elif [[ "${BUILD_TARGET_SDK_VERSION}" -eq "31" ]]; then
+        apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/dumpstate.rc" "${DIFF_UNIFIED_PATCHES[5]}"
+    	apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/bootchecker.rc" "${DIFF_UNIFIED_PATCHES[6]}"
+		apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/init/atrace.rc" "${DIFF_UNIFIED_PATCHES[11]}"
+    fi
+    if [[ "${BUILD_TARGET_SDK_VERSION}" -le "31" ]]; then
+        apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/init/init_rilcommon.rc" "${DIFF_UNIFIED_PATCHES[7]}"
+    fi
+fi
+if [[ "${BUILD_TARGET_SDK_VERSION}" -ge "28" || "${BUILD_TARGET_SDK_VERSION}" -le "30" ]]; then
+	cat ./diff_patches/system/etc/init/freecess.rc > "$HORIZON_SYSTEM_DIR/etc/init/freecess.rc"
+fi
 # send off message.
 console_print "Check the /build folder for the items you have built."
 console_print "Please sign the built overlay or application packages manually with your own private keys;"
@@ -300,27 +334,4 @@ if [ "${BATTLEMAGE_BUILD}" == "true" ]; then
 	console_print "Please review the image for the changes, if the changes aren't applied you can always extract and mod them"
     umount $HASH_KEY_FOR_SUPER_BLOCK_PATH &>/dev/null
     rmdir $HASH_KEY_FOR_SUPER_BLOCK_PATH &>/dev/null
-fi
-if [ -f "./horizon/bootanimations/${BUILD_TARGET_SCREEN_WIDTH}x${BUILD_TARGET_SCREEN_HEIGHT}/" ]; then
-	cp -af ./horizon/bootanimations/${BUILD_TARGET_SCREEN_WIDTH}x${BUILD_TARGET_SCREEN_HEIGHT}/bootsamsungloop.qmg $HORIZON_SYSTEM_DIR/media/
-	cp -af ./horizon/bootanimations/${BUILD_TARGET_SCREEN_WIDTH}x${BUILD_TARGET_SCREEN_HEIGHT}/bootsamsung.qmg $HORIZON_SYSTEM_DIR/media/
-fi
-# let's patch restart_radio_process for my own will. PLEASE LET THIS SLIDE OUTT!!!!
-if [ "${BUILD_TARGET_SDK_VERSION}" -ge "29" ] && [ "${BUILD_TARGET_SDK_VERSION}" -le "33" ]; then
-	apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/restart_radio_process.sh" "${DIFF_UNIFED_PATCHES[0]}"
-fi
-# again, let's patch init files :/
-[ "${BUILD_TARGET_SDK_VERSION}" -eq "29" ] && apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[1]}"
-[ "${BUILD_TARGET_SDK_VERSION}" -eq "30" ] && [ "${BUILD_TARGET_SDK_VERSION}" -le "31" ] && apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[2]}"
-[ "${BUILD_TARGET_SDK_VERSION}" -eq "30" ] && apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/init/uncrypt.rc" "${DIFF_UNIFED_PATCHES[4]}"
-[ "${BUILD_TARGET_SDK_VERSION}" -eq "32" ] && [ "${BUILD_TARGET_SDK_VERSION}" -le "33" ] && apply_diff_patches "$HORIZON_VENDOR_DIR/etc/init/wifi.rc" "${DIFF_UNIFED_PATCHES[3]}"
-if [[ $TARGET_REMOVE_SMARTSWITCH_DAEMON ]]; then
-	if [ "$BUILD_TARGET_SDK_VERSION" -gt "28" ] && [ "$BUILD_TARGET_SDK_VERSION" -le "31" ]; then
-		apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/init/init_rilcommon.rc" "${DIFF_UNIFED_PATCHES[7]}"
-		[ -f "$HORIZON_SYSTEM_DIR/etc/init/vendor.samsung.security.vaultkeeper_server@1.0-service.rc" ] && touch "$HORIZON_SYSTEM_DIR/etc/init/vendor.samsung.security.vaultkeeper_server@1.0-service.rc"
-	fi
-fi
-if [ "$BUILD_TARGET_SDK_VERSION" == "31" ]; then
-	apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/init_rilcommon.rc" "${DIFF_UNIFED_PATCHES[5]}"
-	apply_diff_patches "$HORIZON_SYSTEM_DIR/etc/init_rilcommon.rc" "${DIFF_UNIFED_PATCHES[6]}"
 fi

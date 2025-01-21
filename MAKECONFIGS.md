@@ -24,12 +24,13 @@
 
 ## Special Features
 - **TARGET_INCLUDE_FASTBOOTD_PATCH_BY_RATCODED**: Adds fastbootd support to stock recovery.
-- **TARGET_INCLUDE_UNLIMITED_BACKUP**: Enables unlimited backup for certain apps.
+- **TARGET_INCLUDE_UNLIMITED_BACKUP**: Enables unlimited pictures backup to a specific app.
 - **TARGET_INCLUDE_SAMSUNG_THEMING_MODULES**: Installs patched Samsung Goodlock modules.
 
 ## Audio & Display
-- **TARGET_INCLUDE_HORIZON_AUDIO_RESAMPLER**: Fixes LDAC audio distortion for lower-end Bluetooth devices.
+- **TARGET_INCLUDE_HORIZON_AUDIO_RESAMPLER**: Fixes LDAC audio distortion for lower-end Bluetooth audio devices.
 - **DISABLE_DISPLAY_REFRESH_RATE_OVERRIDE**: Disables refresh rate override during media playback.
+- **TARGET_FLOATING_FEATURE_SUPPORTS_DOLBY_IN_GAMES**: Toggles Dolby audio on games. (only if supported + if the hw is capable of doing this)
 
 ## Additional Customization
 - **TARGET_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE**: Adjusts launcher animation for different performance tiers (LowEnd, HighEnd, etc.).
@@ -37,11 +38,16 @@
 - **TARGET_FLOATING_FEATURE_SUPPORTS_WIRELESS_POWER_SHARING**: Enables wireless power sharing if supported by hardware.
 
 ## Language & Locale
-- **SWITCH_DEFAULT_LANGUAGE_ON_PRODUCT_BUILD**: Sets default language and region for the first boot.
+- **SWITCH_DEFAULT_LANGUAGE_ON_PRODUCT_BUILD**: Sets default language and region for the first boot, fill these variables to switch to your language **NEW_DEFAULT_LANGUAGE_ON_PRODUCT** **NEW_DEFAULT_LANGUAGE_COUNTRY_ON_PRODUCT**
 
 ## Miscellaneous 
 - **DISABLE_SAMSUNG_ASKS_SIGNATURE_VERFICATION**: Disables Samsung's ASKS signature verifier, it doesn't have to do anything with the built-in signature verification, only used for samsung applications.
 
+## Advanced
+- **MY_KEYSTORE_ALIAS**: To be filled by the builder with their "Keystore Alias"
+- **MY_KEYSTORE_PASSWORD**: To be filled by the builder with their "Keystore Alias Password"
+- **MY_KEYSTORE_PATH**: To be filled by the builder with their "Keystore path"
+- **TARGET_REMOVE_SMARTSWITCH_DAEMON**: removes the smart switch listener port from the init shell.
 ---
 
 This script allows deep customization of your customized OneUI ROM, from performance tweaks to aesthetic changes. Make sure to enable only the features you need! Enjoy building your custom ROM! 😊
