@@ -728,3 +728,45 @@ function check_internet_connection() {
         warns "Please connect the computer to a wifi or an ethernet connection to download good look modules." "$(string_format -u ${idkman})"
     fi
 }
+
+function fetch_file_arch() {
+    local file="$2"
+    local argument="$1"
+    local fileArch=$(file "${file}" | awk '{print $3}' | cut -c 1-2)
+    if [[ "${fileArch}" == "64" || "${fileArch}" == "32" ]]; then
+        case "$argument" in
+            --binary-path)
+                if [[ "${fileArch}" == "64" ]]; then
+                    echo "64"
+                elif [[ "${fileArch}" == "32" ]]; then
+                    echo ""
+                fi
+            ;;
+            --yap-whos-that-pokemon)
+                echo "$fileArch"
+            ;;
+        esac
+        return 0
+    else
+        warns "This binary file is not supported because it's not 32 or 64 bits, please contact the developer for assistance." "UNSTAGED_BINARY_ARCHITECTURE"
+        return 1
+    fi
+}
+
+function verify() {
+    local file="$1"
+    local fileHash
+    #sha512sum
+    # still haven't staged this change, please forgive me lil bro
+    return 0
+}
+
+# stupid BULLSHIT function that i have to make it to FUCKING fix my FUCKING code.
+function boolReturn() {
+    local fuckingValue="$@"
+    local fuckThisFuckingValue="$(string_format -l $fuckingValue)"
+    if [[ "$fuckThisFuckingValue" == "true" || "$fuckThisFuckingValue" == "0" ]]; then
+        return 0
+    fi
+    return 1
+}
