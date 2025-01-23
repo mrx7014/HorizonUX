@@ -618,7 +618,7 @@ function check_partition_in_target() {
 function set_partition_flag() {
     local partition="$1"
     local flag_name="BATTLEMAGE_HAS_$(echo $partition | tr 'a-z' 'A-Z')"
-    bool $flag_name=true
+    bool $flag_name true
 }
 
 function mount_super_image() {
@@ -712,12 +712,7 @@ function download_glmodules() {
                         rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_35_APP_NAMES[$i]}/ &>/dev/null
                     fi
                 ;;
-                *)
-                    warns "Unsupported SDK version, skipping the installation of goodlook modules..." "GOODLOCK_INSTALLER"
-                ;;
             esac
-        else
-            warns "Unsupported SDK version, skipping the installation of goodlook modules..." "GOODLOCK_INSTALLER"
         fi
     done
 }
@@ -755,10 +750,11 @@ function fetch_file_arch() {
 
 function verify() {
     local file="$1"
-    local fileHash
-    #sha512sum
-    # still haven't staged this change, please forgive me lil bro
-    return 0
+    local fileHash="$2"
+    if [ -f "$file" ]; then
+        [ "$(sha512sum $file | awk '{print $1}')" = "$fileHash" ] && return 0
+    fi
+    return 1
 }
 
 # stupid BULLSHIT function that i have to make it to FUCKING fix my FUCKING code.
