@@ -85,11 +85,7 @@ function horizon_ishiiimi_logfile() {
     if is_boot_completed; then
         pm list packages | grep -q bellavita.toast && am start -a android.intent.action.MAIN -e toasttext "$service: $message" -n bellavita.toast/.MainActivity
     else
-        if [ -z "${message}" ]; then
-            echo " - missing arguments, can't process anything..."
-        else
-            echo "/ [$(date +%H:%M%p)]-[$(date +%d-%m-%Y)] / $service / ${message} /" >> ${the_logfile}
-        fi
+        echo "/ [$(date +%H:%M%p)]-[$(date +%d-%m-%Y)] / $service / ${message} /" >> ${the_logfile}
     fi
 }
 
@@ -116,7 +112,7 @@ function dawn() {
 
 function horizon_features() {
     local feature_name="$1"
-    local kamg_it="$(grep_prop "$feature_name" "/system/bin/hw/linker_binary")"
+    local kamg_it="$(grep_prop "$feature_name" "/system/build.prop")"
     if [[ "$kamg_it" == "available" || "$kamg_it" == "true" ]]; then
         return 0
     fi
@@ -204,10 +200,6 @@ if horizon_features "persist.horizonux.audio.resampler"; then
     horizon_ishiiimi_logfile "horizonux_features_verifier" "The audio resampler is enabled in this build...."
     if is_boot_completed; then
         horizon_ishiiimi_logfile "late_start_service" "Starting HorizonUX resampler..."
-        # pixel things that we don't need to f around...
-        #for pixel_craps in enable_at_samplerate stopband halflength cutoff_percent tbwcheat; do
-            #resetprop --delete ro.audio.resampler.psd.$pixel_craps
-        #done
         resetprop ro.audio.resampler.psd.enable_at_samplerate 44100
         resetprop ro.audio.resampler.psd.stopband 194
         resetprop ro.audio.resampler.psd.halflength 520
@@ -215,7 +207,7 @@ if horizon_features "persist.horizonux.audio.resampler"; then
         horizon_ishiiimi_logfile "late_start_service" "Restarting audioserver to apply the changes in your device..."
         if restart_audioserver; then
             horizon_ishiiimi_logfile "late_start_service" "audioserver restarted successfully..."
-        else 
+        else
             horizon_ishiiimi_logfile "late_start_service" "failed to reboot audioserver, the resampler stuffs aren't saved.. sorryyy"
         fi
     fi
@@ -250,8 +242,8 @@ if boot_completed; then
     # start bro board's touch fix commands
     [ "$(grep_prop persist.horizonux.brotherboard.touch_fix)" == "$(string_case --lower "available")" ] && start brotherboard_touch_fix
     # let's try to disable user apps log visibitlity...
-    for idkmanwtfdowhateveridcyouarebomblikebeambfrfr in $(pm list packages | cut -d':' -f2); do
-        cmd package log-visibility --disable $idkmanwtfdowhateveridcyouarebomblikebeambfrfr || horizon_ishiiimi_logfile "ishimi" "Can't disable logs for this application: ${idkmanwtfdowhateveridcyouarebomblikebeambfrfr}..."
+    for idkmanwtfdowhateveridcyouarebomblikemefrfr in $(pm list packages | cut -d':' -f2); do
+        cmd package log-visibility --disable $idkmanwtfdowhateveridcyouarebomblikemefrfr || horizon_ishiiimi_logfile "ishimi" "Can't disable logs for this application: ${idkmanwtfdowhateveridcyouarebomblikemefrfr}..."
     done
 fi
 

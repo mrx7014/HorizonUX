@@ -1,23 +1,17 @@
 #!/usr/bin/bash
 
 # ok, fbans dropped!
-echo -e "'\033[0;31m'########################################################################"
+echo -e "\033[0;31m########################################################################"
 echo -e "   _  _     _   _            _                _   ___  __"
 echo -e " _| || |_  | | | | ___  _ __(_)_______  _ __ | | | \\ \/ /"
 echo -e "|_  ..  _| | |_| |/ _ \\| '__| |_  / _ \\| '_ \\| | | |\\  / "
 echo -e "|_      _| |  _  | (_) | |  | |/ / (_) | | | | |_| |/  \\ "
 echo -e "  |_||_|   |_| |_|\___/|_|  |_/___\\___/|_| |_|\___//_/\\_\\"
 echo -e "                                                         "
-echo -e "   _  _     ____        _ _     _                           _       _   "
-echo -e " _| || |_  | __ ) _   _(_) | __| | ___ _ __   ___  ___ _ __(_)_ __ | |_ "
-echo -e "|_  ..  _| |  _ \\| | | | | |/ _\` |/ _ \\ '__| / __|/ __| '__| | '_ \\| __|"
-echo -e "|_      _| | |_) | |_| | | | (_| |  __/ |    \\__ \\ (__| |  | | |_) | |_ "
-echo -e "  |_||_|   |____/ \\__,_|_|_|\\__,_|\\___|_|    |___/\\___|_|  |_| .__/ \\__|"
-echo -e "                                                             |_|"
-echo -e "'\033[0;33m'########################################################################'\033[0m'"
-console_print "Starting to build HorizonUX ${CODENAME} - v${CODENAME_VERSION_REFERENCE_ID} on $(id -un)'s computer..."
-console_print "Build started by $(id -un) at $(date +%I:%M%p) on $(date +%d\ %B\ %Y)"
-console_print "The Current Username : $(id -un)"
+echo -e "########################################################################\033[0m"
+console_print "Starting to build HorizonUX ${CODENAME} - v${CODENAME_VERSION_REFERENCE_ID} on ${BUILD_USERNAME}'s computer..."
+console_print "Build started by $BUILD_USERNAME at $(date +%I:%M%p) on $(date +%d\ %B\ %Y)"
+console_print "The Current Username : $BUILD_USERNAME"
 console_print "CPU Architecture : $(lscpu | grep Architecture | awk '{print $2}')"
 console_print "CPU Manufacturer and model : $(lscpu | grep 'Model name' | awk -F: '{print $2}' | xargs)"
 console_print "L2 Cache Memory Size : $(lscpu | grep L2 | awk '{print $3}')"
@@ -224,7 +218,8 @@ if boolReturn $TARGET_FLOATING_FEATURE_SUPPORTS_DOLBY_IN_GAMES; then
 fi
 
 # let's download goodlook modules from corsicanu's repo.
-boolReturn $TARGET_INCLUDE_SAMSUNG_THEMING_MODULES && check_internet_connection "GOODLOCK_MODULES" && download_glmodules
+echo -e "[$(date +%d-%m-%Y) - $(date +%H:%M%p)] / [:WARN:] - Starting to check and try to download goodlook modules, logs can be seen below if any errors spawn upon the process" >> $thisConsoleTempLogFile
+boolReturn $TARGET_INCLUDE_SAMSUNG_THEMING_MODULES && check_internet_connection "GOODLOCK_MODULES" && download_glmodules 2>> $thisConsoleTempLogFile
 
 # installs audio resampler.
 if boolReturn $TARGET_INCLUDE_HORIZON_AUDIO_RESAMPLER; then
@@ -358,6 +353,11 @@ console_print "Do not use any public keys provided by any application building s
 console_print "script errors are moved to the ./error_ring.log file, please consider checking it out! "
 if boolReturn "${BATTLEMAGE_BUILD}"; then
 	console_print "Please review the image for the changes, if the changes aren't applied you can always extract and mod them"
-    umount $HASH_KEY_FOR_SUPER_BLOCK_PATH &>/dev/null
-    rmdir $HASH_KEY_FOR_SUPER_BLOCK_PATH &>/dev/null
+    umount $HASH_KEY_FOR_SUPER_BLOCK_PATH
+    rmdir $HASH_KEY_FOR_SUPER_BLOCK_PATH
 fi
+[ "$(string_format -l $openSeperateConsoleForDebugging)" == "true" ] || { \
+	echo "[$(date +%d-%m-%Y) - $(date +%H:%M%p)] / [:WARN:] - This console will get killed because this script didn't run properly, share the logs with the developer's handle." >> $thisConsoleTempLogFile;
+	kill $pid &>/dev/null;
+}
+cp $thisConsoleTempLogFile ./$thisConsoleTempLogFile.log

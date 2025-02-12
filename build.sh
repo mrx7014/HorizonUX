@@ -15,5 +15,7 @@ for i in "script ./misc/build_scripts/target_configs.sh" "config ./monika.conf" 
 		[ "$(echo "$i" | awk '{print $1}')" == "config" ] && source "$(echo "$i" | awk '{print $2}')"
 	fi
 done
-# my alibi.
+
+# fuck this fucking directory before it fucking fucks up the fucking use cases man, fuck this fucking bullshit that i have to fuck with
+# hope this fucking shit ends fucking soon.
 rm -rf $TMPDIR

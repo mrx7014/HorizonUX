@@ -114,3 +114,25 @@ for i in $HORIZON_SYSTEM_DIR/etc/floating_feature.xml $HORIZON_VENDOR_DIR/etc/fl
         break
     fi
 done
+
+# idk bruv
+BUILD_USERNAME="$(string_format --upper "$(id -un | cut -c 1-1)")$(id -un | cut -c 2-200)"
+thisConsole=$(command -v x-terminal-emulator || command -v gnome-terminal || command -v xfce4-terminal || command -v konsole || command -v xterm || command -v urxvt || command -v mate-terminal || command -v lxterminal)
+thisConsoleTempLogFile=$(mktemp || touch /tmp/$(generate_random_hash "20"))
+[ ! -n "$thisConsole" ] && warns "Can't find your terminal to show logs, the logs were stored as a file as always." "LOGVIEWER"
+if [ "$(string_format -l $openSeperateConsoleForDebugging)" == "true" ]; then
+    if [ -n "$thisConsoleTempLogFile" ] && [ -f "$thisConsoleTempLogFile" ]; then
+        {
+            echo -e "########################################################################"
+            echo -e "   _  _     _   _            _                _   ___  __"
+            echo -e " _| || |_  | | | | ___  _ __(_)_______  _ __ | | | \\ \/ /"
+            echo -e "|_  ..  _| | |_| |/ _ \\| '__| |_  / _ \\| '_ \\| | | |\\  / "
+            echo -e "|_      _| |  _  | (_) | |  | |/ / (_) | | | | |_| |/  \\ "
+            echo -e "  |_||_|   |_| |_|\___/|_|  |_/___\\___/|_| |_|\___//_/\\_\\"
+            echo -e "                                                         "
+            echo -e "########################################################################"
+        } >> $thisConsoleTempLogFile
+        nohup "${thisConsole}" -e bash -c "tail -f '$thisConsoleTempLogFile'; exec bash" > /dev/null 2>&1 &
+        pid=$!
+    fi
+fi

@@ -26,22 +26,24 @@ function setprop() {
 
 function abort() {
     echo -e "[\e[0;35m$(date +%d-%m-%Y) \e[0;37m- \e[0;32m$(date +%H:%M%p)] [:\e[0;36mABORT\e[0;37m:] -\e[0;31m $1\e[0;37m"
+    echo -e "[$(date +%d-%m-%Y) - $(date +%H:%M%p)] [:ABORT:] - $1" >> $thisConsoleTempLogFile
+    [ "$(string_format -l $openSeperateConsoleForDebugging)" == "true" ] && echo "[$(date +%d-%m-%Y) - $(date +%H:%M%p)] / [:WARN:] - This console will get killed because this script didn't run properly, share the logs with the developer's handle." >> $thisConsoleTempLogFile
     sleep 0.5
     if [ "${BATTLEMAGE_BUILD}" == "true" ]; then
         umount $HASH_KEY_FOR_SUPER_BLOCK_PATH &>/dev/null
         rmdir $HASH_KEY_FOR_SUPER_BLOCK_PATH &>/dev/null
     fi
+    kill $pid
     exit 1
 }
 
 function warns() {
     echo -e "[\e[0;35m$(date +%d-%m-%Y) \e[0;37m- \e[0;32m$(date +%H:%M%p)] / [:\e[0;36mWARN\e[0;37m:] / [:\e[0;32m$2\e[0;37m:] -\e[0;33m $1\e[0;37m"
-    sleep 0.5
+    echo -e "[$(date +%d-%m-%Y) - $(date +%H:%M%p)] / [:WARN:] / [:$2:] - $1" >> $thisConsoleTempLogFile
 }
 
 function console_print() {
     echo -e "[\e[0;35m$(date +%d-%m-%Y) \e[0;37m- \e[0;32m$(date +%H:%M%p)\e[0;37m] / [:\e[0;36mMESSAGE\e[0;37m:] / [:\e[0;32mJOB\e[0;37m:] -\e[0;33m $1\e[0;37m"
-    sleep 0.5
 }
 
 function default_language_configuration() {
@@ -397,11 +399,11 @@ function download_stuffs() {
 function string_format() {
     local string="$2"
     case "$1" in
-        -l)
+        -l|--lower)
             echo $string | tr '[:upper:]' '[:lower:]'
         ;;
 
-        -u)
+        -u|--upper)
             echo $string | tr '[:lower:]' '[:upper:]'
         ;;
 
@@ -423,7 +425,7 @@ function generate_random_hash() {
 
 function execute_scripts() {
     local script="$1"
-    $BATTLEMAGE_BUILD && { . $script --battlemage 2>./error_ring.log; } || { . $script --non-battlemage 2>./error_ring.log; }
+    $BATTLEMAGE_BUILD && { . $script --battlemage 2>> $thisConsoleTempLogFile; } || { . $script --non-battlemage 2>> $thisConsoleTempLogFile; }
 }
 
 function absolute_path() {
@@ -617,15 +619,14 @@ function check_partition_in_target() {
 
 function set_partition_flag() {
     local partition="$1"
-    local flag_name="BATTLEMAGE_HAS_$(echo $partition | tr 'a-z' 'A-Z')"
-    bool $flag_name true
+    bool BATTLEMAGE_HAS_$(string_format --upper $partition) true
 }
 
 function mount_super_image() {
     local super_image="$1"
     HASH_KEY_FOR_SUPER_BLOCK_PATH=./tmp/$(generate_random_hash 100)
     mkdir -p "$HASH_KEY_FOR_SUPER_BLOCK_PATH"
-    sudo mount -o loop "$super_image" "$HASH_KEY_FOR_SUPER_BLOCK_PATH" || abort "Failed to mount $super_image."
+    sudo mount -o rw "$super_image" "$HASH_KEY_FOR_SUPER_BLOCK_PATH" || abort "Failed to mount $super_image."
     console_print "The image was mounted on: ${HASH_KEY_FOR_SUPER_BLOCK_PATH}"
     console_print "The given image path: ${super_image}"
     katarenai="$HASH_KEY_FOR_SUPER_BLOCK_PATH"
@@ -653,7 +654,7 @@ function download_glmodules() {
                         mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_28_APP_NAMES[$i]}/
                         download_stuffs https://github.com/corsicanu/goodlock_dump/releases/download/28/${GOODLOOK_MODULES_FOR_28[$i]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_28_APP_NAMES[$i]}/
                     else 
-                        rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_28_APP_NAMES[$i]}/ &>/dev/null
+                        rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_28_APP_NAMES[$i]}/
                     fi
                 ;;
                 29)
@@ -661,7 +662,7 @@ function download_glmodules() {
                         mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_29_APP_NAMES[$i]}/
                         download_stuffs https://github.com/corsicanu/goodlock_dump/releases/download/29/${GOODLOOK_MODULES_FOR_29[$i]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_29_APP_NAMES[$i]}/
                     else 
-                        rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_29_APP_NAMES[$i]}/ &>/dev/null
+                        rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_29_APP_NAMES[$i]}/
                     fi
                 ;;
                 30)
@@ -669,7 +670,7 @@ function download_glmodules() {
                         mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_30_APP_NAMES[$i]}/
                         download_stuffs https://github.com/corsicanu/goodlock_dump/releases/download/30/${GOODLOOK_MODULES_FOR_30[$i]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_30_APP_NAMES[$i]}/
                     else 
-                        rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_30_APP_NAMES[$i]}/ &>/dev/null
+                        rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_30_APP_NAMES[$i]}/
                     fi
                 ;;
                 31)
@@ -677,7 +678,7 @@ function download_glmodules() {
                         mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_31_APP_NAMES[$i]}/
                         download_stuffs https://github.com/corsicanu/goodlock_dump/releases/download/31/${GOODLOOK_MODULES_FOR_31[$i]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_31_APP_NAMES[$i]}/
                     else 
-                        rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_31_APP_NAMES[$i]}/ &>/dev/null
+                        rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_31_APP_NAMES[$i]}/
                     fi
                 ;;
                 32)
@@ -685,7 +686,7 @@ function download_glmodules() {
                         mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_32_APP_NAMES[$i]}/
                         download_stuffs https://github.com/corsicanu/goodlock_dump/releases/download/32/${GOODLOOK_MODULES_FOR_32[$i]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_32_APP_NAMES[$i]}/
                     else 
-                        rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_32_APP_NAMES[$i]}/ &>/dev/null
+                        rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_32_APP_NAMES[$i]}/
                     fi
                 ;;
                 33)
@@ -693,7 +694,7 @@ function download_glmodules() {
                         mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_33_APP_NAMES[$i]}/
                         download_stuffs https://github.com/corsicanu/goodlock_dump/releases/download/33/${GOODLOOK_MODULES_FOR_33[$i]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_33_APP_NAMES[$i]}/
                     else 
-                        rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_33_APP_NAMES[$i]}/ &>/dev/null
+                        rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_33_APP_NAMES[$i]}/
                     fi
                 ;;
                 34)
@@ -701,7 +702,7 @@ function download_glmodules() {
                         mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_34_APP_NAMES[$i]}/
                         download_stuffs https://github.com/corsicanu/goodlock_dump/releases/download/34/${GOODLOOK_MODULES_FOR_34[$i]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_34_APP_NAMES[$i]}/
                     else 
-                        rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_34_APP_NAMES[$i]}/ &>/dev/null
+                        rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_34_APP_NAMES[$i]}/ 
                     fi
                 ;;
                 35)
@@ -709,7 +710,7 @@ function download_glmodules() {
                         mkdir -p ./build/system/priv-app/${GOODLOOK_MODULES_FOR_35_APP_NAMES[$i]}/
                         download_stuffs https://github.com/corsicanu/goodlock_dump/releases/download/35/${GOODLOOK_MODULES_FOR_35[$i]} ./build/system/priv-app/${GOODLOOK_MODULES_FOR_35_APP_NAMES[$i]}/
                     else 
-                        rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_35_APP_NAMES[$i]}/ &>/dev/null
+                        rmdir ./build/system/priv-app/${GOODLOOK_MODULES_FOR_35_APP_NAMES[$i]}/
                     fi
                 ;;
             esac
@@ -743,7 +744,7 @@ function fetch_file_arch() {
         esac
         return 0
     else
-        warns "This binary file is not supported because it's not 32 or 64 bits, please contact the developer for assistance." "UNSTAGED_BINARY_ARCHITECTURE"
+        warns "This binary file is not supported because it's not either 32 or 64 bits, please contact the developer for assistance." "UNSTAGED_BINARY_ARCHITECTURE"
         return 1
     fi
 }
@@ -757,7 +758,7 @@ function verify() {
     return 1
 }
 
-# stupid BULLSHIT function that i have to make it to FUCKING fix my FUCKING code.
+# stupid FUCKING function that i have to FUCKING make it to FUCKING fix my FUCKING code.
 function boolReturn() {
     local fuckingValue="$@"
     local fuckThisFuckingValue="$(string_format -l $fuckingValue)"
@@ -765,4 +766,29 @@ function boolReturn() {
         return 0
     fi
     return 1
+}
+
+function build_program() {
+    local file="$1"
+    local header="-I$2"
+    local special_argument="$3"
+    local compiler
+    local parsedFileExtension="${file##*.}"
+
+    # fuckluna.c
+    [ "$parsedFileExtension" == "c" ] && compiler=gcc
+    [ "$parsedFileExtension" == "cpp" ] && compiler=g++
+    [ -z "$header" ] && header=""
+    [ -z "$compiler" ] && abort "Unknown file, change the format specifier if it's a c or a c++ program."
+
+    # build bs starts from here.
+    if string_format "$special_argument" | grep -q isLibrary=false; then
+        $compiler $header $file &>compiler_build.log
+    elif string_format "$special_argument" | grep -q isLibrary=true; then
+        $compiler $header $file -shared -o &>compiler_build.log
+    fi
+
+    # error checks.
+    [ "$?" -ge "1" ] && abort "can't build the program, check the compiler_build.log for details"
+    echo " - The given program compiled without any sensitive errors, consider checking the compiler_build.log file"
 }
