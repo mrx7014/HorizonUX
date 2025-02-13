@@ -1,4 +1,5 @@
 #!/usr/bin/bash
+
 BUILD_USER="$(id -un | cut -c 1-1 | tr '[:lower:]' '[:upper:]')$(id -un | cut -c 2-200)"
 SOURCE_FILE="$1"
 SOURCE_HEADER_PATH="$2"

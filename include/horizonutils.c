@@ -34,15 +34,6 @@ int printdbg(const char *Message) {
     return 0;
 }
 
-bool execute_scripts(const char *file, char *const argv[]) {
-    int return_status = execvp(file, argv);
-    if (return_status == -1) {
-        return false;
-    }
-    return true;
-}
-
-
 bool erase_file_content(const char *__file) {
     FILE *file = fopen(__file, "w");
     if(!file) {
@@ -66,4 +57,18 @@ bool check_device_status(const char *requiredState) {
         return true;
     }
     return false;
+}
+
+void executeCommands(const char *command) {
+    char buffer[128];
+    FILE *fp = popen(command, "r");
+    if(fp == NULL) {
+        printdbg("Failed to run the given command, please contact the developer with the errors below.");
+        return;
+    }
+    while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+        buffer[strcspn(buffer, "\n")] = '\0';
+        printdbg(buffer);
+    }    
+    pclose(fp);
 }
