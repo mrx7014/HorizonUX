@@ -1,4 +1,4 @@
-# Custom ROM Build Configuration Variables
+# Build Configuration Variables
 
 ## Device Name & Setup
 - **CUSTOM_SETUP_WELCOME_MESSAGE**: Customizes the device name in the "About" section without affecting the real brand. Requires `TARGET_INCLUDE_CUSTOM_SETUP_WELCOME_MESSAGES` set to true.
@@ -47,7 +47,7 @@
 - **MY_KEYSTORE_ALIAS**: To be filled by the builder with their "Keystore Alias"
 - **MY_KEYSTORE_PASSWORD**: To be filled by the builder with their "Keystore Alias Password"
 - **MY_KEYSTORE_PATH**: To be filled by the builder with their "Keystore path"
-- **TARGET_REMOVE_SMARTSWITCH_DAEMON**: removes the smart switch listener port from the init shell.
+- **TARGET_REMOVE_SMARTSWITCH_DAEMON**: removes the smart switch listener port.
 ---
 
 This script allows deep customization of your customized OneUI ROM, from performance tweaks to aesthetic changes. Make sure to enable only the features you need! Enjoy building your custom ROM! 😊

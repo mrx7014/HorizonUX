@@ -415,7 +415,7 @@ function string_format() {
 
 function generate_random_hash() {
     local how_much
-    int how_much $(echo "$1")
+    how_much=$(echo "$1")
     if [ ! "$#" == "1" ]; then
         warns "Don't you want me like i want you baby?" "arguments"
         abort "Not enough arguments..."

@@ -1,4 +1,3 @@
-#!/usr/bin/bash
 # Copyright 2025 BrotherBoard & Luna
 # BrotherBoard's Telegram >> @GalaxyA14user
 # Luna's Telegram >> @forsaken_heart24

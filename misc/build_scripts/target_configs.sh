@@ -1,5 +1,3 @@
-#!/usr/bin/bash
-
 console_print "Do you want to mount super image and proceed?"
 if ask "Type \"yes\" to mount the super image..."; then
     printf "[\e[0;35m$(date +%d-%m-%Y) \e[0;37m- \e[0;32m$(date +%H:%M%p)\e[0;37m] / [:\e[0;36mMESSAGE\e[0;37m:] / [:\e[0;32mJOB\e[0;37m:] -\e[0;33m Please enter the path to the super.img file: \e[0;37m"

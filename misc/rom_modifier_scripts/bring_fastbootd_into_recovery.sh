@@ -1,5 +1,3 @@
-#!/usr/bin/bash
-
 # booooooooooooom
 if $(echo $RECOVERY_IMAGE_PATH | grep -q lz4); then
     abort "blud extract the image and give the raw image path, im lazy bish"

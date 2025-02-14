@@ -1,5 +1,3 @@
-#!/usr/bin/bash
-
 # ok, fbans dropped!
 echo -e "\033[0;31m########################################################################"
 echo -e "   _  _     _   _            _                _   ___  __"
@@ -27,7 +25,7 @@ if boolReturn $TARGET_BUILD_IS_FOR_DEBUGGING; then
 	for i in "ro.debuggable 1" "ro.adb.secure 0"; do 
 		setprop --system "$(echo $i | awk '{print $1}')" "$(echo $i | awk '{print $2}')"
 	done
-	for i in $HORIZON_PRODUCT_PROPERTY_FILE $HORIZON_HORIZON_SYSTEM_DIR/product/*/build.prop;
+	for i in $HORIZON_PRODUCT_PROPERTY_FILE $HORIZON_SYSTEM_DIR/product/*/build.prop;
 		existance "${i}" && setprop --product "persist.sys.usb.config" "mtp,adb"
 	done
 fi
@@ -127,7 +125,6 @@ if boolReturn $TARGET_FLOATING_FEATURE_BATTERY_SUPPORT_BSOH_SETTINGS; then
 	add_float_xml_values "SEC_FLOATING_FEATURE_BATTERY_SUPPORT_BSOH_SETTINGS" "TRUE"
 fi
 
-# the live clock icon in the OneUI launcher.
 if boolReturn $TARGET_FLOATING_FEATURE_INCLUDE_CLOCK_LIVE_ICON; then
 	console_print "Disabling the live clock icon from the launcher, great move!"
 	change_xml_values "SEC_FLOATING_FEATURE_LAUNCHER_SUPPORT_CLOCK_LIVE_ICON" "TRUE"
@@ -196,7 +193,7 @@ if boolReturn $TARGET_FLOATING_FEATURE_SUPPORTS_WIRELESS_POWER_SHARING; then
 	console_print "Enabling Wireless powershare...."
 	for wireless_power_sharing_lore in SEC_FLOATING_FEATURE_BATTERY_SUPPORT_HV SEC_FLOATING_FEATURE_BATTERY_SUPPORT_WIRELESS_HV SEC_FLOATING_FEATURE_BATTERY_SUPPORT_WIRELESS_NIGHT_MODE \
 		SEC_FLOATING_FEATURE_BATTERY_SUPPORT_WIRELESS_TX; do
-		add_float_xml_values "${i}" "TRUE"
+		add_float_xml_values "${wireless_power_sharing_lore}" "TRUE"
 	done
 fi
 

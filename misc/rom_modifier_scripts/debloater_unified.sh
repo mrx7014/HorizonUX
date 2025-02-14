@@ -1,5 +1,3 @@
-#!/bin/bash
-
 debloat_the_crap() {
     local app=(
         "ANTPlusTest"
