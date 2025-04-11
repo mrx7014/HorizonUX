@@ -40,17 +40,18 @@ function download_stuffs() {
     if [ "$1" == "--skip" ]; then
         link="$2"
         save_path="$3"
-        aria2c -x 8 -s 8 -o "${save_path}" "${link}" &>>$thisConsoleTempLogFile
+        aria2c -x 8 -s 8 -o "${save_path}" "${link}" &>>$thisConsoleTempLogFile && return 0
+        return 1
     else
         for ((tries = 1; tries <= 4; tries++)); do
-            sendMessageToTelegramChat "📥 Trying to download requested file | Attempt: $tries"
+            console_print tg "📥 Trying to download requested file | Attempt: $tries"
             if aria2c -x 8 -s 8 -o "${save_path}" "${link}" &>>"$thisConsoleTempLogFile"; then
-                sendMessageToTelegramChat "✅ Successfully downloaded file after $tries attempt(s)"
+                console_print tg "✅ Successfully downloaded file after $tries attempt(s)"
                 return 0
             fi
-            sendMessageToTelegramChat "❌ Failed to download the file | Attempt: $tries"
+            console_print tg "❌ Failed to download the file | Attempt: $tries"
         done
-        sendMessageToTelegramChat "⚠️ Failed to download the file after $((tries - 1)) attempts."
+        console_print tg "⚠️ Failed to download the file after $((tries - 1)) attempts."
         exit 1
     fi
 }
@@ -98,6 +99,11 @@ function warns() {
 }
 
 function console_print() {
+    if [ "$1" == "tg" ]; then
+        echo -e "$2"
+        sendMessageToTelegramChat "$2"
+        return 0
+    fi
     echo -e "$1"
 }
 
@@ -812,14 +818,10 @@ function copyDeviceBlobsSafely() {
 }
 
 function getImageFileSystem() {
-    if [[ "$(xxd -p -l "2" --skip "1080" "$1")" == "53ef" ]]; then
-        echo "ext4"
-    elif [[ "$(xxd -p -l "4" --skip "1024" "$1")" == "1020f5f2" ]]; then
-        echo "f2fs"
-    elif [[ "$(xxd -p -l "4" --skip "1024" "$1")" == "e2e1f5e0" ]]; then
-        echo "erofs"
-    else
-        echo "unknown"
+    if file $1 | grep -q -E 'ext4|EROFS|f2fs'; then
+        string_format -l $(file $1) | grep -q "ext4" && echo ext4
+        string_format -l $(file $1) | grep -q "f2fs" && echo f2fs
+        string_format -l $(file $1) | grep -q "erofs" && echo erofs
     fi
 }
 
@@ -844,7 +846,7 @@ function buildImage() {
     [[ -f "$blockPath" ]] || return 1
     if echo "$blockPath" | grep -q "__rw"; then
         echo "EROFS fs detected, building an EROFS image..."
-        sudo mkfs.erofs -z lz4 --mount-point=$block ./local_build/workflow_builds/${block}_built.img $blockPath/
+        sudo mkfs.erofs -z lz4 --mount-point=/${block} ./local_build/workflow_builds/${block}_built.img $blockPath/
     else 
         echo "F2FS/EXT4 fs detected, unmounting the image.."
         sudo umount "${blockPath}" || abort "Failed to unmount the image, aborting this instance.."
@@ -1005,4 +1007,10 @@ function repackSuperFromDump() {
     eval "$cmd"
 
 	[ $? -eq 0 ] || abort "❌ Failed to pack image."
+}
+
+function deleteUselessFirmwareFiles() {
+    for uselessFirmwarePackages in boot.img.lz4 recovery.img.lz4 super.img.lz4 dtbo.img.lz4 persist.img.lz4 userdata.img.lz4 vbmeta.img.lz4 vbmeta_samsung.img.lz4 dqmdbg.img.lz4 misc.bin.lz4 meta-data/ cache.img.lz4 prism.img.lz4 optics.img.lz4; do
+        [ -f "${uselessFirmwarePackages}" ] && rm -rf ./local_build/local_build_downloaded_contents/tar_files/${uselessFirmwarePackages}
+    done
 }
