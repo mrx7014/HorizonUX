@@ -17,7 +17,7 @@
 
 # must be the same from (ro.product.system.device in /system/build.prop)
 # and also, this will switch the config file to genericTargetProperties.conf if the device blobs weren't available in the source.
-TARGET_BUILD_PRODUCT_NAME=
+TARGET_BUILD_PRODUCT_NAME=qssi
 
 # signature key configs, please proceed with caution before playing with this
 # be sure to fill if you are going to use your own key to sign app packages
@@ -28,12 +28,12 @@ MY_KEYSTORE_PATH=./test-keys/HorizonUX-testkey.jks
 MY_KEYSTORE_ALIAS_KEY_PASSWORD="${MY_KEYSTORE_ALIAS}"
 
 # replace these with your dir
-SYSTEM_DIR=
-SYSTEM_EXT_DIR=
-VENDOR_DIR=
-PRODUCT_DIR=
-PRISM_DIR=
-OPTICS_DIR=
+SYSTEM_DIR=system/system
+SYSTEM_EXT_DIR=system/system/system_ext
+VENDOR_DIR=vendor
+PRODUCT_DIR=product
+PRISM_DIR=prism
+OPTICS_DIR=optics
 
 # Horizon codename and etc..
 CODENAME="Birds"
@@ -41,11 +41,11 @@ CODENAME_VERSION_REFERENCE_ID=0.0
 CODEVERSION_REFERENCE_YAML=0.00001
 
 # just changes the brand name in the settings app, ig
-TARGET_INCLUDE_CUSTOM_BRAND_NAME=false
+TARGET_INCLUDE_CUSTOM_BRAND_NAME=Galyax S-42 Lurta
 
 # custom setup wizard welcome text.
-TARGET_INCLUDE_CUSTOM_SETUP_WELCOME_MESSAGES=false
-CUSTOM_SETUP_WELCOME_MESSAGE="helno, please put your own typa rizzy drizzy shiiii here :D"
+TARGET_INCLUDE_CUSTOM_SETUP_WELCOME_MESSAGES=true
+CUSTOM_SETUP_WELCOME_MESSAGE="Hi Nigga, What 're you doing here."
 
 # Disables annoying sounds while calls.
 BLOCK_NOTIFICATION_SOUNDS_DURING_PLAYBACK=true
@@ -54,7 +54,7 @@ BLOCK_NOTIFICATION_SOUNDS_DURING_PLAYBACK=true
 FORCE_ENABLE_POP_UP_PLAYER_ON_SVP=true
 
 # Brings Chinese version of Smartmanager and Device Care, thnx @saadelasfur
-BRINGUP_CN_SMARTMANAGER_DEVICE=false
+BRINGUP_CN_SMARTMANAGER_DEVICE=true
 
 # Target properties.
 # this variable will enable some debugging features and this thing will make your phone overheat and hang alot, do with pre-caution!s
@@ -65,23 +65,23 @@ TARGET_REMOVE_NONE_SECURITY_OPTION=false
 TARGET_REMOVE_SWIPE_SECURITY_OPTION=false
 TARGET_REMOVE_USELESS_VENDOR_STUFFS=false
 TARGET_REMOVE_USELESS_SAMSUNG_APPLICATIONS_STUFFS=false
-TARGET_ADD_EXTRA_ANIMATION_SCALES=false
+TARGET_ADD_EXTRA_ANIMATION_SCALES=true
 TARGET_ADD_ROUNDED_CORNERS_TO_THE_PIP_WINDOWS=false
 
 # Disables fbe (file based encryption) on internal storage
 TARGET_DISABLE_FILE_BASED_ENCRYPTION=false
 
 # this brings unlimited pictures backup.
-TARGET_INCLUDE_UNLIMITED_BACKUP=false
+TARGET_INCLUDE_UNLIMITED_BACKUP=true
 
 # include goodlock or whatever samsung theming modules into the rom.
-TARGET_INCLUDE_SAMSUNG_THEMING_MODULES=false
+TARGET_INCLUDE_SAMSUNG_THEMING_MODULES=true
 
 # misc properties..
 RECOVERY_IMAGE_PATH=
 SWITCH_DEFAULT_LANGUAGE_ON_PRODUCT_BUILD=true
 NEW_DEFAULT_LANGUAGE_ON_PRODUCT=en
-NEW_DEFAULT_LANGUAGE_COUNTRY_ON_PRODUCT=GB
+NEW_DEFAULT_LANGUAGE_COUNTRY_ON_PRODUCT=EGY
 
 # Disables Setup Wizard
 TARGET_BUILD_FORCE_DISABLE_SETUP_WIZARD=false
@@ -93,19 +93,19 @@ TARGET_BUILD_SKIP_SETUP_JUNKS=false
 TARGET_BUILD_FORCE_SYSTEM_TO_NOT_CLOSE_CAMERA_WHILE_CALLING=true
 
 # forces the Media Player to play a video during an call.
-TARGET_BUILD_FORCE_SYSTEM_TO_PLAY_SMTH_WHILE_CALL=false
+TARGET_BUILD_FORCE_SYSTEM_TO_PLAY_SMTH_WHILE_CALL=true
 
 # removes unnecessary logging stuffs, don't disable logs on private / test builds.
 TARGET_BUILD_REMOVE_SYSTEM_LOGGING=false
 
 # brings back network speed in some regions
-TARGET_BUILD_ADD_NETWORK_SPEED_WIDGET=false
+TARGET_BUILD_ADD_NETWORK_SPEED_WIDGET=true
 
 # for android <= 11, brings assistant 2.0
 TARGET_BUILD_BRING_NEWGEN_ASSISTANT=false
 
 # Brings mobile data toggle on the power menu context.
-TARGET_BUILD_ADD_MOBILE_DATA_TOGGLE_IN_POWER_MENU=true
+TARGET_BUILD_ADD_MOBILE_DATA_TOGGLE_IN_POWER_MENU=false
 
 # Forces the network icon to show 5 bars
 TARGET_BUILD_FORCE_FIVE_BAR_NETICON=true
@@ -114,29 +114,29 @@ TARGET_BUILD_FORCE_FIVE_BAR_NETICON=true
 TARGET_BUILD_FORCE_SYSTEM_TO_PLAY_MUSIC_WHILE_RECORDING=true
 
 # force enable Call Recording in the Samsung Dialer App
-TARGET_BUILD_ADD_CALL_RECORDING_IN_SAMSUNG_DIALER=false
+TARGET_BUILD_ADD_CALL_RECORDING_IN_SAMSUNG_DIALER=true
 
 # disables wifi calling if it set to true, otherwise (true), it enables it if disabled.
 TARGET_BUILD_DISABLE_WIFI_CALLING=false
 
 # floating feature configs. THANKS Furiousdroid for the suggestion!
-TARGET_FLOATING_FEATURE_INCLUDE_GAMELAUNCHER_IN_THE_HOMESCREEN=false
-TARGET_FLOATING_FEATURE_INCLUDE_SPOTIFY_AS_ALARM=false
-TARGET_FLOATING_FEATURE_INCLUDE_EASY_MODE=false
-TARGET_FLOATING_FEATURE_INCLUDE_CLOCK_LIVE_ICON=false
+TARGET_FLOATING_FEATURE_INCLUDE_GAMELAUNCHER_IN_THE_HOMESCREEN=true
+TARGET_FLOATING_FEATURE_INCLUDE_SPOTIFY_AS_ALARM=true
+TARGET_FLOATING_FEATURE_INCLUDE_EASY_MODE=true
+TARGET_FLOATING_FEATURE_INCLUDE_CLOCK_LIVE_ICON=true
 
 # This thing is used to adjust the animation type of the device
 # This can be : LowEnd , LowestEnd , LowEndFast , Mass (mid-rangers, not available after 3.1) , HighEnd , CHNHighEND & HighEnd_Tablet
-TARGET_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE=
+TARGET_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE=CHNHighEND
 
 # The dawn battery health level thing, like the one from iPhone thnx to UN1CA!
-TARGET_FLOATING_FEATURE_BATTERY_SUPPORT_BSOH_SETTINGS=false
+TARGET_FLOATING_FEATURE_BATTERY_SUPPORT_BSOH_SETTINGS=true
 
 # Enabling this would make the device to overheat and it would make an bigger impact on the battery life, do at your own risk.
-TARGET_FLOATING_FEATURE_ENABLE_ENHANCED_PROCESSING=false
+TARGET_FLOATING_FEATURE_ENABLE_ENHANCED_PROCESSING=true
 
 # please disable the window blurs for battery life and ux performance.
-TARGET_FLOATING_FEATURE_ENABLE_BLUR_EFFECTS=false
+TARGET_FLOATING_FEATURE_ENABLE_BLUR_EFFECTS=true
 
 # - This feature requires proper or bare minimum mdNIE support on the ROM and maybe the device to get it workin' properly
 # - if your device have any of those screen modes mentioned below, it means that it might have a proper or bare minimum support of the mdNIE feature.
@@ -145,36 +145,36 @@ TARGET_FLOATING_FEATURE_ENABLE_BLUR_EFFECTS=false
 # + AMOLED photo
 # + Basic
 # + Vivid
-TARGET_FLOATING_FEATURE_ENABLE_EXTRA_SCREEN_MODES=false
+TARGET_FLOATING_FEATURE_ENABLE_EXTRA_SCREEN_MODES=true
 
 # ultra power saving, this thing is useless but yeah if you want it then take it.
-TARGET_FLOATING_FEATURE_ENABLE_ULTRA_POWER_SAVING=false
+TARGET_FLOATING_FEATURE_ENABLE_ULTRA_POWER_SAVING=true
 
 # Tinker with smart switch, useless thing change it to true if you want to nuke this.
-TARGET_FLOATING_FEATURE_DISABLE_SMART_SWITCH=false
+TARGET_FLOATING_FEATURE_DISABLE_SMART_SWITCH=true
 
 # bring dolby sound effects on games. (if supported + if the hw is capable of doing this)
-TARGET_FLOATING_FEATURE_SUPPORTS_DOLBY_IN_GAMES=false
+TARGET_FLOATING_FEATURE_SUPPORTS_DOLBY_IN_GAMES=true
 
 # deodex'es the rom. learn about deodex'ing here: https://xdaforums.com/t/complete-guide-what-is-odex-and-deodex-rom.2200349/
-TARGET_BUILD_MAKE_DEODEXED_ROM=false
+TARGET_BUILD_MAKE_DEODEXED_ROM=true
 
 # safetycore stub app made by me, include this if you really want to
-TARGET_INCLUDE_SAFETYCORESTUB=false
+TARGET_INCLUDE_SAFETYCORESTUB=true
 
 ############################################# Exclusive HorizonUX Features #############################################
 # this feature includes an prop level workaround that is used to avoid smoky distortion specifically to those LDAC Bluetooth earphones and DAC's under $30 (probably), this sets special re-sampling tweaks in the system level.
-TARGET_INCLUDE_HORIZON_AUDIO_RESAMPLER=false
+TARGET_INCLUDE_HORIZON_AUDIO_RESAMPLER=true
 
 # this feature removes a file which is necessary for drm / ott platforms, please do note that the widevine level will fallback to L3
 # which will disable HD playbacks. DRM-protected apps might work after appling this patch but im not sure....
-TARGET_INCLUDE_HORIZON_OEMCRYPTO_DISABLER=false
+TARGET_INCLUDE_HORIZON_OEMCRYPTO_DISABLER=true
 
 # removes a smart switch listener port from the init shell.
-TARGET_REMOVE_SMARTSWITCH_DAEMON=false
+TARGET_REMOVE_SMARTSWITCH_DAEMON=true
 
 # Ellen, a script that spoofs and does some misc jobs if the device is booting.
-TARGET_INCLUDE_HORIZONUX_ELLEN=false
+TARGET_INCLUDE_HORIZONUX_ELLEN=true
 
 # touch fixes, Thanks to @BrotherBoard
 TARGET_INCLUDE_HORIZON_TOUCH_FIX=false
@@ -183,7 +183,7 @@ TARGET_INCLUDE_HORIZON_TOUCH_FIX=false
 ############################################# Misc Configs #############################################
 # this allows you to add tons of wallpaper within some clicks.
 # you have to replace the auto-generated resources_info.json with the stock apk.
-CUSTOM_WALLPAPER_RES_JSON_GENERATOR=false
+CUSTOM_WALLPAPER_RES_JSON_GENERATOR=true
 
 # this allows you to disable display refresh rate override
 # this thing forces the refresh rate to 30Hz on some playbacks in platforms like youtube , tiktok & instagram.
@@ -192,14 +192,14 @@ DISABLE_DISPLAY_REFRESH_RATE_OVERRIDE=false
 
 # Dynamic range compression (DRC) is a process that reduces the difference between the loudest and quietest parts of an audio signal.
 # almost works on every OneUI version.
-DISABLE_DYNAMIC_RANGE_COMPRESSION=false
+DISABLE_DYNAMIC_RANGE_COMPRESSION=true
 
 # ASKS works as an another layer in the signature verification which checks if the public key certificate from the SEC-INF (present in the samsung apps) matches the actual application signature
 # this doesn't disable the google's app signature verification
-DISABLE_SAMSUNG_ASKS_SIGNATURE_VERFICATION=false
+DISABLE_SAMSUNG_ASKS_SIGNATURE_VERFICATION=true
 
 # Made near possible to change max refresh rate of a device with the help of @BrotherBoard | Thanks bro board!
-TINKER_MAX_REFRESH_RATE=false
+TINKER_MAX_REFRESH_RATE=true
 DTBO_IMAGE_PATH=
-THIS_IS_MY_DEVICE_MAX_REFRESH_RATE=60
+THIS_IS_MY_DEVICE_MAX_REFRESH_RATE=90
 ############################################# Misc Configs #############################################
